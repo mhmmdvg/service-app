@@ -4,31 +4,29 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 import com.cashierserviceapp.utils.PreviewLightDark
 
-val HomeOutlined: ImageVector
+val HomeFilled: ImageVector
     get() {
-        if (_HomeOutlined != null) return _HomeOutlined!!
-        
-        _HomeOutlined = ImageVector.Builder(
-            name = "HomeOutlined",
+        if (_HomeFilled != null) return _HomeFilled!!
+
+        _HomeFilled = ImageVector.Builder(
+            name = "HomeFilled",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 24f,
             viewportHeight = 24f,
         ).apply {
             path(
-                stroke = SolidColor(Color.Black),
-                strokeLineWidth = 1.5f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round
+                fill = SolidColor(Color.Black),
+                pathFillType = PathFillType.EvenOdd
             ) {
+                // House body (same outline as HomeOutlined, filled instead of stroked)
                 moveTo(3f, 11.9896f)
                 verticalLineTo(14.5f)
                 curveTo(3f, 17.7998f, 3f, 19.4497f, 4.02513f, 20.4749f)
@@ -46,30 +44,29 @@ val HomeOutlined: ImageVector
                 curveTo(4.37533f, 7.49628f, 3.71179f, 8.01237f, 3.3559f, 8.74005f)
                 curveTo(3f, 9.46773f, 3f, 10.3083f, 3f, 11.9896f)
                 close()
-            }
-            path(
-                stroke = SolidColor(Color.Black),
-                strokeLineWidth = 1.5f,
-                strokeLineCap = StrokeCap.Round,
-                strokeLineJoin = StrokeJoin.Round
-            ) {
-                moveTo(15.0002f, 17f)
-                curveTo(14.2007f, 17.6224f, 13.1504f, 18f, 12.0002f, 18f)
-                curveTo(10.8499f, 18f, 9.79971f, 17.6224f, 9.00018f, 17f)
+
+                // Smile, knocked out via even-odd.
+                // Arc of a circle centered (12, 13) r = 5, thickened to 1.5 with round caps.
+                moveTo(8.55f, 17.6f)
+                arcTo(5.75f, 5.75f, 0f, false, false, 15.45f, 17.6f)
+                arcTo(0.75f, 0.75f, 0f, true, false, 14.55f, 16.4f)
+                arcTo(4.25f, 4.25f, 0f, false, true, 9.45f, 16.4f)
+                arcTo(0.75f, 0.75f, 0f, true, false, 8.55f, 17.6f)
+                close()
             }
         }.build()
-        
-        return _HomeOutlined!!
+
+        return _HomeFilled!!
     }
 
-private var _HomeOutlined: ImageVector? = null
+private var _HomeFilled: ImageVector? = null
 
 @PreviewLightDark
 @Composable
-private fun HomeOutlinedPreview() {
+private fun HomeFilledPreview() {
     Column {
         Image(
-            imageVector = HomeOutlined,
+            imageVector = HomeFilled,
             contentDescription = "preview"
         )
     }
