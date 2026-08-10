@@ -1,4 +1,4 @@
-package com.composables
+package com.cashierserviceapp.ui.icons
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.utils.PreviewLightDark
+import com.cashierserviceapp.ui.utils.PreviewLightDark
 
 val HomeFilled: ImageVector
     get() {

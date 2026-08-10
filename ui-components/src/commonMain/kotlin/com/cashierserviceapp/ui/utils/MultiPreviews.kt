@@ -1,4 +1,4 @@
-package com.cashierserviceapp.utils
+package com.cashierserviceapp.ui.utils
 
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_NIGHT_YES
 import androidx.compose.ui.tooling.preview.AndroidUiModes.UI_MODE_TYPE_NORMAL

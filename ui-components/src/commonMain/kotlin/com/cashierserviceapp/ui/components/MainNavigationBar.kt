@@ -1,9 +1,8 @@
-package com.cashierserviceapp.components
+package com.cashierserviceapp.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,14 +20,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.theme.CashierServiceTheme
-import com.cashierserviceapp.theme.PreviewHelper
-import com.cashierserviceapp.utils.PreviewLightDark
-import com.cashierserviceapp.utils.WidePreviewLightDark
-import com.composables.HomeFilled
-import com.composables.HomeOutlined
-import org.jetbrains.compose.resources.StringResource
-import org.jetbrains.compose.resources.stringResource
+import com.cashierserviceapp.ui.icons.HomeFilled
+import com.cashierserviceapp.ui.icons.HomeOutlined
+import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import com.cashierserviceapp.ui.theme.PreviewHelper
+import com.cashierserviceapp.ui.utils.PreviewLightDark
+import com.cashierserviceapp.ui.utils.WidePreviewLightDark
 
 data class MainNavDestination<T : Any>(
     val label: String,
@@ -98,45 +95,46 @@ fun <T : Any> MainNavigationBar(
 @PreviewLightDark
 @WidePreviewLightDark
 @Composable
-private fun MainNavigationBarPreview() = PreviewHelper(paddingEnabled = false) {
-    var currentDestination by remember {
-        mutableStateOf(
-            MainNavDestination(
-                label = "Home",
-                icon = HomeOutlined,
-                iconSelected = HomeFilled,
-                route = "Home"
+private fun MainNavigationBarPreview() =
+    PreviewHelper(paddingEnabled = false) {
+        var currentDestination by remember {
+            mutableStateOf(
+                MainNavDestination(
+                    label = "Home",
+                    icon = HomeOutlined,
+                    iconSelected = HomeFilled,
+                    route = "Home"
+                )
             )
+        }
+        MainNavigationBar(
+            currentDestination = currentDestination,
+            destinations = listOf(
+                MainNavDestination(
+                    label = "Home",
+                    icon = HomeOutlined,
+                    iconSelected = HomeFilled,
+                    route = "Home"
+                ),
+                MainNavDestination(
+                    label = "Order",
+                    icon = HomeOutlined,
+                    iconSelected = HomeFilled,
+                    route = "Order"
+                ),
+                MainNavDestination(
+                    label = "History",
+                    icon = HomeOutlined,
+                    iconSelected = HomeFilled,
+                    route = "History"
+                ),
+                MainNavDestination(
+                    label = "Settings",
+                    icon = HomeOutlined,
+                    iconSelected = HomeFilled,
+                    route = "Settings"
+                ),
+            ),
+            onSelect = { currentDestination = it },
         )
     }
-    MainNavigationBar(
-        currentDestination = currentDestination,
-        destinations = listOf(
-            MainNavDestination(
-                label = "Home",
-                icon = HomeOutlined,
-                iconSelected = HomeFilled,
-                route = "Home"
-            ),
-            MainNavDestination(
-                label = "Order",
-                icon = HomeOutlined,
-                iconSelected = HomeFilled,
-                route = "Order"
-            ),
-            MainNavDestination(
-                label = "History",
-                icon = HomeOutlined,
-                iconSelected = HomeFilled,
-                route = "History"
-            ),
-            MainNavDestination(
-                label = "Settings",
-                icon = HomeOutlined,
-                iconSelected = HomeFilled,
-                route = "Settings"
-            ),
-        ),
-        onSelect = { currentDestination = it },
-    )
-}

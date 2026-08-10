@@ -6,13 +6,18 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.components.MainNavDestination
-import com.cashierserviceapp.components.MainNavigationBar
-import com.cashierserviceapp.theme.CashierServiceTheme
-import com.cashierserviceapp.theme.PreviewHelper
-import com.cashierserviceapp.utils.PreviewLightDark
-import com.composables.HomeFilled
-import com.composables.HomeOutlined
+import com.cashierserviceapp.ui.components.MainNavDestination
+import com.cashierserviceapp.ui.components.MainNavigationBar
+import com.cashierserviceapp.ui.icons.HistoryFilled
+import com.cashierserviceapp.ui.icons.HistoryOutlined
+import com.cashierserviceapp.ui.icons.HomeFilled
+import com.cashierserviceapp.ui.icons.HomeOutlined
+import com.cashierserviceapp.ui.icons.NotepadFilled
+import com.cashierserviceapp.ui.icons.NotepadOutlined
+import com.cashierserviceapp.ui.icons.SettingFilled
+import com.cashierserviceapp.ui.icons.SettingOutlined
+import com.cashierserviceapp.ui.theme.PreviewHelper
+import com.cashierserviceapp.ui.utils.PreviewLightDark
 
 @Composable
 private fun bottomInsetPadding() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom).asPaddingValues()
@@ -33,11 +38,11 @@ fun BottomNavigation() {
     Column(
         Modifier
             .padding(bottomInsetPadding())
-            .background(color = CashierServiceTheme.colors.strokePale.copy(alpha = 0.03f))
+            .background(color = com.cashierserviceapp.ui.theme.CashierServiceTheme.colors.strokePale.copy(alpha = 0.03f))
     ) {
         HorizontalDivider(
             thickness = 1.dp,
-            color = CashierServiceTheme.colors.strokePale
+            color = com.cashierserviceapp.ui.theme.CashierServiceTheme.colors.strokePale
         )
         MainNavigationBar(
             modifier = Modifier.padding(vertical = 6.dp),
@@ -51,20 +56,20 @@ fun BottomNavigation() {
                 ),
                 MainNavDestination(
                     label = "Order",
-                    icon = HomeOutlined,
-                    iconSelected = HomeFilled,
+                    icon = NotepadOutlined,
+                    iconSelected = NotepadFilled,
                     route = "Order"
                 ),
                 MainNavDestination(
                     label = "History",
-                    icon = HomeOutlined,
-                    iconSelected = HomeFilled,
+                    icon = HistoryOutlined,
+                    iconSelected = HistoryFilled,
                     route = "History"
                 ),
                 MainNavDestination(
                     label = "Settings",
-                    icon = HomeOutlined,
-                    iconSelected = HomeFilled,
+                    icon = SettingOutlined,
+                    iconSelected = SettingFilled,
                     route = "Settings"
                 ),
             ),

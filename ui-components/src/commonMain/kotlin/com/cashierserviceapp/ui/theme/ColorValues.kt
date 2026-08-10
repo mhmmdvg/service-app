@@ -1,4 +1,4 @@
-package com.cashierserviceapp.theme
+package com.cashierserviceapp.ui.theme
 
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color

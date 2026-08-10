@@ -1,4 +1,4 @@
-package com.cashierserviceapp.theme
+package com.cashierserviceapp.ui.theme
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ProvidedValue

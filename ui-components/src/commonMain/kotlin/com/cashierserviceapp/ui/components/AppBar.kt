@@ -1,4 +1,4 @@
-package com.cashierserviceapp.components
+package com.cashierserviceapp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.RowScope
@@ -9,10 +9,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.sp
-import com.cashierserviceapp.theme.CashierServiceTheme
-import com.cashierserviceapp.theme.PreviewHelper
-import com.cashierserviceapp.utils.PreviewLightDark
-import com.composables.ChevronLeftOutlined
+import com.cashierserviceapp.ui.icons.ChevronLeftOutlined
+import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import com.cashierserviceapp.ui.theme.PreviewHelper
 
 object AppBarTokens {
     private val appBarHeight = TopAppBarDefaults.MediumAppBarExpandedHeight.value
@@ -65,7 +64,7 @@ fun AppBar(
     )
 }
 
-@PreviewLightDark
+@com.cashierserviceapp.ui.utils.PreviewLightDark
 @Composable
 fun PreviewAppBar() = PreviewHelper {
     AppBar(

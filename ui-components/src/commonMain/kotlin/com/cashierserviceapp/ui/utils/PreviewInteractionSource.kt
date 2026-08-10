@@ -1,4 +1,4 @@
-package com.cashierserviceapp.utils
+package com.cashierserviceapp.ui.utils
 
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -13,7 +13,9 @@ internal class PreviewInteractionSource(interaction: Interaction) : MutableInter
     override fun tryEmit(interaction: Interaction): Boolean = true
 
     companion object {
-        val Hovered = PreviewInteractionSource(HoverInteraction.Enter())
-        val Pressed = PreviewInteractionSource(FocusInteraction.Focus())
+        val Hovered =
+            PreviewInteractionSource(HoverInteraction.Enter())
+        val Pressed =
+            PreviewInteractionSource(FocusInteraction.Focus())
     }
 }

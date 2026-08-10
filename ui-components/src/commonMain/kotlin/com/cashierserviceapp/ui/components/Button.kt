@@ -1,4 +1,4 @@
-package com.cashierserviceapp.components
+package com.cashierserviceapp.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -19,9 +19,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.theme.CashierServiceTheme
-import com.cashierserviceapp.theme.PreviewHelper
-import com.cashierserviceapp.utils.PreviewLightDark
+import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import com.cashierserviceapp.ui.theme.PreviewHelper
+import com.cashierserviceapp.ui.utils.PreviewLightDark
 
 private val ButtonShape = RoundedCornerShape(percent = 100)
 
@@ -66,7 +66,7 @@ fun Button(
     }
 }
 
-@PreviewLightDark
+@com.cashierserviceapp.ui.utils.PreviewLightDark
 @Composable
 fun ButtonPreview() = PreviewHelper {
     Button(

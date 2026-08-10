@@ -1,4 +1,4 @@
-package com.cashierserviceapp.theme
+package com.cashierserviceapp.ui.theme
 
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_MASK

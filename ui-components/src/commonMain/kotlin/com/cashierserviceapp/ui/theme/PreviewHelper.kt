@@ -1,4 +1,4 @@
-package com.cashierserviceapp.theme
+package com.cashierserviceapp.ui.theme
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

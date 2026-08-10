@@ -1,4 +1,4 @@
-package com.composables
+package com.cashierserviceapp.ui.icons
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor

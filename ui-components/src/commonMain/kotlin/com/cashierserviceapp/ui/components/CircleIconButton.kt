@@ -1,4 +1,4 @@
-package com.cashierserviceapp.components
+package com.cashierserviceapp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size
@@ -10,10 +10,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.theme.CashierServiceTheme
-import com.cashierserviceapp.theme.PreviewHelper
-import com.cashierserviceapp.utils.PreviewLightDark
-import com.composables.HomeOutlined
+import com.cashierserviceapp.ui.icons.HomeOutlined
+import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import com.cashierserviceapp.ui.theme.PreviewHelper
+import com.cashierserviceapp.ui.utils.PreviewLightDark
 
 @Composable
 fun CircleIconButton(

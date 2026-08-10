@@ -1,34 +1,34 @@
-package com.cashierserviceapp.theme
+package com.cashierserviceapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
-import com.cashierserviceapp.theme.Brand.magenta100
-import com.cashierserviceapp.theme.Brand.magentaTextDark
-import com.cashierserviceapp.theme.Brand.orange
-import com.cashierserviceapp.theme.Brand.orangeTextDark
-import com.cashierserviceapp.theme.Brand.pink100
-import com.cashierserviceapp.theme.Brand.pinkTextDark
-import com.cashierserviceapp.theme.Brand.purple100
-import com.cashierserviceapp.theme.Brand.purpleTextDark
-import com.cashierserviceapp.theme.UI.black05
-import com.cashierserviceapp.theme.UI.black100
-import com.cashierserviceapp.theme.UI.black15
-import com.cashierserviceapp.theme.UI.black30
-import com.cashierserviceapp.theme.UI.black40
-import com.cashierserviceapp.theme.UI.black60
-import com.cashierserviceapp.theme.UI.black70
-import com.cashierserviceapp.theme.UI.black80
-import com.cashierserviceapp.theme.UI.grey100
-import com.cashierserviceapp.theme.UI.grey400
-import com.cashierserviceapp.theme.UI.grey500
-import com.cashierserviceapp.theme.UI.grey900
-import com.cashierserviceapp.theme.UI.white05
-import com.cashierserviceapp.theme.UI.white10
-import com.cashierserviceapp.theme.UI.white100
-import com.cashierserviceapp.theme.UI.white20
-import com.cashierserviceapp.theme.UI.white40
-import com.cashierserviceapp.theme.UI.white50
-import com.cashierserviceapp.theme.UI.white70
-import com.cashierserviceapp.theme.UI.white80
+import com.cashierserviceapp.ui.theme.Brand.magenta100
+import com.cashierserviceapp.ui.theme.Brand.magentaTextDark
+import com.cashierserviceapp.ui.theme.Brand.orange
+import com.cashierserviceapp.ui.theme.Brand.orangeTextDark
+import com.cashierserviceapp.ui.theme.Brand.pink100
+import com.cashierserviceapp.ui.theme.Brand.pinkTextDark
+import com.cashierserviceapp.ui.theme.Brand.purple100
+import com.cashierserviceapp.ui.theme.Brand.purpleTextDark
+import com.cashierserviceapp.ui.theme.UI.black05
+import com.cashierserviceapp.ui.theme.UI.black100
+import com.cashierserviceapp.ui.theme.UI.black15
+import com.cashierserviceapp.ui.theme.UI.black30
+import com.cashierserviceapp.ui.theme.UI.black40
+import com.cashierserviceapp.ui.theme.UI.black60
+import com.cashierserviceapp.ui.theme.UI.black70
+import com.cashierserviceapp.ui.theme.UI.black80
+import com.cashierserviceapp.ui.theme.UI.grey100
+import com.cashierserviceapp.ui.theme.UI.grey400
+import com.cashierserviceapp.ui.theme.UI.grey500
+import com.cashierserviceapp.ui.theme.UI.grey900
+import com.cashierserviceapp.ui.theme.UI.white05
+import com.cashierserviceapp.ui.theme.UI.white10
+import com.cashierserviceapp.ui.theme.UI.white100
+import com.cashierserviceapp.ui.theme.UI.white20
+import com.cashierserviceapp.ui.theme.UI.white40
+import com.cashierserviceapp.ui.theme.UI.white50
+import com.cashierserviceapp.ui.theme.UI.white70
+import com.cashierserviceapp.ui.theme.UI.white80
 
 data class Colors(
     val isDark: Boolean,
@@ -65,7 +65,7 @@ data class Colors(
     val toggleOff: Color,
 )
 
-val CashierServiceLightColors = Colors(
+val CashierServiceLightColors =Colors(
     isDark = false,
 
     mainBackground = white100,
