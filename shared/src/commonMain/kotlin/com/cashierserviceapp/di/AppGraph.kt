@@ -1,5 +1,6 @@
 package com.cashierserviceapp.di
 
+import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.flags.FlagsManager
 import com.cashierserviceapp.utils.BufferedDelegatingLogger
 import com.cashierserviceapp.utils.Logger
@@ -11,4 +12,7 @@ interface AppGraph : ViewModelGraph {
     val logger: Logger
     val scope: CoroutineScope
     val bufferedDelegatingLogger: BufferedDelegatingLogger
+
+    @BaseUrl
+    val baseUrl: String
 }

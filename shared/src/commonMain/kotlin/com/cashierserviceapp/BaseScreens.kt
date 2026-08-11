@@ -52,25 +52,10 @@ fun ScreenWithTitle(
                 .let { if (scrollable) it.verticalScroll(contentScrollState) else it }
                 .padding(horizontal = 18.dp),
         ) {
+            if (scrollable) {
+                Spacer(Modifier.height(innerPadding.calculateTopPadding() - 5.dp))
+            }
             content()
         }
     }
-
-//    Box(
-//        modifier
-//            .fillMaxSize()
-//            .background(CashierServiceTheme.colors.mainBackground)
-//            .nestedScroll(scrollBehavior.nestedScrollConnection)
-//    ) {
-//        Column(
-//            Modifier
-//                .fillMaxSize()
-//                .padding(horizontal = 12.dp)
-//                .let { if (scrollable) it.verticalScroll(contentScrollState) else it }
-//        ) {
-//            content()
-//        }
-//
-//
-//    }
 }

@@ -16,9 +16,7 @@ class TaggedLogger(
 }
 
 class NoopProdLogger : Logger {
-    override fun log(tag: String, lazyMessage: () -> String) {
-        TODO("Not yet implemented")
-    }
+    override fun log(tag: String, lazyMessage: () -> String) = Unit
 }
 
 interface LogExporter {
