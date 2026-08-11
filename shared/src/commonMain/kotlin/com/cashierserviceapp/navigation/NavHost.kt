@@ -90,7 +90,7 @@ internal fun NavHost(
                 ) {
                     NavDisplay(
                         entries = navState.toDecoratedEntries(entryProvider),
-                        onBack = navigator::goBack
+                        onBack = navigator::goBack,
                     )
                 }
             }
@@ -103,19 +103,19 @@ private fun EntryProviderScope<AppRoute>.screens(
     navigator: Navigator,
     onBack: () -> Unit
 ) {
-    entry<HomeScreen> {
+    topLevelEntry<HomeScreen> {
         HomeScreen()
     }
 
-    entry<OrderScreen> {
+    topLevelEntry<OrderScreen> {
         OrderScreen()
     }
 
-    entry<HistoryScreen> {
+    topLevelEntry<HistoryScreen> {
         HistoryScreen()
     }
 
-    entry<SettingsScreen> {
+    topLevelEntry<SettingsScreen> {
         SettingsScreen()
     }
 }

@@ -65,7 +65,7 @@ data class Colors(
     val toggleOff: Color,
 )
 
-val CashierServiceLightColors =Colors(
+val CashierServiceLightColors = Colors(
     isDark = false,
 
     mainBackground = white100,

@@ -55,7 +55,8 @@ internal object Brand {
 }
 
 internal object UI {
-    val black100 = Color(0xFF19191C)
+//    val black100 = Color(0xFF19191C)
+    val black100 = Color(0xFF000000)
     val black90 = Color(0xE519191C)
     val black80 = Color(0xCC19191C)
     val black70 = Color(0xB219191C)
