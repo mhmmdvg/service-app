@@ -54,6 +54,7 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
             implementation(libs.coil.network.okhttp)
             implementation(libs.metrox.android)
+            implementation(libs.androidx.preference)
         }
         commonMain.dependencies {
             api(project(":ui-components"))
@@ -92,8 +93,16 @@ kotlin {
             /* Metro */
             implementation(libs.metrox.viewmodel.compose)
 
+            /* Multiplatform settings by russhwolf */
+            implementation(libs.settings)
+            implementation(libs.settings.coroutines)
+            implementation(libs.settings.observable)
+            implementation(libs.settings.serialization)
+            implementation(libs.settings.test)
+
             /* Others */
             implementation(libs.coil.compose)
+
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

@@ -15,6 +15,9 @@ dependencies {
 
     implementation(libs.androidx.activity.compose)
 
+    implementation(libs.metrox.android)
+    implementation(libs.metrox.viewmodel.compose)
+
     implementation(libs.compose.uiToolingPreview)
     debugImplementation(libs.compose.uiTooling)
 }

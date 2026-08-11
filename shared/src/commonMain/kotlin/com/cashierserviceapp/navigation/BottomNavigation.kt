@@ -1,39 +1,24 @@
 package com.cashierserviceapp.navigation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cashierserviceapp.ui.components.MainNavDestination
 import com.cashierserviceapp.ui.components.MainNavigationBar
-import com.cashierserviceapp.ui.icons.HistoryFilled
-import com.cashierserviceapp.ui.icons.HistoryOutlined
-import com.cashierserviceapp.ui.icons.HomeFilled
-import com.cashierserviceapp.ui.icons.HomeOutlined
-import com.cashierserviceapp.ui.icons.NotepadFilled
-import com.cashierserviceapp.ui.icons.NotepadOutlined
-import com.cashierserviceapp.ui.icons.SettingFilled
-import com.cashierserviceapp.ui.icons.SettingOutlined
-import com.cashierserviceapp.ui.theme.PreviewHelper
-import com.cashierserviceapp.ui.utils.PreviewLightDark
+import com.cashierserviceapp.utils.bottomInsetPadding
+
 
 @Composable
-private fun bottomInsetPadding() = WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom).asPaddingValues()
-
-@Composable
-fun BottomNavigation() {
-    var currentDestination by remember {
-        mutableStateOf(
-            MainNavDestination(
-                label = "Home",
-                icon = HomeOutlined,
-                iconSelected = HomeFilled,
-                route = "Home"
-            )
-        )
-    }
+internal fun BottomNavigation(
+    currentRoute: TopLevelRoute?,
+    destinations: List<MainNavDestination<TopLevelRoute>>,
+    onSelectRoute: (TopLevelRoute) -> Unit,
+) {
+    val currentDestination = destinations.find { it.route == currentRoute }
 
     Column(
         Modifier
@@ -47,39 +32,10 @@ fun BottomNavigation() {
         MainNavigationBar(
             modifier = Modifier.padding(vertical = 6.dp),
             currentDestination = currentDestination,
-            destinations = listOf(
-                MainNavDestination(
-                    label = "Home",
-                    icon = HomeOutlined,
-                    iconSelected = HomeFilled,
-                    route = "Home"
-                ),
-                MainNavDestination(
-                    label = "Order",
-                    icon = NotepadOutlined,
-                    iconSelected = NotepadFilled,
-                    route = "Order"
-                ),
-                MainNavDestination(
-                    label = "History",
-                    icon = HistoryOutlined,
-                    iconSelected = HistoryFilled,
-                    route = "History"
-                ),
-                MainNavDestination(
-                    label = "Settings",
-                    icon = SettingOutlined,
-                    iconSelected = SettingFilled,
-                    route = "Settings"
-                ),
-            ),
-            onSelect = {}
+            destinations = destinations,
+            onSelect = { selectDestinations ->
+                onSelectRoute(selectDestinations.route)
+            }
         )
     }
-}
-
-@PreviewLightDark
-@Composable
-fun PreviewBottomNavigation() = PreviewHelper {
-    BottomNavigation()
 }

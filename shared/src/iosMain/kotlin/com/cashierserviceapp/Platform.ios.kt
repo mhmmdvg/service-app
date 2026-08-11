@@ -7,3 +7,4 @@ class IOSPlatform : Platform {
 }
 
 actual fun getPlatform(): Platform = IOSPlatform()
+internal actual fun getPlatformId(): String = "ios"
