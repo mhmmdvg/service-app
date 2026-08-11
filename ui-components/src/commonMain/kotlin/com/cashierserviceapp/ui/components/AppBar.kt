@@ -8,15 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.sp
 import com.cashierserviceapp.ui.icons.ChevronLeftOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
-
-object AppBarTokens {
-    private val appBarHeight = TopAppBarDefaults.MediumAppBarExpandedHeight.value
-    val GRADIENT_START_Y = appBarHeight + appBarHeight / 2
-}
+import com.cashierserviceapp.ui.utils.PreviewLightDark
 
 @Composable
 fun AppBar(
@@ -31,6 +28,9 @@ fun AppBar(
     actions: @Composable RowScope.() -> Unit = {},
     scrollBehavior: TopAppBarScrollBehavior? = null,
 ) {
+    val density = LocalDensity.current
+    val appBarHeightPx = with(density) { TopAppBarDefaults.MediumAppBarExpandedHeight.toPx() }
+
     MediumTopAppBar(
         modifier = modifier.background(
             brush = Brush.verticalGradient(
@@ -38,7 +38,8 @@ fun AppBar(
                     CashierServiceTheme.colors.mainBackground,
                     Color.Transparent
                 ),
-                startY = AppBarTokens.GRADIENT_START_Y,
+                startY = appBarHeightPx / 2,
+                endY = appBarHeightPx,
             )
         ),
         colors = colors,
@@ -64,7 +65,7 @@ fun AppBar(
     )
 }
 
-@com.cashierserviceapp.ui.utils.PreviewLightDark
+@PreviewLightDark
 @Composable
 fun PreviewAppBar() = PreviewHelper {
     AppBar(

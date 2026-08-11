@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.cashierserviceapp.ui.components.MainNavDestination
 import com.cashierserviceapp.ui.components.MainNavigationBar
+import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.utils.bottomInsetPadding
 
 
@@ -22,15 +23,15 @@ internal fun BottomNavigation(
 
     Column(
         Modifier
-            .padding(bottomInsetPadding())
-            .background(color = com.cashierserviceapp.ui.theme.CashierServiceTheme.colors.strokePale.copy(alpha = 0.03f))
+            .background(color = CashierServiceTheme.colors.strokePale.copy(alpha = 0.03f))
     ) {
         HorizontalDivider(
             thickness = 1.dp,
-            color = com.cashierserviceapp.ui.theme.CashierServiceTheme.colors.strokePale
+            color = CashierServiceTheme.colors.strokePale
         )
         MainNavigationBar(
-            modifier = Modifier.padding(vertical = 6.dp),
+            modifier = Modifier
+                .padding(bottomInsetPadding()),
             currentDestination = currentDestination,
             destinations = destinations,
             onSelect = { selectDestinations ->

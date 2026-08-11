@@ -17,7 +17,10 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.cashierserviceapp.ThemeChangeAnimation
 import com.cashierserviceapp.flags.LocalFlags
-import com.cashierserviceapp.screens.HomeScreen
+import com.cashierserviceapp.screens.history.HistoryScreen
+import com.cashierserviceapp.screens.home.HomeScreen
+import com.cashierserviceapp.screens.order.OrderScreen
+import com.cashierserviceapp.screens.settings.SettingsScreen
 import com.cashierserviceapp.ui.theme.CashierServiceDarkColors
 import com.cashierserviceapp.ui.theme.CashierServiceLightColors
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
@@ -57,7 +60,8 @@ internal fun NavHost(
 
     ThemeChangeAnimation(
         isDarkTheme = isDarkTheme,
-        enabled = navState.currentBackstack.lastOrNull() is SettingsScreen
+        enabled = true
+//        enabled = navState.currentBackstack.lastOrNull() is SettingsScreen
     ) { appliedIsDarkTheme ->
         val colors = when {
             appliedIsDarkTheme -> CashierServiceDarkColors
@@ -101,5 +105,17 @@ private fun EntryProviderScope<AppRoute>.screens(
 ) {
     entry<HomeScreen> {
         HomeScreen()
+    }
+
+    entry<OrderScreen> {
+        OrderScreen()
+    }
+
+    entry<HistoryScreen> {
+        HistoryScreen()
+    }
+
+    entry<SettingsScreen> {
+        SettingsScreen()
     }
 }

@@ -21,12 +21,21 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.nav_destination_history
 import cashierserviceapp.shared.generated.resources.nav_destination_home
+import cashierserviceapp.shared.generated.resources.nav_destination_order
+import cashierserviceapp.shared.generated.resources.nav_destination_settings
 import com.cashierserviceapp.utils.LocalWindowSize
 import com.cashierserviceapp.utils.WindowSize
 import com.cashierserviceapp.ui.components.MainNavDestination
+import com.cashierserviceapp.ui.icons.HistoryFilled
+import com.cashierserviceapp.ui.icons.HistoryOutlined
 import com.cashierserviceapp.ui.icons.HomeFilled
 import com.cashierserviceapp.ui.icons.HomeOutlined
+import com.cashierserviceapp.ui.icons.NotepadFilled
+import com.cashierserviceapp.ui.icons.NotepadOutlined
+import com.cashierserviceapp.ui.icons.SettingFilled
+import com.cashierserviceapp.ui.icons.SettingOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 
 private val bottomNavDestinations: List<MainNavDestination<TopLevelRoute>> = listOf(
@@ -35,6 +44,24 @@ private val bottomNavDestinations: List<MainNavDestination<TopLevelRoute>> = lis
         icon = HomeOutlined,
         iconSelected = HomeFilled,
         route = HomeScreen
+    ),
+    MainNavDestination(
+        label = Res.string.nav_destination_order.toString(),
+        icon = NotepadOutlined,
+        iconSelected = NotepadFilled,
+        route = OrderScreen
+    ),
+    MainNavDestination(
+        label = Res.string.nav_destination_history.toString(),
+        icon = HistoryOutlined,
+        iconSelected = HistoryFilled,
+        route = HistoryScreen
+    ),
+    MainNavDestination(
+        label = Res.string.nav_destination_settings.toString(),
+        icon = SettingOutlined,
+        iconSelected = SettingFilled,
+        route = SettingsScreen
     )
 )
 
