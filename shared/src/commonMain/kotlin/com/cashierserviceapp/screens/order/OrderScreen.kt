@@ -19,7 +19,9 @@ fun OrderScreen() {
     ScreenWithTitle(
         title = stringResource(Res.string.nav_destination_order)
     ) {
-        Text("Hello")
+        repeat(100) {
+            Text("Hello")
+        }
     }
 }
 

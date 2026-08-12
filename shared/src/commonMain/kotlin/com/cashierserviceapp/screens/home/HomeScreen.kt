@@ -7,6 +7,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashierserviceapp.shared.generated.resources.Res
@@ -25,13 +26,17 @@ fun HomeScreen(
     orderViewModel: HomeViewModel = metroViewModel()
 ) {
     val orderState by orderViewModel.orderState.collectAsStateWithLifecycle()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     ScreenWithTitle(
         title = stringResource(Res.string.nav_destination_home),
-        scrollable = false
+        scrollable = false,
+//        scrollBehavior = scrollBehavior,
     ) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
+//                .nestedScroll(scrollBehavior.nestedScrollConnection),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item("top_spacer") {

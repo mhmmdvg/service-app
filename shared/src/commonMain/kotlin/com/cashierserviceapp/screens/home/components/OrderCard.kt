@@ -17,6 +17,9 @@ import com.cashierserviceapp.ui.utils.PreviewLightDark
 
 @Composable
 fun OrderCard(
+    name: String,
+    device: String,
+    date: String,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -44,19 +47,28 @@ fun OrderCard(
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
             Text(
-                text = "Manual",
+                text = name,
                 style = CashierServiceTheme.typography.h4
             )
             Text(
-                text = "Hello",
+                text = device,
                 style = CashierServiceTheme.typography.text2
             )
         }
+        Spacer(Modifier.weight(1f))
+        Text(
+            text = date,
+            style = CashierServiceTheme.typography.text2
+        )
     }
 }
 
 @PreviewLightDark
 @Composable
 fun OrderCardPreview() = PreviewHelper {
-    OrderCard()
+    OrderCard(
+        name = "Vikri",
+        device = "iPhone 13",
+        date = "16 Jun 2024",
+    )
 }

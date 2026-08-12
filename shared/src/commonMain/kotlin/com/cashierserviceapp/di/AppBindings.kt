@@ -47,7 +47,7 @@ object AppBindings {
     @Provides
     @BaseUrl
     @SingleIn(AppScope::class)
-    fun provideBaseUrl(): String = URLs.LOCAL_URL
+    fun provideBaseUrl(): String = URLs.ANDROID_LOCAL_URL
 
     @Provides
     @SingleIn(AppScope::class)
