@@ -28,7 +28,6 @@ import com.cashierserviceapp.utils.topInsetPadding
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import org.jetbrains.compose.resources.stringResource
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     orderViewModel: HomeViewModel = metroViewModel()

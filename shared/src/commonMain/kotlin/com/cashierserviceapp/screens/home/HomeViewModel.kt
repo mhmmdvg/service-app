@@ -42,10 +42,11 @@ class HomeViewModel(
             orderRepository.getOrders()
                 .fold(
                     onSuccess = { response ->
+                        println("response $response")
                         orderState.value = response
                     },
                     onFailure = { exception ->
-                        println("Check $exception")
+                        println("Check Error $exception")
                     }
                 )
         }

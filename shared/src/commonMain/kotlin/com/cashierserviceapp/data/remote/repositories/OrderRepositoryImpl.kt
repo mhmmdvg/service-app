@@ -18,10 +18,10 @@ class OrderRepositoryImpl(
                result?.data ?: throw Exception(result?.message)
            }
        }.onSuccess { response ->
-           print(response)
+           print("checking $response")
            Result.success(response)
        }.onFailure { exception ->
-           print(exception)
+           print("exception $exception")
            Result.failure<Order>(exception)
        }
     }

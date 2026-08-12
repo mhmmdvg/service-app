@@ -10,9 +10,10 @@ import kotlinx.coroutines.CoroutineScope
 interface AppGraph : ViewModelGraph {
     val flagsManager: FlagsManager
     val logger: Logger
-    val scope: CoroutineScope
-    val bufferedDelegatingLogger: BufferedDelegatingLogger
 
     @BaseUrl
     val baseUrl: String
+    val scope: CoroutineScope
+    val bufferedDelegatingLogger: BufferedDelegatingLogger
+
 }
