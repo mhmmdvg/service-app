@@ -6,6 +6,8 @@ import com.cashierserviceapp.di.IosAppGraph
 import com.cashierserviceapp.flags.Flags
 import com.cashierserviceapp.utils.Logger
 import dev.zacsweers.metro.createGraphFactory
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.Platform
 import platform.Foundation.NSLog
 
 @Suppress("unused")
@@ -19,12 +21,14 @@ class IOSLogger : Logger {
         NSLog("[$tag] ${lazyMessage()}")
     }
 }
+@OptIn(ExperimentalNativeApi::class)
 private val appGraph = createGraphFactory<IosAppGraph.Factory>()
     .create(
         Flags(
             enableBackOnTopLevelScreens = false,
             rippleEnabled = false,
-            hideKeyboardOnDrag = true
+            hideKeyboardOnDrag = true,
+            debugLogging = Platform.isDebugBinary
         )
     )
 

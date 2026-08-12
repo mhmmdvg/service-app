@@ -8,13 +8,10 @@ import io.ktor.http.encodedPath
 import io.ktor.http.takeFrom
 import io.ktor.utils.io.CancellationException
 
-private var defaultLogger: Logger = NoopProdLogger()
-
 suspend fun <T> safeApiCall(
+    logger: Logger,
     call: suspend () -> T,
 ): T? {
-    val logger = defaultLogger
-
     return try {
         call()
     } catch (e: CancellationException) {

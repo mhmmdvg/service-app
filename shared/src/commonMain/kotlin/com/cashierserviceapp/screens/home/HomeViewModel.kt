@@ -6,6 +6,7 @@ import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.models.Post
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.domain.repositories.PostRepository
+import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.AssistedInject
 import dev.zacsweers.metro.ContributesIntoMap
@@ -18,21 +19,15 @@ import kotlinx.coroutines.launch
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
 class HomeViewModel(
-    private val orderRepository: OrderRepository,
-    private val postRepository: PostRepository
+    private val orderRepository: OrderRepository
 ) : ViewModel() {
-    val orderState: StateFlow<List<Order>>
-        field = MutableStateFlow<List<Order>>(emptyList())
-
-    val postState: StateFlow<List<Post>>
-        field = MutableStateFlow<List<Post>>(emptyList())
+    val orderState: StateFlow<Resource<List<Order>>>
+        field = MutableStateFlow<Resource<List<Order>>>(Resource.Loading())
 
     private var fetchJob: Job? = null
-    private var postFetchJob: Job? = null
 
     init {
         load()
-        loadPosts()
     }
 
     private fun load() {
@@ -42,28 +37,10 @@ class HomeViewModel(
             orderRepository.getOrders()
                 .fold(
                     onSuccess = { response ->
-                        println("response $response")
-                        orderState.value = response
+                        orderState.value = Resource.Success(response)
                     },
                     onFailure = { exception ->
-                        println("Check Error $exception")
-                    }
-                )
-        }
-    }
-
-    private fun loadPosts() {
-        postFetchJob?.cancel()
-
-        postFetchJob = viewModelScope.launch {
-            postRepository.getPosts()
-                .fold(
-                    onSuccess = { response ->
-                        postState.value = response
-                        println("Posts loaded: ${response.size}")
-                    },
-                    onFailure = { exception ->
-                        println("Posts failed: $exception")
+                        orderState.value = Resource.Error(exception.message)
                     }
                 )
         }
@@ -72,6 +49,5 @@ class HomeViewModel(
     override fun onCleared() {
         super.onCleared()
         fetchJob?.cancel()
-        postFetchJob?.cancel()
     }
 }

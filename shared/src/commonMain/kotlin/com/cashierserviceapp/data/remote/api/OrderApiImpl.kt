@@ -3,6 +3,7 @@ package com.cashierserviceapp.data.remote.api
 import com.cashierserviceapp.domain.models.HttpResponse
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.network.OrderApi
+import com.cashierserviceapp.utils.Logger
 import com.cashierserviceapp.utils.apiUrl
 import com.cashierserviceapp.utils.safeApiCall
 import dev.zacsweers.metro.AppScope
@@ -15,9 +16,10 @@ import io.ktor.client.request.get
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
 class OrderApiImpl(
-    private val client: HttpClient
+    private val client: HttpClient,
+    private val logger: Logger
 ) : OrderApi {
-    override suspend fun getOrders(): HttpResponse<List<Order>>? = safeApiCall {
+    override suspend fun getOrders(): HttpResponse<List<Order>>? = safeApiCall(logger) {
         client.get { apiUrl("orders") }.body()
     }
 }

@@ -47,10 +47,7 @@ object AppBindings {
     @Provides
     @BaseUrl
     @SingleIn(AppScope::class)
-    fun provideBaseUrl(): String = when (getPlatformId()) {
-        "android" -> URLs.ANDROID_LOCAL_URL
-        else -> URLs.LOCAL_URL
-    }
+    fun provideBaseUrl(): String = URLs.LOCAL_URL
 
     @Provides
     @SingleIn(AppScope::class)

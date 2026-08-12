@@ -13,7 +13,7 @@ interface AndroidAppGraph : BaseAndroidAppGraph {
     interface Factory {
         fun create(
             @Provides application: Application,
-            @Provides platformFlags: Flags = Flags()
+            @Provides platformFlags: Flags = Flags(debugLogging = BuildConfig.DEBUG)
         ): AndroidAppGraph
     }
 }
