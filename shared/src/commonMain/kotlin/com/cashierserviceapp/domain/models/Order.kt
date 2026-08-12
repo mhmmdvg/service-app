@@ -5,20 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Order(
     val id: String,
+    val status: Status,
+    val customerName: String,
     val orderCode: String,
-    val qrToken: String,
-    val customer: Customer,
-    val cashier: Cashier
+    val createdAt: String,
+    val totalCost: Int,
+    val itemsCount: Int,
 )
 
-@Serializable
-data class Customer(
-    val id: String,
-    val name: String,
-)
-
-@Serializable
-data class Cashier(
-    val id: String,
-    val name: String,
-)

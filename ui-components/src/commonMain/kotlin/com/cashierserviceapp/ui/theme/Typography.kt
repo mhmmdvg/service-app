@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.cashierserviceapp.ui.generated.resources.UiRes
 import com.cashierserviceapp.ui.generated.resources.inter_18pt_bold
+import com.cashierserviceapp.ui.generated.resources.inter_18pt_extrabold
 import com.cashierserviceapp.ui.generated.resources.inter_18pt_regular
 import com.cashierserviceapp.ui.generated.resources.inter_18pt_semibold
 import org.jetbrains.compose.resources.Font
@@ -65,6 +66,7 @@ internal val CashierServiceTypography: Typography
 internal val InterSans: FontFamily
     @Composable
     get() = FontFamily(
+        Font(UiRes.font.inter_18pt_extrabold, FontWeight.ExtraBold, FontStyle.Normal),
         Font(UiRes.font.inter_18pt_bold, FontWeight.Bold, FontStyle.Normal),
         Font(UiRes.font.inter_18pt_semibold, FontWeight.SemiBold, FontStyle.Normal),
         Font(UiRes.font.inter_18pt_regular, FontWeight.Normal, FontStyle.Normal)

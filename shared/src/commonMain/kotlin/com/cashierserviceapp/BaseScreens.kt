@@ -23,14 +23,14 @@ fun ScreenWithTitle(
     onBack: (() -> Unit)? = null,
     scrollable: Boolean = true,
     contentScrollState: ScrollState = rememberScrollState(),
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(),
+    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     actions: @Composable RowScope.() -> Unit = {},
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.(PaddingValues) -> Unit,
 ) {
     Scaffold(
         modifier
             .fillMaxSize()
-            .let { if(scrollable) it.nestedScroll(scrollBehavior.nestedScrollConnection) else it },
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = CashierServiceTheme.colors.mainBackground,
         topBar = {
             AppBar(
@@ -55,7 +55,7 @@ fun ScreenWithTitle(
             if (scrollable) {
                 Spacer(Modifier.height(innerPadding.calculateTopPadding() - 5.dp))
             }
-            content()
+            content(innerPadding)
         }
     }
 }

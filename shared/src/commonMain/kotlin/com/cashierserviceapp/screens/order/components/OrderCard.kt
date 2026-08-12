@@ -1,4 +1,4 @@
-package com.cashierserviceapp.screens.home.components
+package com.cashierserviceapp.screens.order.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -8,7 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.icons.NotepadFilled
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
@@ -18,8 +21,8 @@ import com.cashierserviceapp.ui.utils.PreviewLightDark
 @Composable
 fun OrderCard(
     name: String,
-    device: String,
-    date: String,
+    code: String,
+    status: String,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -51,15 +54,26 @@ fun OrderCard(
                 style = CashierServiceTheme.typography.h4
             )
             Text(
-                text = device,
+                text = code,
                 style = CashierServiceTheme.typography.text2
             )
         }
         Spacer(Modifier.weight(1f))
-        Text(
-            text = date,
-            style = CashierServiceTheme.typography.text2
-        )
+        Box(
+            Modifier
+                .clip(CircleShape)
+                .background(Color.Blue.copy(0.3f))
+                .padding(4.dp)
+                .padding(horizontal = 8.dp)
+        ) {
+            Text(
+                text = status,
+                style = CashierServiceTheme.typography.text2.copy(
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+        }
     }
 }
 
@@ -68,7 +82,7 @@ fun OrderCard(
 fun OrderCardPreview() = PreviewHelper {
     OrderCard(
         name = "Vikri",
-        device = "iPhone 13",
-        date = "16 Jun 2024",
+        code = "iPhone 13",
+        status = "in progress",
     )
 }
