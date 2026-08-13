@@ -57,7 +57,7 @@ class ApplicationStorageImpl(
         .map { it.decodeOrNull<Authentication>() }
         .stateIn(appScope, SharingStarted.Eagerly, readSession())
 
-    override fun getAccessToken(): String? = readSession()?.accessToken
+    override fun getSession(): Authentication? = readSession()
 
     override suspend fun setSession(value: Authentication) {
         settings[Keys.SESSION] = json.encodeToString(value)

@@ -9,6 +9,13 @@ sealed interface AppRoute
 @Serializable
 sealed interface TopLevelRoute : AppRoute
 
+/**
+ * A route presented modally over the whole app — including the bottom navigation — instead of
+ * being pushed onto a backstack. The equivalent of SwiftUI's `fullScreenCover`.
+ */
+@Serializable
+sealed interface CoverRoute : AppRoute
+
 @Serializable
 @SerialName("Home")
 data object HomeScreen : AppRoute, TopLevelRoute
@@ -16,6 +23,10 @@ data object HomeScreen : AppRoute, TopLevelRoute
 @Serializable
 @SerialName("Order")
 data object OrderScreen : AppRoute, TopLevelRoute
+
+@Serializable
+@SerialName("AddOrder")
+data object AddOrderScreen : CoverRoute
 
 @Serializable
 @SerialName("History")

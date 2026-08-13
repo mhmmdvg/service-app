@@ -17,6 +17,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.cashierserviceapp.ThemeChangeAnimation
 import com.cashierserviceapp.flags.LocalFlags
+import com.cashierserviceapp.screens.addorder.AddOrderScreen
 import com.cashierserviceapp.screens.authentication.LoginScreen
 import com.cashierserviceapp.screens.history.HistoryScreen
 import com.cashierserviceapp.screens.home.HomeScreen
@@ -33,9 +34,6 @@ internal fun NavHost(
     isDarkTheme: Boolean,
     onThemeChange: ((Boolean) -> Unit)?,
 ) {
-//    val startRoute = remember {
-//        if (isOnboardingComplete) HomeScreen else OnboardScreen
-//    }
     // Resolved once: rememberNavState seeds its backstacks from this, so it must not change
     // underneath us. Signing in/out navigates explicitly instead.
     val startRoute: AppRoute = remember { if (isLoggedIn) HomeScreen else LoginScreen }
@@ -97,6 +95,15 @@ internal fun NavHost(
                         onBack = navigator::goBack,
                     )
                 }
+
+                // Sibling of the scaffold, not a NavDisplay entry, so it covers the bottom
+                // navigation as well as the content.
+                FullScreenCover(
+                    route = navState.coverRoute,
+                    onDismiss = navigator::dismissCover
+                ) { coverRoute ->
+                    CoverContent(coverRoute, onDismiss = navigator::dismissCover)
+                }
             }
         }
     }
@@ -128,5 +135,16 @@ private fun EntryProviderScope<AppRoute>.screens(
 
     topLevelEntry<SettingsScreen> {
         SettingsScreen()
+    }
+}
+
+/** Content for each [CoverRoute], the modal counterpart of [screens]. */
+@Composable
+private fun CoverContent(
+    route: CoverRoute,
+    onDismiss: () -> Unit
+) {
+    when (route) {
+        AddOrderScreen -> AddOrderScreen(onClose = onDismiss)
     }
 }

@@ -9,6 +9,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
@@ -21,6 +22,7 @@ fun ScreenWithTitle(
     title: String,
     modifier: Modifier = Modifier,
     onBack: (() -> Unit)? = null,
+    navigationIcon: ImageVector = ChevronLeftOutlined,
     scrollable: Boolean = true,
     contentScrollState: ScrollState = rememberScrollState(),
     scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
@@ -37,7 +39,7 @@ fun ScreenWithTitle(
                 title = title,
                 scrollBehavior = scrollBehavior,
                 onNavigationIconClick = onBack,
-                navigationIcon = ChevronLeftOutlined,
+                navigationIcon = navigationIcon,
                 actions = actions,
             )
         }
@@ -50,7 +52,7 @@ fun ScreenWithTitle(
                     end = innerPadding.calculateStartPadding(LocalLayoutDirection.current)
                 )
                 .let { if (scrollable) it.verticalScroll(contentScrollState) else it }
-                .padding(horizontal = 18.dp),
+                .padding(horizontal = 17.dp),
         ) {
             if (scrollable) {
                 Spacer(Modifier.height(innerPadding.calculateTopPadding() - 5.dp))

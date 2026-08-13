@@ -15,9 +15,9 @@ import com.cashierserviceapp.utils.bottomInsetPadding
 
 @Composable
 internal fun BottomNavigation(
-    currentRoute: TopLevelRoute?,
-    destinations: List<MainNavDestination<TopLevelRoute>>,
-    onSelectRoute: (TopLevelRoute) -> Unit,
+    currentRoute: AppRoute?,
+    destinations: List<MainNavDestination<AppRoute>>,
+    onSelectRoute: (AppRoute) -> Unit,
 ) {
     val currentDestination = destinations.find { it.route == currentRoute }
 

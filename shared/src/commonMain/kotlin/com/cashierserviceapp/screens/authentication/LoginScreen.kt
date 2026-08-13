@@ -26,8 +26,8 @@ import com.cashierserviceapp.ui.components.TextField
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
-import com.composables.ClosedEyeOutlined
-import com.composables.OpenEyeOutlined
+import com.cashierserviceapp.ui.icons.ClosedEyeOutlined
+import com.cashierserviceapp.ui.icons.OpenEyeOutlined
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable

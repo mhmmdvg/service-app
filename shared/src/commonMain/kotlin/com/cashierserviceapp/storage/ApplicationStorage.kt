@@ -13,10 +13,13 @@ interface ApplicationStorage {
     val session: StateFlow<Authentication?>
 
     /**
-     * Synchronous token read for Ktor's `loadTokens`. Returns `null` when signed out, which
-     * makes the bearer provider send the request unauthenticated.
+     * Synchronous session read for Ktor's `loadTokens`/`refreshTokens`.
+     *
+     * Reads straight through to settings rather than using [session], whose value is republished
+     * asynchronously by `stateIn` — a token rotation followed immediately by a read would
+     * otherwise see the old, now-revoked refresh token.
      */
-    fun getAccessToken(): String?
+    fun getSession(): Authentication?
     suspend fun setSession(value: Authentication)
     suspend fun clearSession()
 

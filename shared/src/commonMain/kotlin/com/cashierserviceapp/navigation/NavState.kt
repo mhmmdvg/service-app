@@ -43,12 +43,19 @@ fun rememberNavState(
         restoredBackstack.toMutableStateList()
     }
 
+    // Lives alongside the backstacks rather than in them: a cover is drawn over the whole app, so
+    // it must not replace whatever the tab it was opened from is showing.
+    val coverBackstack = rememberSerializable(serializer = SnapshotStateListSerializer()) {
+        mutableStateListOf<CoverRoute>()
+    }
+
     return remember(startRoute, topLevelRoute) {
         NavState(
             primaryTopLevelRoute = primaryTopLevelRoute,
             topLevelBackStacks = topLevelBackStacks,
             defaultBackstack = defaultBackstack,
-            currentBackstack = currentBackstack
+            currentBackstack = currentBackstack,
+            coverBackstack = coverBackstack
         )
     }
 }
@@ -57,8 +64,13 @@ class NavState(
     val topLevelBackStacks: Map<TopLevelRoute, SnapshotStateList<AppRoute>>,
     val defaultBackstack: SnapshotStateList<AppRoute>,
     val primaryTopLevelRoute: TopLevelRoute,
-    val currentBackstack: SnapshotStateList<AppRoute>
+    val currentBackstack: SnapshotStateList<AppRoute>,
+    val coverBackstack: SnapshotStateList<CoverRoute>
 ) {
+    /** The cover currently presented over the app, or `null` when none is. */
+    val coverRoute: CoverRoute?
+        get() = coverBackstack.lastOrNull()
+
     var topLevelRoute: TopLevelRoute?
         get() = currentBackstack.firstOrNull() as? TopLevelRoute
         set(value) {

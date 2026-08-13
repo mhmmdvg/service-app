@@ -62,6 +62,8 @@ kotlin {
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
             implementation(libs.compose.ui)
+            // Multiplatform BackHandler, used to dismiss full-screen covers.
+            implementation(libs.compose.ui.backhandler)
             implementation(libs.compose.animation)
             implementation(libs.compose.components.resources)
             implementation(libs.compose.uiToolingPreview)

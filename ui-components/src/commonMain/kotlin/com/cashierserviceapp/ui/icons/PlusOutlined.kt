@@ -8,12 +8,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 
-val XOutlined: ImageVector
+val PlusOutlined: ImageVector
     get() {
-        if (_XOutlined != null) return _XOutlined!!
+        if (_PlusOutlined != null) return _PlusOutlined!!
         
-        _XOutlined = ImageVector.Builder(
-            name = "XOutlined",
+        _PlusOutlined = ImageVector.Builder(
+            name = "PlusOutlined",
             defaultWidth = 24.dp,
             defaultHeight = 24.dp,
             viewportWidth = 24f,
@@ -25,19 +25,15 @@ val XOutlined: ImageVector
                 strokeLineCap = StrokeCap.Round,
                 strokeLineJoin = StrokeJoin.Round
             ) {
-                moveTo(18f, 6f)
-                lineTo(12f, 12f)
-                moveTo(12f, 12f)
-                lineTo(6f, 18f)
-                moveTo(12f, 12f)
-                lineTo(18f, 18f)
-                moveTo(12f, 12f)
-                lineTo(6f, 6f)
+                moveTo(11.9922f, 4.00012f)
+                verticalLineTo(20.0001f)
+                moveTo(19.9922f, 12.0001f)
+                horizontalLineTo(3.99222f)
             }
         }.build()
         
-        return _XOutlined!!
+        return _PlusOutlined!!
     }
 
-private var _XOutlined: ImageVector? = null
+private var _PlusOutlined: ImageVector? = null
 

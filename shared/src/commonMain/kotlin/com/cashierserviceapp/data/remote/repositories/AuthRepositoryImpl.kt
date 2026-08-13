@@ -58,6 +58,13 @@ class AuthRepositoryImpl(
     }
 
     override suspend fun logout() {
+        // Revoke server-side first, while the refresh token is still readable. Best effort:
+        // if the call fails the local session is cleared regardless, so the user isn't
+        // trapped in a signed-in state by a flaky network.
+        storage.getSession()?.let { session ->
+            api.logout(session.refreshToken)
+        }
+
         storage.clearSession()
         client.authProvider<BearerAuthProvider>()?.clearToken()
         taggedLogger.log { "Session cleared" }

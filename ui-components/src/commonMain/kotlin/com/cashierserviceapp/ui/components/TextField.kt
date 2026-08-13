@@ -20,7 +20,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
-import com.composables.XOutlined
+import com.cashierserviceapp.ui.icons.XOutlined
 
 @Composable
 fun TextField(

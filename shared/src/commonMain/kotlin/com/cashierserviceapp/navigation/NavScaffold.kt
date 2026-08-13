@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.nav_destination_add_order
 import cashierserviceapp.shared.generated.resources.nav_destination_history
 import cashierserviceapp.shared.generated.resources.nav_destination_home
 import cashierserviceapp.shared.generated.resources.nav_destination_order
@@ -34,11 +35,15 @@ import com.cashierserviceapp.ui.icons.HomeFilled
 import com.cashierserviceapp.ui.icons.HomeOutlined
 import com.cashierserviceapp.ui.icons.NotepadFilled
 import com.cashierserviceapp.ui.icons.NotepadOutlined
+import com.cashierserviceapp.ui.icons.PlusFilled
+import com.cashierserviceapp.ui.icons.PlusOutlined
 import com.cashierserviceapp.ui.icons.SettingFilled
 import com.cashierserviceapp.ui.icons.SettingOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 
-private val bottomNavDestinations: List<MainNavDestination<TopLevelRoute>> = listOf(
+// Typed on AppRoute rather than TopLevelRoute: the add-order destination opens a cover instead of
+// switching tabs, so it never becomes the selected route.
+private val bottomNavDestinations: List<MainNavDestination<AppRoute>> = listOf(
     MainNavDestination(
         label = Res.string.nav_destination_home.toString(),
         icon = HomeOutlined,
@@ -50,6 +55,12 @@ private val bottomNavDestinations: List<MainNavDestination<TopLevelRoute>> = lis
         icon = NotepadOutlined,
         iconSelected = NotepadFilled,
         route = OrderScreen
+    ),
+    MainNavDestination(
+        label = Res.string.nav_destination_add_order.toString(),
+        icon = PlusOutlined,
+        iconSelected = PlusFilled,
+        route = AddOrderScreen
     ),
     MainNavDestination(
         label = Res.string.nav_destination_history.toString(),
@@ -71,8 +82,9 @@ internal fun NavScaffold(
     navigator: Navigator,
     content: @Composable (() -> Unit)
 ) {
-    val onSelectRoute: (TopLevelRoute) -> Unit = { route ->
-        navigator.activate(route)
+    // Navigator.add() dispatches on the route type: tabs switch, covers are presented.
+    val onSelectRoute: (AppRoute) -> Unit = { route ->
+        navigator.add(route)
     }
 
     val destinations = remember { bottomNavDestinations }

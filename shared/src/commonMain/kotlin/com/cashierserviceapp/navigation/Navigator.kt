@@ -20,6 +20,12 @@ class Navigator(
     fun goBack() {
         val currentBackstack = state.currentBackstack
 
+        // A cover sits above everything, so it always consumes back first.
+        if (state.coverBackstack.isNotEmpty()) {
+            dismissCover()
+            return
+        }
+
         if (state.topLevelRoute == null) {
             // We're using the default stack, remove an entry if possible
             if (currentBackstack.size > 1) {
@@ -39,16 +45,27 @@ class Navigator(
     }
 
     fun add(route: AppRoute) {
-        if (route is TopLevelRoute) {
-            activate(route)
-        } else {
-            state.currentBackstack.add(route)
+        when (route) {
+            is TopLevelRoute -> activate(route)
+            is CoverRoute -> present(route)
+            else -> state.currentBackstack.add(route)
         }
     }
 
     fun set(route: AppRoute) {
+        state.coverBackstack.clear()
         state.currentBackstack.clear()
         add(route)
+    }
+
+    /** Presents [route] modally over the whole app. Re-presenting the visible cover is a no-op. */
+    fun present(route: CoverRoute) {
+        if (state.coverRoute == route) return
+        state.coverBackstack.add(route)
+    }
+
+    fun dismissCover() {
+        state.coverBackstack.removeLastOrNull()
     }
 
     fun activate(route: TopLevelRoute, withReselection: Boolean = false) {
