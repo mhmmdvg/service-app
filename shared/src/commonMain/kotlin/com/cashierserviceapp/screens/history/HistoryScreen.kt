@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -53,19 +55,32 @@ private fun HistoryContent(
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
 ) {
-    ScreenWithTitle(
-        title = stringResource(Res.string.nav_destination_history),
-        scrollable = false,
-    ) { innerPadding ->
-        // Whatever we last managed to load. A failed refresh carries it forward, so the list the
-        // user was reading stays put and the error is shown instead of an empty screen.
-        val sections = state.data.orEmpty()
+    val pullState = rememberPullToRefreshState()
 
-        PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
+    Box(Modifier.fillMaxSize()) {
+        ScreenWithTitle(
+            title = stringResource(Res.string.nav_destination_history),
+            scrollable = false,
+            // Deliberately handed to ScreenWithTitle rather than wrapping the list in a
+            // PullToRefreshBox. ScreenWithTitle applies this modifier *before* the Scaffold's own
+            // nestedScroll, which makes pull-to-refresh the OUTER connection of the two.
+            //
+            // That ordering is the whole point. exitUntilCollapsedScrollBehavior only re-expands
+            // the collapsed title from the downward scroll left over once the list is at its top,
+            // and nested scroll offers that leftover to inner connections first. Nested inside,
+            // pull-to-refresh ate every scrap of it and the title could never expand again — only
+            // dragging the app bar itself worked, since Material3 gives it a separate `draggable`.
+            // Outside, the app bar expands first and only what it doesn't want reaches the pull.
+            modifier = Modifier.pullToRefresh(
+                isRefreshing = isRefreshing,
+                state = pullState,
+                onRefresh = onRefresh
+            )
+        ) { innerPadding ->
+            // Whatever we last managed to load. A failed refresh carries it forward, so the list
+            // the user was reading stays put and the error is shown instead of an empty screen.
+            val sections = state.data.orEmpty()
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -125,6 +140,17 @@ private fun HistoryContent(
                 }
             }
         }
+
+        // Drawn as a sibling above the screen because the gesture now lives outside the Scaffold.
+        // Inset from the top so it doesn't ride up under the status bar.
+        PullToRefreshDefaults.Indicator(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
+                .padding(top = 8.dp),
+            isRefreshing = isRefreshing,
+            state = pullState
+        )
     }
 }
 
