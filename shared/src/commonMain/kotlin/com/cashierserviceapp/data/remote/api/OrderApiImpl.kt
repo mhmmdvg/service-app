@@ -1,5 +1,7 @@
 package com.cashierserviceapp.data.remote.api
 
+import com.cashierserviceapp.domain.models.CreateOrderRequest
+import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.HttpResponse
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.network.OrderApi
@@ -10,9 +12,10 @@ import com.cashierserviceapp.utils.tagged
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn
-import io.ktor.client.HttpClient
-import io.ktor.client.call.body
-import io.ktor.client.request.get
+import io.ktor.client.*
+import io.ktor.client.call.*
+import io.ktor.client.request.*
+import io.ktor.http.*
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
@@ -24,5 +27,15 @@ class OrderApiImpl(
 
     override suspend fun getOrders(): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {
         client.get { apiUrl("orders/in-progress") }.body()
+    }
+
+    override suspend fun createOrder(
+        request: CreateOrderRequest
+    ): HttpResponse<CreateOrderResponse>? = safeApiCall(taggedLogger) {
+        client.post {
+            apiUrl("orders")
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.body()
     }
 }

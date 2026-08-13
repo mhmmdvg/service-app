@@ -1,5 +1,7 @@
 package com.cashierserviceapp.data.remote.repositories
 
+import com.cashierserviceapp.domain.models.CreateOrderRequest
+import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.domain.repositories.OrderRepository
@@ -25,4 +27,14 @@ class OrderRepositoryImpl(
            Result.failure<Order>(exception)
        }
     }
+
+    override suspend fun createOrder(request: CreateOrderRequest): Result<CreateOrderResponse> =
+        runCatching {
+            val response = api.createOrder(request)
+                ?: throw Exception("Couldn't reach the server. Check your connection and try again.")
+
+            // A failed status carries the server's reason — a validation message worth showing on
+            // the form, not a generic error.
+            response.data ?: throw Exception(response.message)
+        }
 }
