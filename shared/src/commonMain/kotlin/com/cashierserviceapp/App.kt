@@ -5,6 +5,8 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cashierserviceapp.di.AppGraph
 import com.cashierserviceapp.flags.LocalFlags
+import com.cashierserviceapp.localization.LocalStrings
+import com.cashierserviceapp.localization.stringsFor
 import com.cashierserviceapp.navigation.NavHost
 import com.cashierserviceapp.utils.LocalWindowSize
 import com.cashierserviceapp.utils.windowSize
@@ -15,7 +17,15 @@ fun App(
     appGraph: AppGraph,
     onThemeChange: ((isDarkTheme: Boolean) -> Unit)? = null
 ) {
-    val currentTheme = Theme.SYSTEM
+    val storage = appGraph.applicationStorage
+
+    // Seeded from the persisted value so the very first frame is already in the chosen theme and
+    // language — no flash of the wrong one while a flow warms up.
+    val currentTheme by storage.getTheme()
+        .collectAsStateWithLifecycle(initialValue = remember { storage.getThemeBlocking() })
+    val language by storage.getLanguage()
+        .collectAsStateWithLifecycle(initialValue = remember { storage.getLanguageBlocking() })
+
     val isDarkTheme = when (currentTheme) {
         Theme.SYSTEM -> isSystemInDarkTheme()
         Theme.LIGHT -> false
@@ -35,6 +45,7 @@ fun App(
         LocalAppGraph provides appGraph,
         LocalMetroViewModelFactory provides appGraph.metroViewModelFactory,
         LocalWindowSize provides windowSize(),
+        LocalStrings provides stringsFor(language),
     ) {
         NavHost(
             isOnboardingComplete = true,

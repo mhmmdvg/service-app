@@ -3,6 +3,7 @@ package com.cashierserviceapp.storage
 import com.cashierserviceapp.Theme
 import com.cashierserviceapp.domain.models.Authentication
 import com.cashierserviceapp.flags.Flags
+import com.cashierserviceapp.localization.AppLanguage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -28,6 +29,17 @@ interface ApplicationStorage {
 
     fun getTheme(): Flow<Theme>
     suspend fun setTheme(value: Theme)
+
+    fun getLanguage(): Flow<AppLanguage>
+    suspend fun setLanguage(value: AppLanguage)
+
+    /**
+     * Synchronous reads for the first composed frame. The flows above republish asynchronously, so
+     * seeding from them would paint one frame in the wrong theme or language before correcting
+     * itself.
+     */
+    fun getThemeBlocking(): Theme
+    fun getLanguageBlocking(): AppLanguage
 
     fun getFlagsBlocking(): Flags?
     fun getFlags(): Flow<Flags?>

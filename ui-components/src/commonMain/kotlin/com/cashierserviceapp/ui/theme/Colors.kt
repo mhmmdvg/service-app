@@ -13,6 +13,8 @@ import com.cashierserviceapp.ui.theme.Brand.pink100
 import com.cashierserviceapp.ui.theme.Brand.pinkTextDark
 import com.cashierserviceapp.ui.theme.Brand.purple100
 import com.cashierserviceapp.ui.theme.Brand.purpleTextDark
+import com.cashierserviceapp.ui.theme.Brand.red100
+import com.cashierserviceapp.ui.theme.Brand.redTextDark
 import com.cashierserviceapp.ui.theme.UI.black05
 import com.cashierserviceapp.ui.theme.UI.black100
 import com.cashierserviceapp.ui.theme.UI.black15
@@ -66,6 +68,7 @@ data class Colors(
     val orangeText: Color,
     val blueText: Color,
     val greenText: Color,
+    val redText: Color,
 
     val toggleOn: Color,
     val toggleOff: Color,
@@ -103,6 +106,7 @@ val CashierServiceLightColors = Colors(
     orangeText = orange,
     blueText = blue100,
     greenText = green100,
+    redText = red100,
 
     toggleOff = grey400,
     toggleOn = purple100,
@@ -140,6 +144,7 @@ val CashierServiceDarkColors = Colors(
     orangeText = orangeTextDark,
     blueText = blueTextDark,
     greenText = greenTextDark,
+    redText = redTextDark,
 
     toggleOff = grey500,
     toggleOn = purpleTextDark,

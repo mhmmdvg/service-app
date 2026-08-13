@@ -4,6 +4,7 @@ import com.cashierserviceapp.Theme
 import com.cashierserviceapp.domain.models.Authentication
 import com.cashierserviceapp.flags.Flags
 import com.cashierserviceapp.getPlatformId
+import com.cashierserviceapp.localization.AppLanguage
 import com.cashierserviceapp.utils.Logger
 import com.cashierserviceapp.utils.tagged
 import com.russhwolf.settings.ExperimentalSettingsApi
@@ -76,6 +77,20 @@ class ApplicationStorageImpl(
     override fun getTheme(): Flow<Theme> = settings.getStringOrNullFlow(Keys.THEME).map { Theme.entries.firstOrNull { entry -> entry.name == it } ?: Theme.SYSTEM }
     override suspend fun setTheme(value: Theme) = settings.set(Keys.THEME, value.name)
 
+    // Stored as the BCP-47 tag rather than the enum name, so the value stays meaningful if the
+    // catalogs ever move to Compose Resources' `values-<tag>` directories.
+    override fun getLanguage(): Flow<AppLanguage> =
+        settings.getStringOrNullFlow(Keys.LANGUAGE).map { AppLanguage.fromTag(it) }
+
+    override suspend fun setLanguage(value: AppLanguage) = settings.set(Keys.LANGUAGE, value.tag)
+
+    override fun getThemeBlocking(): Theme = settings.getStringOrNull(Keys.THEME)
+        ?.let { stored -> Theme.entries.firstOrNull { it.name == stored } }
+        ?: Theme.SYSTEM
+
+    override fun getLanguageBlocking(): AppLanguage =
+        AppLanguage.fromTag(settings.getStringOrNull(Keys.LANGUAGE))
+
     override fun getFlagsBlocking(): Flags? = settings.getStringOrNull(Keys.FLAGS)?.decodeOrNull<Flags>()
 
     override fun getFlags(): Flow<Flags?> = settings.getStringOrNullFlow(Keys.FLAGS).map { it.decodeOrNull<Flags>() }
@@ -97,6 +112,7 @@ class ApplicationStorageImpl(
         const val USER_ID = "userId"
         const val ONBOARDING_COMPLETE = "onboardingComplete"
         const val THEME = "theme"
+        const val LANGUAGE = "language"
         const val FLAGS = "flags"
         const val CONFIG = "config"
         const val SESSION = "session"
