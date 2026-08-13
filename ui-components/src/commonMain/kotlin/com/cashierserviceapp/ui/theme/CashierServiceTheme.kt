@@ -69,7 +69,7 @@ fun CashierServiceTheme(
         LocalColors provides colors,
         LocalShapes provides CashierServiceShapes,
         LocalTypography provides CashierServiceTypography,
-        LocalIndication provides if (rippleEnabled) NoIndication else NoIndication,
+        LocalIndication provides if (rippleEnabled) rememberRippleIndication() else NoIndication,
         LocalAppTheme provides colors.isDark
     ) {
         content()

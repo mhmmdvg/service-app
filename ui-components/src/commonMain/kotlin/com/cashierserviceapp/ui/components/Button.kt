@@ -45,7 +45,7 @@ fun Button(
         if (primary) CashierServiceTheme.colors.primaryTextWhiteFixed
         else CashierServiceTheme.colors.primaryText
     )
-    val alpha by animateFloatAsState(if (enabled) 1f else 0f)
+    val alpha by animateFloatAsState(if (enabled) 1f else 0.5f)
 
     Box(
         modifier = modifier
@@ -66,7 +66,7 @@ fun Button(
     }
 }
 
-@com.cashierserviceapp.ui.utils.PreviewLightDark
+@PreviewLightDark
 @Composable
 fun ButtonPreview() = PreviewHelper {
     Button(
@@ -80,4 +80,11 @@ fun ButtonPreview() = PreviewHelper {
 @Composable
 private fun ButtonSecondaryPreview() = PreviewHelper {
     Button("Secondary", {}, primary = false)
+}
+
+@PreviewLightDark
+@Composable
+private fun ButtonDisabledPreview() = PreviewHelper {
+    Button("Primary disabled", {}, primary = true, enabled = false)
+    Button("Secondary disabled", {}, primary = false, enabled = false)
 }

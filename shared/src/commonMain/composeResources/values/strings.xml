@@ -1,0 +1,8 @@
+<resources>
+    <!-- General resources -->
+    <string name="nav_destination_home">Home</string>
+    <string name="nav_destination_order">Order</string>
+    <string name="nav_destination_add_order">Add Order</string>
+    <string name="nav_destination_history">History</string>
+    <string name="nav_destination_settings">Settings</string>
+</resources>

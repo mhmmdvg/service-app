@@ -7,3 +7,4 @@ class AndroidPlatform : Platform {
 }
 
 actual fun getPlatform(): Platform = AndroidPlatform()
+internal actual fun getPlatformId(): String = "android"

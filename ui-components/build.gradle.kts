@@ -44,6 +44,8 @@ kotlin {
             implementation(libs.material3.adaptive)
             implementation(libs.material3.adaptive.layout)
             implementation(libs.material3.adaptive.navigation)
+
+            implementation(libs.settings)
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)
