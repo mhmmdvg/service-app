@@ -8,5 +8,8 @@ import com.cashierserviceapp.domain.models.Order
 interface OrderApi {
     suspend fun getOrders(): HttpResponse<List<Order>>?
 
+    /** Orders whose every item is completed, newest first. */
+    suspend fun getOrderHistory(): HttpResponse<List<Order>>?
+
     suspend fun createOrder(request: CreateOrderRequest): HttpResponse<CreateOrderResponse>?
 }

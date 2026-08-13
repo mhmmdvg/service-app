@@ -29,6 +29,10 @@ class OrderApiImpl(
         client.get { apiUrl("orders/in-progress") }.body()
     }
 
+    override suspend fun getOrderHistory(): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {
+        client.get { apiUrl("orders/history") }.body()
+    }
+
     override suspend fun createOrder(
         request: CreateOrderRequest
     ): HttpResponse<CreateOrderResponse>? = safeApiCall(taggedLogger) {
