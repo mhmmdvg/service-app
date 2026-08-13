@@ -46,6 +46,8 @@ internal object Brand {
 
     val orange = Color(0xFFFF5A13)
 
+    val red100 = Color(0xFFBD001A)
+
     val colorGradient = Brush.horizontalGradient(
         0f to Color(0xFF8F00E7),
         0.5f to Color(0xFFE00189),
@@ -56,10 +58,12 @@ internal object Brand {
     val magentaTextDark = Color(0xFFED44FF)
     val pinkTextDark = Color(0xFFFF66C3)
     val orangeTextDark = Color(0xFFFF9100)
-    
+
     val blueTextDark = Color(0xFF7FA8FF)
 
     val greenTextDark = Color(0xFF5FD48A)
+
+    val redTextDark = Color(0xFFFF6C00)
 }
 
 internal object UI {

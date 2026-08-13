@@ -9,6 +9,8 @@ class Shapes(
     val roundedCornerMd: RoundedCornerShape,
     val roundedCornerLg: RoundedCornerShape,
     val roundedCornerXl: RoundedCornerShape,
+    /** For surfaces that float free of the screen edges, where a tight radius reads as clipped. */
+    val roundedCornerXxl: RoundedCornerShape,
 )
 
 internal val CashierServiceShapes: Shapes
@@ -18,4 +20,5 @@ internal val CashierServiceShapes: Shapes
         roundedCornerMd = RoundedCornerShape(8.dp),
         roundedCornerLg = RoundedCornerShape(12.dp),
         roundedCornerXl = RoundedCornerShape(16.dp),
+        roundedCornerXxl = RoundedCornerShape(28.dp),
     )

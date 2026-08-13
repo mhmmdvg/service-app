@@ -134,7 +134,10 @@ private fun EntryProviderScope<AppRoute>.screens(
     }
 
     topLevelEntry<SettingsScreen> {
-        SettingsScreen()
+        SettingsScreen(
+            // Replaces the backstack, matching login: back must not walk into a signed-out app.
+            onSignedOut = { navigator.set(LoginScreen) }
+        )
     }
 }
 
