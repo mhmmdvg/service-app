@@ -12,6 +12,7 @@ import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.nav_destination_order
 import com.cashierserviceapp.ScreenWithTitle
 import com.cashierserviceapp.screens.order.components.OrderCard
+import com.cashierserviceapp.screens.order.components.OrderCardSkeleton
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
@@ -38,8 +39,8 @@ fun OrderScreen(
             }
 
             when (val state = orderState) {
-                is Resource.Loading -> item {
-
+                is Resource.Loading -> items(10) {
+                    OrderCardSkeleton()
                 }
 
                 is Resource.Error -> item {
@@ -59,7 +60,10 @@ fun OrderScreen(
                             OrderCard(
                                 name = order.customerName,
                                 code = order.orderCode,
-                                status = order.status
+                                status = order.status,
+                                onClick = {
+                                    println("Clicked ${order.orderCode}")
+                                }
                             )
                         }
                     }

@@ -24,13 +24,24 @@ fun App(
 
     val flags by appGraph.flagsManager.flags.collectAsStateWithLifecycle()
 
+    // Read once, synchronously. The session StateFlow is seeded from multiplatform-settings at
+    // construction, so `.value` is already correct here — no loading state, no wrong-screen flash.
+    // Deliberately not collected: after this first frame, navigation is driven by explicit
+    // login/logout calls, not by the session flow.
+    val isLoggedIn = remember { appGraph.applicationStorage.session.value != null }
+
     CompositionLocalProvider(
         LocalFlags provides flags,
         LocalAppGraph provides appGraph,
         LocalMetroViewModelFactory provides appGraph.metroViewModelFactory,
         LocalWindowSize provides windowSize(),
     ) {
-        NavHost(true, isDarkTheme = isDarkTheme, onThemeChange = onThemeChange)
+        NavHost(
+            isOnboardingComplete = true,
+            isLoggedIn = isLoggedIn,
+            isDarkTheme = isDarkTheme,
+            onThemeChange = onThemeChange
+        )
     }
 }
 

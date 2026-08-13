@@ -24,3 +24,7 @@ data object HistoryScreen : AppRoute, TopLevelRoute
 @Serializable
 @SerialName("Settings")
 data object SettingsScreen : AppRoute, TopLevelRoute
+
+@Serializable
+@SerialName("Login")
+data object LoginScreen : AppRoute

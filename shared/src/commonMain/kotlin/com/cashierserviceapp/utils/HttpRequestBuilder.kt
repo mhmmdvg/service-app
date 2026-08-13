@@ -9,7 +9,7 @@ import io.ktor.http.takeFrom
 import io.ktor.utils.io.CancellationException
 
 suspend fun <T> safeApiCall(
-    logger: Logger,
+    logger: TaggedLogger,
     call: suspend () -> T,
 ): T? {
     return try {
@@ -17,7 +17,7 @@ suspend fun <T> safeApiCall(
     } catch (e: CancellationException) {
         throw e
     } catch (e: Exception) {
-        logger.tagged("ApplicationApi").log { "API call failed: ${e.message}" }
+        logger.log { "API call failed: ${e.message}" }
         null
     }
 }

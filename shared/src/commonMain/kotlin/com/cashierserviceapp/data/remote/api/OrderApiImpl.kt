@@ -6,6 +6,7 @@ import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.utils.Logger
 import com.cashierserviceapp.utils.apiUrl
 import com.cashierserviceapp.utils.safeApiCall
+import com.cashierserviceapp.utils.tagged
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn
@@ -19,7 +20,9 @@ class OrderApiImpl(
     private val client: HttpClient,
     private val logger: Logger
 ) : OrderApi {
-    override suspend fun getOrders(): HttpResponse<List<Order>>? = safeApiCall(logger) {
-        client.get { apiUrl("orders") }.body()
+    private val taggedLogger = logger.tagged("OrderApi")
+
+    override suspend fun getOrders(): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {
+        client.get { apiUrl("orders/in-progress") }.body()
     }
 }

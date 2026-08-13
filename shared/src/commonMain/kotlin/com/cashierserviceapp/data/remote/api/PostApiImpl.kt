@@ -4,6 +4,7 @@ import com.cashierserviceapp.URLs
 import com.cashierserviceapp.domain.models.Post
 import com.cashierserviceapp.domain.network.PostApi
 import com.cashierserviceapp.utils.Logger
+import com.cashierserviceapp.utils.tagged
 import com.cashierserviceapp.utils.apiUrl
 import com.cashierserviceapp.utils.safeApiCall
 import dev.zacsweers.metro.AppScope
@@ -19,7 +20,9 @@ class PostApiImpl(
     private val client: HttpClient,
     private val logger: Logger
 ) : PostApi {
-    override suspend fun getPosts(): List<Post>? = safeApiCall(logger) {
+    private val taggedLogger = logger.tagged("PostApi")
+
+    override suspend fun getPosts(): List<Post>? = safeApiCall(taggedLogger) {
         client.get { apiUrl(URLs.JSON_PLACEHOLDER_URL, "posts") }.body()
     }
 }

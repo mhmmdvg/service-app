@@ -17,6 +17,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.cashierserviceapp.ThemeChangeAnimation
 import com.cashierserviceapp.flags.LocalFlags
+import com.cashierserviceapp.screens.authentication.LoginScreen
 import com.cashierserviceapp.screens.history.HistoryScreen
 import com.cashierserviceapp.screens.home.HomeScreen
 import com.cashierserviceapp.screens.order.OrderScreen
@@ -28,13 +29,16 @@ import com.cashierserviceapp.ui.theme.CashierServiceTheme
 @Composable
 internal fun NavHost(
     isOnboardingComplete: Boolean,
+    isLoggedIn: Boolean,
     isDarkTheme: Boolean,
     onThemeChange: ((Boolean) -> Unit)?,
 ) {
 //    val startRoute = remember {
 //        if (isOnboardingComplete) HomeScreen else OnboardScreen
 //    }
-    val startRoute = remember { HomeScreen }
+    // Resolved once: rememberNavState seeds its backstacks from this, so it must not change
+    // underneath us. Signing in/out navigates explicitly instead.
+    val startRoute: AppRoute = remember { if (isLoggedIn) HomeScreen else LoginScreen }
     val navState = rememberNavState(
         startRoute = startRoute,
         topLevelRoute = setOf(
@@ -103,6 +107,13 @@ private fun EntryProviderScope<AppRoute>.screens(
     navigator: Navigator,
     onBack: () -> Unit
 ) {
+    entry<LoginScreen> {
+        LoginScreen(
+            // Replaces the backstack so back doesn't return to the form once signed in.
+            onLoginSuccess = { navigator.set(HomeScreen) }
+        )
+    }
+
     topLevelEntry<HomeScreen> {
         HomeScreen()
     }

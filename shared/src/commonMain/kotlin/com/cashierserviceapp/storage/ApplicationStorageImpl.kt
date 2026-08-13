@@ -1,6 +1,7 @@
 package com.cashierserviceapp.storage
 
 import com.cashierserviceapp.Theme
+import com.cashierserviceapp.domain.models.Authentication
 import com.cashierserviceapp.flags.Flags
 import com.cashierserviceapp.getPlatformId
 import com.cashierserviceapp.utils.Logger
@@ -51,6 +52,24 @@ class ApplicationStorageImpl(
         .getStringFlow(Keys.USER_ID, "")
         .stateIn(appScope, SharingStarted.Eagerly, "")
 
+    override val session = settings
+        .getStringOrNullFlow(Keys.SESSION)
+        .map { it.decodeOrNull<Authentication>() }
+        .stateIn(appScope, SharingStarted.Eagerly, readSession())
+
+    override fun getAccessToken(): String? = readSession()?.accessToken
+
+    override suspend fun setSession(value: Authentication) {
+        settings[Keys.SESSION] = json.encodeToString(value)
+    }
+
+    override suspend fun clearSession() {
+        settings.remove(Keys.SESSION)
+    }
+
+    private fun readSession(): Authentication? =
+        settings.getStringOrNull(Keys.SESSION).decodeOrNull<Authentication>()
+
     override fun isOnboardingComplete(): Flow<Boolean> = settings.getBooleanFlow(Keys.ONBOARDING_COMPLETE, false)
     override suspend fun setOnboardingComplete(value: Boolean) = settings.set(Keys.ONBOARDING_COMPLETE, value)
 
@@ -80,5 +99,6 @@ class ApplicationStorageImpl(
         const val THEME = "theme"
         const val FLAGS = "flags"
         const val CONFIG = "config"
+        const val SESSION = "session"
     }
 }

@@ -3,6 +3,7 @@ package com.cashierserviceapp.di
 import androidx.lifecycle.ViewModel
 import com.cashierserviceapp.URLs
 import com.cashierserviceapp.getPlatformId
+import com.cashierserviceapp.storage.ApplicationStorage
 import com.cashierserviceapp.utils.Logger
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.BindingContainer
@@ -15,9 +16,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerTokens
+import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
+import io.ktor.http.encodedPath
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
@@ -26,6 +31,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import kotlin.reflect.KClass
 import io.ktor.client.plugins.logging.Logger as KtorLogger
+
+private const val LOGIN_PATH = "login"
 
 @BindingContainer
 @ContributesTo(AppScope::class)
@@ -53,7 +60,8 @@ object AppBindings {
     @SingleIn(AppScope::class)
     fun provideHttpClient(
         @BaseUrl baseUrl: String,
-        logger: Logger
+        logger: Logger,
+        storage: ApplicationStorage,
     ): HttpClient {
         return HttpClient {
             install(ContentNegotiation) {
@@ -82,6 +90,21 @@ object AppBindings {
             install(HttpRequestRetry) {
                 retryOnServerErrors(maxRetries = 3)
                 exponentialDelay()
+            }
+
+            install(Auth) {
+                bearer {
+                    loadTokens {
+                        storage.getAccessToken()?.let { BearerTokens(it, null) }
+                    }
+
+                    // Ktor only attaches the token after a 401 challenge by default, which costs
+                    // an extra round trip on every call. Attach it up front instead — except on
+                    // the login endpoint, which is what issues the token in the first place.
+                    sendWithoutRequest { request ->
+                        !request.url.encodedPath.endsWith(LOGIN_PATH)
+                    }
+                }
             }
 
             install(DefaultRequest) {
