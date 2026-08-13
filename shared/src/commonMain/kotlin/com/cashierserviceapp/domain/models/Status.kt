@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class Status {
+enum class OrderStatus {
     @SerialName("received") RECEIVED,
     @SerialName("diagnosing") DIAGNOSING,
     @SerialName("inProgress") IN_PROGRESS,

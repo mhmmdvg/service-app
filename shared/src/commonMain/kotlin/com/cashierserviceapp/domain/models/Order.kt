@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Order(
     val id: String,
-    val status: Status,
+    val status: OrderStatus,
     val customerName: String,
     val orderCode: String,
     val createdAt: String,

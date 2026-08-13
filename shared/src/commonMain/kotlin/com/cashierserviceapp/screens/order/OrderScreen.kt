@@ -2,6 +2,7 @@ package com.cashierserviceapp.screens.order
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -10,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.nav_destination_order
 import com.cashierserviceapp.ScreenWithTitle
+import com.cashierserviceapp.screens.order.components.OrderCard
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
@@ -50,14 +52,15 @@ fun OrderScreen(
                     val orderData = state.data ?: emptyList()
 
                     if (orderData.isNotEmpty()) {
-//                        items(
-//                            items = orderData,
-//                            key = { it.id }
-//                        ) { order ->
-//                            Text(order.customer.name)
-//                        }
-                        items(100) {
-                            Text("Test")
+                        items(
+                            items = orderData,
+                            key = { it.id }
+                        ) { order ->
+                            OrderCard(
+                                name = order.customerName,
+                                code = order.orderCode,
+                                status = order.status
+                            )
                         }
                     }
                 }

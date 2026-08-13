@@ -1,6 +1,10 @@
 package com.cashierserviceapp.ui.theme
 
 import androidx.compose.ui.graphics.Color
+import com.cashierserviceapp.ui.theme.Brand.blue100
+import com.cashierserviceapp.ui.theme.Brand.blueTextDark
+import com.cashierserviceapp.ui.theme.Brand.green100
+import com.cashierserviceapp.ui.theme.Brand.greenTextDark
 import com.cashierserviceapp.ui.theme.Brand.magenta100
 import com.cashierserviceapp.ui.theme.Brand.magentaTextDark
 import com.cashierserviceapp.ui.theme.Brand.orange
@@ -60,6 +64,8 @@ data class Colors(
     val magentaText: Color,
     val pinkText: Color,
     val orangeText: Color,
+    val blueText: Color,
+    val greenText: Color,
 
     val toggleOn: Color,
     val toggleOff: Color,
@@ -95,6 +101,8 @@ val CashierServiceLightColors = Colors(
     magentaText = magenta100,
     pinkText = pink100,
     orangeText = orange,
+    blueText = blue100,
+    greenText = green100,
 
     toggleOff = grey400,
     toggleOn = purple100,
@@ -130,6 +138,8 @@ val CashierServiceDarkColors = Colors(
     magentaText = magentaTextDark,
     pinkText = pinkTextDark,
     orangeText = orangeTextDark,
+    blueText = blueTextDark,
+    greenText = greenTextDark,
 
     toggleOff = grey500,
     toggleOn = purpleTextDark,

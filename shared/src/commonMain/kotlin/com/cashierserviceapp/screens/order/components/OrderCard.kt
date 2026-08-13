@@ -12,6 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cashierserviceapp.domain.models.OrderStatus
+import com.cashierserviceapp.ui.components.Chip
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.icons.NotepadFilled
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
@@ -22,12 +24,15 @@ import com.cashierserviceapp.ui.utils.PreviewLightDark
 fun OrderCard(
     name: String,
     code: String,
-    status: String,
+    status: OrderStatus,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clip(CashierServiceTheme.shapes.roundedCornerLg)
+            .background(CashierServiceTheme.colors.tileBackground.copy(alpha = 0.05f))
+            .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -59,20 +64,31 @@ fun OrderCard(
             )
         }
         Spacer(Modifier.weight(1f))
-        Box(
-            Modifier
-                .clip(CircleShape)
-                .background(Color.Blue.copy(0.3f))
-                .padding(4.dp)
-                .padding(horizontal = 8.dp)
-        ) {
-            Text(
-                text = status,
-                style = CashierServiceTheme.typography.text2.copy(
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold
+        when(status) {
+            OrderStatus.RECEIVED -> {
+                Chip(
+                    label = "Received Order",
+                    color = CashierServiceTheme.colors.blueText
                 )
-            )
+            }
+            OrderStatus.DIAGNOSING -> {
+                Chip(
+                    label = "Diagnosing",
+                    color = CashierServiceTheme.colors.orangeText
+                )
+            }
+            OrderStatus.IN_PROGRESS -> {
+               Chip(
+                   label = "In Progress",
+                   color = CashierServiceTheme.colors.purpleText
+               )
+            }
+            OrderStatus.COMPLETED -> {
+                Chip(
+                    label = "Completed Order",
+                    color = CashierServiceTheme.colors.greenText
+                )
+            }
         }
     }
 }
@@ -83,6 +99,6 @@ fun OrderCardPreview() = PreviewHelper {
     OrderCard(
         name = "Vikri",
         code = "iPhone 13",
-        status = "in progress",
+        status = OrderStatus.RECEIVED,
     )
 }
