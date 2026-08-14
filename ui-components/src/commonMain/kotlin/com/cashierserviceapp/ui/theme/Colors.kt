@@ -14,6 +14,7 @@ import com.cashierserviceapp.ui.theme.Brand.pinkTextDark
 import com.cashierserviceapp.ui.theme.Brand.purple100
 import com.cashierserviceapp.ui.theme.Brand.purpleTextDark
 import com.cashierserviceapp.ui.theme.Brand.red100
+import com.cashierserviceapp.ui.theme.Brand.redBackgroundDark
 import com.cashierserviceapp.ui.theme.Brand.redTextDark
 import com.cashierserviceapp.ui.theme.UI.black05
 import com.cashierserviceapp.ui.theme.UI.black100
@@ -54,6 +55,19 @@ data class Colors(
     val strokePale: Color,
 
     val accentText: Color,
+
+    /**
+     * Something has gone wrong, or is about to: validation messages, and the label on a
+     * destructive action.
+     *
+     * A role, not a hue — reach for this rather than [redText] so the intent is legible at the call
+     * site, and so danger can be retuned without touching the chip palette.
+     */
+    val dangerText: Color,
+
+    /** Fill behind [primaryTextWhiteFixed] on a destructive button. */
+    val dangerBackground: Color,
+
     val longText: Color,
     val noteText: Color,
     val placeholderText: Color,
@@ -92,6 +106,8 @@ val CashierServiceLightColors = Colors(
     strokePale = black15,
 
     accentText = magenta100,
+    dangerText = red100,
+    dangerBackground = red100,
     longText = black70,
     noteText = black40,
     placeholderText = black30,
@@ -130,6 +146,8 @@ val CashierServiceDarkColors = Colors(
     strokePale = white20,
 
     accentText = magentaTextDark,
+    dangerText = redTextDark,
+    dangerBackground = redBackgroundDark,
     longText = white70,
     noteText = white50,
     placeholderText = white40,

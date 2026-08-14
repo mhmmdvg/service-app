@@ -3,6 +3,7 @@ package com.cashierserviceapp.data.remote.repositories
 import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.Order
+import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import dev.zacsweers.metro.AppScope
@@ -33,6 +34,12 @@ class OrderRepositoryImpl(
 
         // An empty history is a perfectly good success, so this only trips when the server
         // actually refused — in which case its own message is the useful one.
+        response.data ?: throw Exception(response.message)
+    }
+
+    override suspend fun trackOrder(qrToken: String): Result<OrderTracking> = runCatching {
+        val response = api.trackOrder(qrToken.trim()) ?: throw Exception(UNREACHABLE_MESSAGE)
+
         response.data ?: throw Exception(response.message)
     }
 

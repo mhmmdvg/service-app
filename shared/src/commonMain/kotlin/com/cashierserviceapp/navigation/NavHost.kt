@@ -22,6 +22,7 @@ import com.cashierserviceapp.screens.authentication.LoginScreen
 import com.cashierserviceapp.screens.history.HistoryScreen
 import com.cashierserviceapp.screens.home.HomeScreen
 import com.cashierserviceapp.screens.order.OrderScreen
+import com.cashierserviceapp.screens.search.SearchScreen
 import com.cashierserviceapp.screens.settings.SettingsScreen
 import com.cashierserviceapp.ui.theme.CashierServiceDarkColors
 import com.cashierserviceapp.ui.theme.CashierServiceLightColors
@@ -122,7 +123,14 @@ private fun EntryProviderScope<AppRoute>.screens(
     }
 
     topLevelEntry<HomeScreen> {
-        HomeScreen()
+        HomeScreen(
+            onOpenOrders = { navigator.activate(OrderScreen) },
+            onOpenSearch = { navigator.add(SearchScreen) },
+        )
+    }
+
+    entry<SearchScreen> {
+        SearchScreen(onBack = onBack)
     }
 
     topLevelEntry<OrderScreen> {

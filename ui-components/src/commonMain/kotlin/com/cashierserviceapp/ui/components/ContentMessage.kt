@@ -1,4 +1,4 @@
-package com.cashierserviceapp.screens.history.components
+package com.cashierserviceapp.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,17 +10,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.ui.components.Button
-import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 
 @Composable
-internal fun HistoryMessage(
+fun ContentMessage(
     title: String,
     body: String,
     modifier: Modifier = Modifier,
     actionLabel: String? = null,
-    onAction: () -> Unit = {},
+    onAction: () -> Unit = {}
 ) {
     Column(
         modifier

@@ -39,3 +39,8 @@ data object SettingsScreen : AppRoute, TopLevelRoute
 @Serializable
 @SerialName("Login")
 data object LoginScreen : AppRoute
+
+/** Pushed rather than top-level: search is somewhere you go and come back from, not a tab. */
+@Serializable
+@SerialName("Search")
+data object SearchScreen : AppRoute

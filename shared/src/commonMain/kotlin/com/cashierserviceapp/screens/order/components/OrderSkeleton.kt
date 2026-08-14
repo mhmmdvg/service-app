@@ -63,13 +63,26 @@ fun OrderCardSkeleton(
 
         Spacer(Modifier.weight(1f))
 
-        Box(
-            Modifier
-                .width(56.dp)
-                .height(12.dp)
-                .clip(CircleShape)
-                .shimmerEffect()
-        )
+        // Mirrors the card's stacked status-over-time column.
+        Column(
+            horizontalAlignment = Alignment.End,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Box(
+                Modifier
+                    .width(56.dp)
+                    .height(12.dp)
+                    .clip(CircleShape)
+                    .shimmerEffect()
+            )
+            Box(
+                Modifier
+                    .width(32.dp)
+                    .height(10.dp)
+                    .clip(CashierServiceTheme.shapes.roundedCornerSm)
+                    .shimmerEffect()
+            )
+        }
     }
 }
 

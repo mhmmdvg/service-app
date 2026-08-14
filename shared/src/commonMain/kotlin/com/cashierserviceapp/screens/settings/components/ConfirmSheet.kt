@@ -83,7 +83,7 @@ fun ConfirmSheet(
                 modifier = Modifier.weight(1f),
                 primary = true,
                 enabled = confirmEnabled,
-                primaryBackground = CashierServiceTheme.colors.accentText
+                primaryBackground = CashierServiceTheme.colors.dangerBackground
             )
         }
 

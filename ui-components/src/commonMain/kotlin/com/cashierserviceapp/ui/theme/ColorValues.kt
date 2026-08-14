@@ -46,7 +46,11 @@ internal object Brand {
 
     val orange = Color(0xFFFF5A13)
 
+    /** Danger on a light background: 6.5:1 as text on white, and as a fill under white text. */
     val red100 = Color(0xFFBD001A)
+
+    /** Danger fill on a dark background — lighter than [red100] so the button reads off black. */
+    val redBackgroundDark = Color(0xFFD9232E)
 
     val colorGradient = Brush.horizontalGradient(
         0f to Color(0xFF8F00E7),
@@ -63,7 +67,9 @@ internal object Brand {
 
     val greenTextDark = Color(0xFF5FD48A)
 
-    val redTextDark = Color(0xFFFF6C00)
+    // Was 0xFFFF6C00, which is orange — it read as a warning, and sat one shade off orangeTextDark.
+    // This is the red counterpart of the other *TextDark entries: lightened to clear black.
+    val redTextDark = Color(0xFFFF6B6B)
 }
 
 internal object UI {
