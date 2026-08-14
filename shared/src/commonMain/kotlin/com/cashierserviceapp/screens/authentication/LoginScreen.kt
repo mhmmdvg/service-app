@@ -157,7 +157,7 @@ private fun LoginContent(
                 text = errorMessage,
                 modifier = Modifier.fillMaxWidth(),
                 style = CashierServiceTheme.typography.text2,
-                color = CashierServiceTheme.colors.accentText
+                color = CashierServiceTheme.colors.dangerText
             )
         }
 

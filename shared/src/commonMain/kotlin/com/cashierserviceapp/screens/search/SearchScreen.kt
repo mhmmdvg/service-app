@@ -28,7 +28,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cashierserviceapp.screens.history.components.HistoryMessage
+import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.home.AttentionRow
 import com.cashierserviceapp.screens.home.components.AttentionCard
@@ -123,7 +123,7 @@ private fun SearchContent(
             when {
                 // Nothing typed yet: say what search covers instead of showing a blank screen.
                 query.isBlank() -> item("hint") {
-                    HistoryMessage(
+                    ContentMessage(
                         title = "Find an order",
                         body = "Search the in-progress list by customer name or order code."
                     )
@@ -134,7 +134,7 @@ private fun SearchContent(
                 }
 
                 state is Resource.Error -> item("error") {
-                    HistoryMessage(
+                    ContentMessage(
                         title = "Couldn't load orders",
                         body = state.message ?: "Something went wrong.",
                         actionLabel = "Try again",
@@ -143,7 +143,7 @@ private fun SearchContent(
                 }
 
                 results.isEmpty() -> item("empty") {
-                    HistoryMessage(
+                    ContentMessage(
                         title = "Nothing matches \"$query\"",
                         body = "Only orders still in progress are searchable. Finished ones live " +
                                 "in History."

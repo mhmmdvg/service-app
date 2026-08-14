@@ -39,6 +39,30 @@ fun LocalDateTime.formatTime(): String =
 /** `13 Aug 2026`. */
 fun LocalDate.formatDate(): String = "$day ${month.shortName()} $year"
 
+/** `13 Aug` — for dates recent enough that the year is noise. */
+fun LocalDate.formatDayMonth(): String = "$day ${month.shortName()}"
+
+/**
+ * How a list row states when something happened, in the space of a few characters: a clock time if
+ * it was today, a word if it was yesterday, otherwise a date — dropping the year until it's a
+ * different one.
+ *
+ * Takes [today] rather than reading the clock so callers can compute it once per load instead of
+ * once per row. Returns "" for a timestamp that didn't parse, so a row renders without a stray
+ * placeholder.
+ */
+fun formatRelativeTimestamp(iso: String, today: LocalDate): String {
+    val moment = parseTimestamp(iso)?.toLocalDateTime() ?: return ""
+    val date = moment.date
+
+    return when {
+        date == today -> moment.formatTime()
+        date.toEpochDays() == today.toEpochDays() - 1 -> "Yesterday"
+        date.year == today.year -> date.formatDayMonth()
+        else -> date.formatDate()
+    }
+}
+
 /** `13 August 2026`. */
 fun LocalDate.formatLongDate(): String = "$day ${month.fullName()} $year"
 

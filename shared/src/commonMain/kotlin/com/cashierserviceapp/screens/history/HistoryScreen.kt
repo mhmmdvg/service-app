@@ -17,12 +17,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.nav_destination_history
 import com.cashierserviceapp.ScreenWithTitle
-import com.cashierserviceapp.screens.history.components.HistoryMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCard
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.history.components.HistorySectionHeader
+import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
+import com.cashierserviceapp.utils.PullThreshold
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -38,7 +39,6 @@ private const val SKELETON_ROW_COUNT = 6
  * private `DragMultiplier` of 0.5 before comparing against the threshold. So 120.dp here means
  * roughly 240.dp of pull, against 160.dp for the default.
  */
-private val PullThreshold = 250.dp
 
 @Composable
 fun HistoryScreen(
@@ -104,7 +104,7 @@ private fun HistoryContent(
                     }
 
                     state is Resource.Error && sections.isEmpty() -> item("error") {
-                        HistoryMessage(
+                        ContentMessage(
                             title = "Couldn't load history",
                             body = state.message ?: "Something went wrong.",
                             actionLabel = "Try again",
@@ -113,7 +113,7 @@ private fun HistoryContent(
                     }
 
                     sections.isEmpty() -> item("empty") {
-                        HistoryMessage(
+                        ContentMessage(
                             title = "No completed orders yet",
                             body = "Once every device on an order is finished, the order moves " +
                                     "here."
@@ -155,8 +155,8 @@ private fun HistoryContent(
         PullToRefreshDefaults.Indicator(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top))
-                .padding(top = 8.dp),
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),
+//                .padding(top = 8.dp),
             isRefreshing = isRefreshing,
             state = pullState
         )

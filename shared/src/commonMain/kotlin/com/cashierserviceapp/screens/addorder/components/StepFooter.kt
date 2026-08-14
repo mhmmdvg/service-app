@@ -34,7 +34,7 @@ internal fun StepFooter(
                     .padding(horizontal = 24.dp)
                     .padding(bottom = 12.dp),
                 style = CashierServiceTheme.typography.text2,
-                color = CashierServiceTheme.colors.accentText
+                color = CashierServiceTheme.colors.dangerText
             )
         }
 

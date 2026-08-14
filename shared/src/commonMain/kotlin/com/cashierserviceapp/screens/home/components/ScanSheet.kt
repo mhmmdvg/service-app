@@ -83,7 +83,7 @@ fun ScanSheet(
 
                 state is Resource.Error -> ScanMessage(
                     text = state.message ?: "No order matches that code.",
-                    accent = true
+                    isError = true
                 )
 
                 tracking != null -> TrackingResult(tracking)
@@ -116,11 +116,11 @@ fun ScanSheet(
 }
 
 @Composable
-private fun ScanMessage(text: String, accent: Boolean = false) {
+private fun ScanMessage(text: String, isError: Boolean = false) {
     Text(
         text = text,
         style = CashierServiceTheme.typography.text2,
-        color = if (accent) CashierServiceTheme.colors.accentText
+        color = if (isError) CashierServiceTheme.colors.dangerText
         else CashierServiceTheme.colors.secondaryText
     )
 }

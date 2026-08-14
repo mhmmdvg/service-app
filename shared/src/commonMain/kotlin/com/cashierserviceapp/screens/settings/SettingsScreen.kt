@@ -145,7 +145,7 @@ private fun SettingsContent(
                     style = CashierServiceTheme.typography.text1.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
-                    color = CashierServiceTheme.colors.redText
+                    color = CashierServiceTheme.colors.dangerText
                 )
             }
         }

@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cashierserviceapp.ScreenWithTitle
-import com.cashierserviceapp.screens.history.components.HistoryMessage
+import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.home.components.AttentionCard
 import com.cashierserviceapp.screens.home.components.ScanSheet
@@ -171,7 +171,7 @@ private fun LazyListScope.attentionSection(
         }
 
         state is Resource.Error && snapshot == null -> item("error") {
-            HistoryMessage(
+            ContentMessage(
                 title = "Couldn't load orders",
                 body = state.message ?: "Something went wrong.",
                 actionLabel = "Try again",
@@ -180,7 +180,7 @@ private fun LazyListScope.attentionSection(
         }
 
         attention.isEmpty() -> item("empty") {
-            HistoryMessage(
+            ContentMessage(
                 title = "Nothing waiting",
                 body = "Every device that's come in has been finished. New orders show up here."
             )

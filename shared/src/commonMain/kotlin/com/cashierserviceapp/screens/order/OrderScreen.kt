@@ -3,19 +3,25 @@ package com.cashierserviceapp.screens.order
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.pullToRefresh
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.nav_destination_order
 import com.cashierserviceapp.ScreenWithTitle
+import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.screens.order.components.OrderCard
 import com.cashierserviceapp.screens.order.components.OrderCardSkeleton
-import com.cashierserviceapp.ui.components.Text
+import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
+import com.cashierserviceapp.utils.PullThreshold
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -25,34 +31,68 @@ fun OrderScreen(
     viewModel: OrderViewModel = metroViewModel(),
 ) {
     val orderState by viewModel.orderState.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
 
-    ScreenWithTitle(
-        title = stringResource(Res.string.nav_destination_order),
-        scrollable = false,
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            item("top_spacer") {
-                Spacer(Modifier.height(innerPadding.calculateTopPadding() - 5.dp))
-            }
+    OrderContent(
+        state = orderState,
+        isRefreshing = isRefreshing,
+        onRefresh = viewModel::refresh,
+        onRetry = viewModel::retry,
+    )
+}
 
-            when (val state = orderState) {
-                is Resource.Loading -> items(10) {
-                    OrderCardSkeleton()
+@Composable
+private fun OrderContent(
+    state: Resource<List<OrderRow>>,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
+    onRetry: () -> Unit,
+) {
+    val pullState = rememberPullToRefreshState()
+
+    Box(Modifier.fillMaxSize()) {
+        ScreenWithTitle(
+            title = stringResource(Res.string.nav_destination_order),
+            scrollable = false,
+            modifier = Modifier.pullToRefresh(
+                isRefreshing = isRefreshing,
+                state = pullState,
+                threshold = PullThreshold,
+                onRefresh = onRefresh
+            )
+        ) { innerPadding ->
+            val orderData = state.data.orEmpty()
+
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item("top_spacer") {
+                    Spacer(Modifier.height(innerPadding.calculateTopPadding() - 5.dp))
                 }
 
-                is Resource.Error -> item {
-                    Box(Modifier.fillMaxSize()) {
-                        Text(state.message ?: "")
+                when {
+                    state is Resource.Loading && orderData.isEmpty() -> items(6) {
+                        OrderCardSkeleton()
                     }
-                }
 
-                is Resource.Success -> {
-                    val orderData = state.data ?: emptyList()
+                    state is Resource.Error && orderData.isEmpty() -> item {
+                        ContentMessage(
+                            title = "Couldn't load order",
+                            body = state.message ?: "Something went wrong.",
+                            actionLabel = "Try again",
+                            onAction = onRetry
+                        )
+                    }
 
-                    if (orderData.isNotEmpty()) {
+                    orderData.isEmpty() -> item("empty") {
+                        ContentMessage(
+                            title = "No orders yet",
+                            body = "Orders you create will show up here while they're in progress."
+                        )
+                    }
+
+                    else ->
                         items(
                             items = orderData,
                             key = { it.id }
@@ -60,21 +100,95 @@ fun OrderScreen(
                             OrderCard(
                                 name = order.customerName,
                                 code = order.orderCode,
+                                itemsCount = order.itemsCount,
                                 status = order.status,
+                                time = order.timeLabel,
                                 onClick = {
                                     println("Clicked ${order.orderCode}")
                                 }
                             )
                         }
-                    }
                 }
             }
         }
+
+        PullToRefreshDefaults.Indicator(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top)),
+            isRefreshing = isRefreshing,
+            state = pullState,
+        )
     }
+}
+
+private val previewOrder = listOf(
+    OrderRow(
+        id = "TEST-100",
+        customerName = "Vikri",
+        orderCode = "SV-12345",
+        itemsCount = 2,
+        status = OrderStatus.IN_PROGRESS,
+        timeLabel = "14:32"
+    ),
+    OrderRow(
+        id = "TEST-200",
+        customerName = "Testing",
+        orderCode = "SV-89656",
+        itemsCount = 1,
+        status = OrderStatus.IN_PROGRESS,
+        timeLabel = "Yesterday"
+    ),
+    OrderRow(
+        id = "TEST-300",
+        customerName = "Enji",
+        orderCode = "SV-877234",
+        itemsCount = 3,
+        status = OrderStatus.IN_PROGRESS,
+        timeLabel = "7 Aug"
+    )
+)
+
+@PreviewLightDark
+@Composable
+private fun OrderScreenPreview() = PreviewHelper(paddingEnabled = false) {
+    OrderContent(
+        state = Resource.Success(previewOrder),
+        isRefreshing = false,
+        onRefresh = {},
+        onRetry = {},
+    )
 }
 
 @PreviewLightDark
 @Composable
-fun OrderScreenPreview() = PreviewHelper {
-    OrderScreen()
+private fun OrderScreenEmptyPreview() = PreviewHelper(paddingEnabled = false) {
+    OrderContent(
+        state = Resource.Success(emptyList<OrderRow>()),
+        isRefreshing = false,
+        onRefresh = {},
+        onRetry = {},
+    )
+}
+
+@PreviewLightDark
+@Composable
+private fun OrderScreenLoadingPreview() = PreviewHelper(paddingEnabled = false) {
+    OrderContent(
+        state = Resource.Loading(),
+        isRefreshing = false,
+        onRefresh = {},
+        onRetry = {},
+    )
+}
+
+@PreviewLightDark
+@Composable
+private fun OrderScreenErrorPreview() = PreviewHelper(paddingEnabled = false) {
+    OrderContent(
+        state = Resource.Error("Couldn't reach the server. Check your connection and try again."),
+        isRefreshing = false,
+        onRefresh = {},
+        onRetry = {},
+    )
 }
