@@ -4,6 +4,7 @@ import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.HttpResponse
 import com.cashierserviceapp.domain.models.Order
+import com.cashierserviceapp.domain.models.OrderTracking
 
 interface OrderApi {
     suspend fun getOrders(): HttpResponse<List<Order>>?
@@ -12,4 +13,7 @@ interface OrderApi {
     suspend fun getOrderHistory(): HttpResponse<List<Order>>?
 
     suspend fun createOrder(request: CreateOrderRequest): HttpResponse<CreateOrderResponse>?
+
+    /** Resolves the token embedded in a receipt's QR code to that order's progress. */
+    suspend fun trackOrder(qrToken: String): HttpResponse<OrderTracking>?
 }

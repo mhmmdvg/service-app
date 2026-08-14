@@ -81,6 +81,9 @@ private fun LoginContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            // Opaque for the same reason as SearchScreen: signing out transitions Settings to this
+            // screen, and both are drawn while that runs.
+            .background(CashierServiceTheme.colors.mainBackground)
             .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Vertical))
             .imePadding()
             .verticalScroll(rememberScrollState())
