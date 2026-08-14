@@ -3,8 +3,10 @@ package com.cashierserviceapp.navigation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -91,8 +93,8 @@ internal fun NavScaffold(
     val strings = LocalStrings.current
     val destinations = remember(strings) { bottomNavDestinations(strings) }
     val windowSize = LocalWindowSize.current
-//    val showLargeNavigation = windowSize != WindowSize.Compact &&
-//            navState.topLevelRoute != null
+    val showLargeNavigation = windowSize != WindowSize.Compact &&
+            navState.topLevelRoute != null
     val showCompactNavigation = windowSize == WindowSize.Compact &&
             navState.topLevelRoute != null &&
             navState.currentBackstack.size == 1 &&
@@ -104,6 +106,19 @@ internal fun NavScaffold(
             .background(color = CashierServiceTheme.colors.mainBackground)
     ) {
         val enterAnimSpec = tween<IntSize>(delayMillis = AnimationConstants.DefaultDurationMillis)
+
+        AnimatedVisibility(
+            visible = showLargeNavigation,
+            enter = expandHorizontally(enterAnimSpec),
+            exit = shrinkHorizontally() + fadeOut()
+        ) {
+            SideNavigation(
+                currentRoute = navState.topLevelRoute,
+                destinations = destinations,
+                onSelectRoute = onSelectRoute,
+                expanded = windowSize == WindowSize.Large,
+            )
+        }
 
         Column(Modifier.weight(1f)) {
             Box(Modifier.weight(1f).clipToBounds()) {
