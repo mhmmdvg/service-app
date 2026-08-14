@@ -1,5 +1,6 @@
 package com.cashierserviceapp.domain.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,7 +11,9 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class OrderTracking(
+    @SerialName("order_code")
     val orderCode: String,
+    @SerialName("created_at")
     val createdAt: String? = null,
     val items: List<OrderItemTracking> = emptyList(),
 )
@@ -18,10 +21,14 @@ data class OrderTracking(
 @Serializable
 data class OrderItemTracking(
     val id: String? = null,
+    @SerialName("device_brand")
     val deviceBrand: String,
+    @SerialName("device_model")
     val deviceModel: String,
     val status: OrderStatus,
     val complaint: String? = null,
+    @SerialName("service_fee")
     val serviceFee: Long? = null,
+    @SerialName("final_cost")
     val finalCost: Long? = null,
 )

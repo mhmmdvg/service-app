@@ -1,5 +1,6 @@
 package com.cashierserviceapp.domain.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -12,11 +13,16 @@ import kotlinx.serialization.Serializable
 data class Order(
     val id: String,
     val status: OrderStatus,
+    @SerialName("customer_name")
     val customerName: String,
+    @SerialName("order_code")
     val orderCode: String,
+    @SerialName("created_at")
     val createdAt: String,
     // Int64 server-side, so Long here: rupiah totals outgrow Int sooner than you'd think.
+    @SerialName("total_cost")
     val totalCost: Long,
+    @SerialName("items_count")
     val itemsCount: Int,
 )
 

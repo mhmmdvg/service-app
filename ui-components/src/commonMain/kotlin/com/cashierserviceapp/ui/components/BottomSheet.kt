@@ -51,7 +51,8 @@ import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
 /** Gap between the sheet and the screen on the left, right and bottom. */
-private val SheetInset = 12.dp
+private val SheetInsetHorizontal = 12.dp
+private val SheetInsetVertical = 8.dp
 
 /** Past this much drag, letting go dismisses instead of springing back. */
 private val DismissDragThreshold = 120.dp
@@ -154,7 +155,10 @@ private fun SheetSurface(
             .windowInsetsPadding(
                 WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
             )
-            .padding(SheetInset)
+            .padding(
+                horizontal = SheetInsetHorizontal,
+                vertical = SheetInsetVertical
+            )
             // Read in the layout phase, so dragging never recomposes the sheet's contents.
             .offset { IntOffset(0, dragOffset.roundToInt()) }
             .fillMaxWidth()
@@ -210,7 +214,10 @@ private fun BottomSheetPreview() = PreviewHelper {
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(SheetInset)
+            .padding(
+                horizontal = SheetInsetHorizontal,
+                vertical = SheetInsetVertical
+            )
             .clip(CashierServiceTheme.shapes.roundedCornerXxl)
             .background(CashierServiceTheme.colors.mainBackground)
             .background(CashierServiceTheme.colors.tileBackground.copy(alpha = 0.07f))

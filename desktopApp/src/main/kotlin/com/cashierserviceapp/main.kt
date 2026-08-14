@@ -31,7 +31,6 @@ fun main() = application {
     Window(
         onCloseRequest = ::exitApplication,
         title = "Cashier Service App",
-        alwaysOnTop = true,
         state = rememberWindowState(width = 600.dp, height = 800.dp)
     ) {
         App(graph)

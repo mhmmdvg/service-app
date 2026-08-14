@@ -42,7 +42,7 @@ class AuthRepositoryImpl(
             // dead network are indistinguishable here, so this message has to stay neutral.
             // See AuthenticationApi if you want them told apart.
             response == null -> error("Could not sign in. Check your details and try again.")
-            !response.status -> error(response.message)
+            !response.success -> error(response.message)
             response.data == null -> error(response.message)
             else -> response.data
         }

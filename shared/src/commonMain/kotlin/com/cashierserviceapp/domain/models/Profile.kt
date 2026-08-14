@@ -20,5 +20,6 @@ data class Profile(
     val email: String,
     val role: UserRole,
     val phone: String? = null,
+    @SerialName("created_at")
     val createdAt: String? = null,
 )
