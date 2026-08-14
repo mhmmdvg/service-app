@@ -30,16 +30,6 @@ import org.jetbrains.compose.resources.stringResource
 
 private const val SKELETON_ROW_COUNT = 6
 
-/**
- * How far to pull before letting go refreshes. Up from the 80.dp default, which fired on almost any
- * downward flick — the list is usually short enough that it isn't scrollable, so every drag lands
- * straight in overscroll with no scrolling phase to get through first.
- *
- * Note this is *half* the distance the finger actually travels: the modifier scales drag by a
- * private `DragMultiplier` of 0.5 before comparing against the threshold. So 120.dp here means
- * roughly 240.dp of pull, against 160.dp for the default.
- */
-
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel = metroViewModel(),
