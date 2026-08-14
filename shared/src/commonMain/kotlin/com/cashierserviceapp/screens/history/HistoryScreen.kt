@@ -12,18 +12,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.nav_destination_history
 import com.cashierserviceapp.ScreenWithTitle
+import com.cashierserviceapp.screens.history.components.HistoryMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCard
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.history.components.HistorySectionHeader
-import com.cashierserviceapp.ui.components.Button
-import com.cashierserviceapp.ui.components.Text
-import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
@@ -31,6 +28,17 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
 import org.jetbrains.compose.resources.stringResource
 
 private const val SKELETON_ROW_COUNT = 6
+
+/**
+ * How far to pull before letting go refreshes. Up from the 80.dp default, which fired on almost any
+ * downward flick — the list is usually short enough that it isn't scrollable, so every drag lands
+ * straight in overscroll with no scrolling phase to get through first.
+ *
+ * Note this is *half* the distance the finger actually travels: the modifier scales drag by a
+ * private `DragMultiplier` of 0.5 before comparing against the threshold. So 120.dp here means
+ * roughly 240.dp of pull, against 160.dp for the default.
+ */
+private val PullThreshold = 250.dp
 
 @Composable
 fun HistoryScreen(
@@ -74,6 +82,7 @@ private fun HistoryContent(
             modifier = Modifier.pullToRefresh(
                 isRefreshing = isRefreshing,
                 state = pullState,
+                threshold = PullThreshold,
                 onRefresh = onRefresh
             )
         ) { innerPadding ->
@@ -154,42 +163,6 @@ private fun HistoryContent(
     }
 }
 
-/** Shared shape for the empty and failed states, so neither is a bare line of text. */
-@Composable
-private fun HistoryMessage(
-    title: String,
-    body: String,
-    modifier: Modifier = Modifier,
-    actionLabel: String? = null,
-    onAction: () -> Unit = {},
-) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .padding(top = 72.dp, start = 24.dp, end = 24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            text = title,
-            style = CashierServiceTheme.typography.h4.copy(textAlign = TextAlign.Center),
-            color = CashierServiceTheme.colors.primaryText
-        )
-
-        Spacer(Modifier.height(8.dp))
-
-        Text(
-            text = body,
-            style = CashierServiceTheme.typography.text2.copy(textAlign = TextAlign.Center),
-            color = CashierServiceTheme.colors.secondaryText
-        )
-
-        if (actionLabel != null) {
-            Spacer(Modifier.height(20.dp))
-
-            Button(label = actionLabel, onClick = onAction, primary = false)
-        }
-    }
-}
 
 private val previewSections = listOf(
     HistorySection(

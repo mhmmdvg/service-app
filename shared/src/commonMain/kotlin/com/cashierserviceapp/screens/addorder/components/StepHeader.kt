@@ -34,7 +34,6 @@ internal fun StepHeader(
             verticalAlignment = Alignment.CenterVertically
         ) {
             CircleIconButton(
-                modifier = Modifier.size(44.dp),
                 onClick = onBack,
                 enabled = enabled,
                 icon = if (step.isFirst) XOutlined else ChevronLeftOutlined,
