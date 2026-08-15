@@ -32,6 +32,7 @@ private const val SKELETON_ROW_COUNT = 6
 
 @Composable
 fun HistoryScreen(
+    onOpenOrder: (String) -> Unit = {},
     viewModel: HistoryViewModel = metroViewModel(),
 ) {
     val historyState by viewModel.historyState.collectAsStateWithLifecycle()
@@ -42,6 +43,7 @@ fun HistoryScreen(
         isRefreshing = isRefreshing,
         onRefresh = viewModel::refresh,
         onRetry = viewModel::retry,
+        onOpenOrder = onOpenOrder,
     )
 }
 
@@ -52,6 +54,7 @@ private fun HistoryContent(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
+    onOpenOrder: (String) -> Unit = {},
 ) {
     val pullState = rememberPullToRefreshState()
 
@@ -128,7 +131,7 @@ private fun HistoryContent(
                                 itemsCount = row.itemsCount,
                                 total = row.totalLabel,
                                 time = row.timeLabel,
-                                onClick = { println("Clicked ${row.orderCode}") }
+                                onClick = { onOpenOrder(row.id) }
                             )
                         }
                     }

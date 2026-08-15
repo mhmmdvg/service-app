@@ -31,4 +31,27 @@
     <string name="profile_load_failed">Profil gagal dimuat</string>
     <string name="profile_role_admin">Admin</string>
     <string name="profile_role_cashier">Kasir</string>
+
+    <!-- Order status -->
+    <string name="order_status_received">Diterima</string>
+    <string name="order_status_diagnosing">Diagnosa</string>
+    <string name="order_status_in_progress">Dikerjakan</string>
+    <string name="order_status_completed">Selesai</string>
+
+    <!-- Order detail -->
+    <string name="order_detail_title">Pesanan</string>
+    <string name="order_detail_not_priced">Belum ada biaya</string>
+    <string name="order_detail_customer">Pelanggan</string>
+    <string name="order_detail_section_details">Rincian</string>
+    <string name="order_detail_order_code">Kode pesanan</string>
+    <string name="order_detail_created">Dibuat</string>
+    <string name="order_detail_cashier">Kasir</string>
+    <string name="order_detail_qr_token">Token QR</string>
+    <string name="order_detail_devices">Perangkat</string>
+    <string name="order_detail_service_fee">Biaya jasa</string>
+    <string name="order_detail_total">Total</string>
+    <string name="order_detail_awaiting_price">Menunggu biaya</string>
+    <string name="order_detail_load_failed">Pesanan gagal dimuat</string>
+    <string name="order_detail_no_devices">Belum ada perangkat pada pesanan ini.</string>
+    <string name="error_generic">Terjadi kesalahan.</string>
 </resources>

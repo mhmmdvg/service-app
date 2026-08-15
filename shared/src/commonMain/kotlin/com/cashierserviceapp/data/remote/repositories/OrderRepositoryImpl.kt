@@ -3,6 +3,7 @@ package com.cashierserviceapp.data.remote.repositories
 import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.Order
+import com.cashierserviceapp.domain.models.OrderDetail
 import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.domain.repositories.OrderRepository
@@ -34,6 +35,12 @@ class OrderRepositoryImpl(
 
         // An empty history is a perfectly good success, so this only trips when the server
         // actually refused — in which case its own message is the useful one.
+        response.data ?: throw Exception(response.message)
+    }
+
+    override suspend fun getOrderDetail(orderId: String): Result<OrderDetail> = runCatching {
+        val response = api.getOrderDetail(orderId) ?: throw Exception(UNREACHABLE_MESSAGE)
+
         response.data ?: throw Exception(response.message)
     }
 

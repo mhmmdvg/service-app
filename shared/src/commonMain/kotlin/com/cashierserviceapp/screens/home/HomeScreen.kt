@@ -49,6 +49,7 @@ private const val SKELETON_ROW_COUNT = 3
 fun HomeScreen(
     onOpenOrders: () -> Unit = {},
     onOpenSearch: () -> Unit = {},
+    onOpenOrder: (String) -> Unit = {},
     viewModel: HomeViewModel = metroViewModel(),
 ) {
     val homeState by viewModel.homeState.collectAsStateWithLifecycle()
@@ -64,6 +65,7 @@ fun HomeScreen(
         onScanClick = { scanning = true },
         onRetry = viewModel::retry,
         onOpenOrders = onOpenOrders,
+        onOpenOrder = onOpenOrder,
     )
 
     if (scanning) {
@@ -86,6 +88,7 @@ private fun HomeContent(
     onScanClick: () -> Unit,
     onRetry: () -> Unit,
     onOpenOrders: () -> Unit,
+    onOpenOrder: (String) -> Unit = {},
 ) {
     val snapshot = state.data
 
@@ -141,7 +144,8 @@ private fun HomeContent(
                 state = state,
                 snapshot = snapshot,
                 onRetry = onRetry,
-                onOpenOrders = onOpenOrders
+                onOpenOrders = onOpenOrders,
+                onOpenOrder = onOpenOrder
             )
 
             item("bottom_spacer") { Spacer(Modifier.height(16.dp)) }
@@ -154,6 +158,7 @@ private fun LazyListScope.attentionSection(
     snapshot: HomeSnapshot?,
     onRetry: () -> Unit,
     onOpenOrders: () -> Unit,
+    onOpenOrder: (String) -> Unit,
 ) {
     val attention = snapshot?.attention.orEmpty()
 
@@ -190,7 +195,7 @@ private fun LazyListScope.attentionSection(
             items = attention.take(ATTENTION_PREVIEW_COUNT),
             key = { it.id }
         ) { row ->
-            AttentionCard(row = row)
+            AttentionCard(row = row, onClick = { onOpenOrder(row.id) })
         }
     }
 }

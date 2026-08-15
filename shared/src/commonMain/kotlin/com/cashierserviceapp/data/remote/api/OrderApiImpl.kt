@@ -4,6 +4,7 @@ import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.HttpResponse
 import com.cashierserviceapp.domain.models.Order
+import com.cashierserviceapp.domain.models.OrderDetail
 import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.utils.Logger
@@ -33,6 +34,11 @@ class OrderApiImpl(
     override suspend fun getOrderHistory(): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {
         client.get { apiUrl("orders/history") }.body()
     }
+
+    override suspend fun getOrderDetail(orderId: String): HttpResponse<OrderDetail>? =
+        safeApiCall(taggedLogger) {
+            client.get { apiUrl("orders/${orderId.encodeURLPathPart()}") }.body()
+        }
 
     override suspend fun trackOrder(qrToken: String): HttpResponse<OrderTracking>? =
         safeApiCall(taggedLogger) {

@@ -31,4 +31,27 @@
     <string name="profile_load_failed">Couldn’t load your profile</string>
     <string name="profile_role_admin">Admin</string>
     <string name="profile_role_cashier">Cashier</string>
+
+    <!-- Order status -->
+    <string name="order_status_received">Received</string>
+    <string name="order_status_diagnosing">Diagnosing</string>
+    <string name="order_status_in_progress">In Progress</string>
+    <string name="order_status_completed">Completed</string>
+
+    <!-- Order detail -->
+    <string name="order_detail_title">Order</string>
+    <string name="order_detail_not_priced">Not priced yet</string>
+    <string name="order_detail_customer">Customer</string>
+    <string name="order_detail_section_details">Details</string>
+    <string name="order_detail_order_code">Order code</string>
+    <string name="order_detail_created">Created</string>
+    <string name="order_detail_cashier">Cashier</string>
+    <string name="order_detail_qr_token">QR token</string>
+    <string name="order_detail_devices">Devices</string>
+    <string name="order_detail_service_fee">Service fee</string>
+    <string name="order_detail_total">Total</string>
+    <string name="order_detail_awaiting_price">Awaiting price</string>
+    <string name="order_detail_load_failed">Couldn’t load this order</string>
+    <string name="order_detail_no_devices">This order has no devices on it.</string>
+    <string name="error_generic">Something went wrong.</string>
 </resources>

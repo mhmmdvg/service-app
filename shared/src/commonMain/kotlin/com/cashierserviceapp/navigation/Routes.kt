@@ -44,3 +44,11 @@ data object LoginScreen : AppRoute
 @Serializable
 @SerialName("Search")
 data object SearchScreen : AppRoute
+
+/**
+ * The first route carrying an argument — hence a data class, not an object. It's serialized into
+ * the saved backstack, so [orderId] survives process death along with the rest of the stack.
+ */
+@Serializable
+@SerialName("OrderDetail")
+data class OrderDetailScreen(val orderId: String) : AppRoute

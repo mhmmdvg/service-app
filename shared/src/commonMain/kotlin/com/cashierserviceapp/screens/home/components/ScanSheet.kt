@@ -24,7 +24,7 @@ import com.cashierserviceapp.domain.models.OrderItemTracking
 import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.ui.components.BottomSheet
 import com.cashierserviceapp.ui.components.Button
-import com.cashierserviceapp.ui.components.Chip
+import com.cashierserviceapp.screens.order.components.OrderStatusChip
 import com.cashierserviceapp.ui.components.SearchField
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
@@ -162,25 +162,10 @@ private fun TrackingResult(tracking: OrderTracking) {
                     }
                 }
 
-                Chip(label = item.status.label(), color = item.status.color())
+                OrderStatusChip(item.status)
             }
         }
     }
-}
-
-@Composable
-private fun OrderStatus.color() = when (this) {
-    OrderStatus.RECEIVED -> CashierServiceTheme.colors.blueText
-    OrderStatus.DIAGNOSING -> CashierServiceTheme.colors.orangeText
-    OrderStatus.IN_PROGRESS -> CashierServiceTheme.colors.purpleText
-    OrderStatus.COMPLETED -> CashierServiceTheme.colors.greenText
-}
-
-private fun OrderStatus.label(): String = when (this) {
-    OrderStatus.RECEIVED -> "Received"
-    OrderStatus.DIAGNOSING -> "Diagnosing"
-    OrderStatus.IN_PROGRESS -> "In Progress"
-    OrderStatus.COMPLETED -> "Completed"
 }
 
 @PreviewLightDark

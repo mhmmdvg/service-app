@@ -27,6 +27,7 @@ fun CircleIconButton(
         modifier = modifier
             .clip(CircleShape)
             .size(40.dp)
+            .background(CashierServiceTheme.colors.mainBackground)
             .background(CashierServiceTheme.colors.tileBackground),
         onClick = onClick,
         enabled = enabled,
