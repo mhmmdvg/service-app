@@ -5,8 +5,8 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cashierserviceapp.di.AppGraph
 import com.cashierserviceapp.flags.LocalFlags
-import com.cashierserviceapp.localization.LocalStrings
-import com.cashierserviceapp.localization.stringsFor
+import com.cashierserviceapp.localization.LocalAppLanguage
+import com.cashierserviceapp.localization.applyAppLanguage
 import com.cashierserviceapp.navigation.NavHost
 import com.cashierserviceapp.utils.LocalWindowSize
 import com.cashierserviceapp.utils.windowSize
@@ -25,6 +25,11 @@ fun App(
         .collectAsStateWithLifecycle(initialValue = remember { storage.getThemeBlocking() })
     val language by storage.getLanguage()
         .collectAsStateWithLifecycle(initialValue = remember { storage.getLanguageBlocking() })
+
+    // Pushed to the platform locale during composition rather than from a LaunchedEffect: Compose
+    // Resources reads the locale as it composes, so an effect would land a frame late and the app
+    // would flash the previous language on every change, including the very first frame.
+    remember(language) { applyAppLanguage(language) }
 
     val isDarkTheme = when (currentTheme) {
         Theme.SYSTEM -> isSystemInDarkTheme()
@@ -45,7 +50,7 @@ fun App(
         LocalAppGraph provides appGraph,
         LocalMetroViewModelFactory provides appGraph.metroViewModelFactory,
         LocalWindowSize provides windowSize(),
-        LocalStrings provides stringsFor(language),
+        LocalAppLanguage provides language,
     ) {
         NavHost(
             isOnboardingComplete = true,

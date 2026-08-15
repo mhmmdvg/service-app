@@ -1,0 +1,34 @@
+<resources>
+    <!-- General resources -->
+
+    <string name="action_cancel">Batal</string>
+    <string name="action_try_again">Coba lagi</string>
+
+    <string name="nav_destination_home">Beranda</string>
+    <string name="nav_destination_order">Pesanan</string>
+    <string name="nav_destination_add_order">Tambah Pesanan</string>
+    <string name="nav_destination_history">Riwayat</string>
+    <string name="nav_destination_settings">Pengaturan</string>
+
+    <!-- Screen resources -->
+
+    <string name="settings_title">Pengaturan</string>
+
+    <string name="settings_appearance_title">Tampilan</string>
+    <string name="settings_appearance_footnote">Sistem mengikuti pengaturan perangkat kamu.</string>
+    <string name="settings_theme_system">Sistem</string>
+    <string name="settings_theme_light">Terang</string>
+    <string name="settings_theme_dark">Gelap</string>
+
+    <string name="settings_language_title">Bahasa</string>
+    <string name="settings_language_footnote">Langsung diterapkan ke seluruh aplikasi.</string>
+
+    <string name="settings_account_title">Akun</string>
+    <string name="settings_sign_out">Keluar</string>
+    <string name="settings_sign_out_confirm_title">Keluar dari akun?</string>
+    <string name="settings_sign_out_confirm_body">Kamu perlu email dan kata sandi untuk masuk lagi.</string>
+
+    <string name="profile_load_failed">Profil gagal dimuat</string>
+    <string name="profile_role_admin">Admin</string>
+    <string name="profile_role_cashier">Kasir</string>
+</resources>

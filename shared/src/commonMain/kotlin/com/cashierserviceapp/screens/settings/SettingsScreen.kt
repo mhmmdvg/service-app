@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,9 +25,6 @@ import com.cashierserviceapp.Theme
 import com.cashierserviceapp.domain.models.Profile
 import com.cashierserviceapp.domain.models.UserRole
 import com.cashierserviceapp.localization.AppLanguage
-import com.cashierserviceapp.localization.AppStrings
-import com.cashierserviceapp.localization.IndonesianStrings
-import com.cashierserviceapp.localization.LocalStrings
 import com.cashierserviceapp.screens.settings.components.ConfirmSheet
 import com.cashierserviceapp.screens.settings.components.ProfileCard
 import com.cashierserviceapp.screens.settings.components.ProfileCardSkeleton
@@ -40,7 +36,24 @@ import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_cancel
+import cashierserviceapp.shared.generated.resources.action_try_again
+import cashierserviceapp.shared.generated.resources.profile_load_failed
+import cashierserviceapp.shared.generated.resources.settings_account_title
+import cashierserviceapp.shared.generated.resources.settings_appearance_footnote
+import cashierserviceapp.shared.generated.resources.settings_appearance_title
+import cashierserviceapp.shared.generated.resources.settings_language_footnote
+import cashierserviceapp.shared.generated.resources.settings_language_title
+import cashierserviceapp.shared.generated.resources.settings_sign_out
+import cashierserviceapp.shared.generated.resources.settings_sign_out_confirm_body
+import cashierserviceapp.shared.generated.resources.settings_sign_out_confirm_title
+import cashierserviceapp.shared.generated.resources.settings_theme_dark
+import cashierserviceapp.shared.generated.resources.settings_theme_light
+import cashierserviceapp.shared.generated.resources.settings_theme_system
+import cashierserviceapp.shared.generated.resources.settings_title
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun SettingsScreen(
@@ -75,10 +88,16 @@ private fun SettingsContent(
     onRetryProfile: () -> Unit,
     onSignOut: () -> Unit,
 ) {
-    val strings = LocalStrings.current
     var confirmingSignOut by remember { mutableStateOf(false) }
 
-    ScreenWithTitle(title = strings.navSettings) {
+    // SegmentedSelector's label lambda isn't composable, so the theme copy is resolved up front.
+    val themeLabels = mapOf(
+        Theme.SYSTEM to stringResource(Res.string.settings_theme_system),
+        Theme.LIGHT to stringResource(Res.string.settings_theme_light),
+        Theme.DARK to stringResource(Res.string.settings_theme_dark),
+    )
+
+    ScreenWithTitle(title = stringResource(Res.string.settings_title)) {
         Spacer(Modifier.height(8.dp))
 
         // A cached session gives us a name and email straight away, so the card is usually filled
@@ -89,7 +108,6 @@ private fun SettingsContent(
 
             profileState is Resource.Error -> ProfileLoadFailed(
                 message = profileState.message,
-                strings = strings,
                 onRetry = onRetryProfile
             )
 
@@ -99,22 +117,22 @@ private fun SettingsContent(
         Spacer(Modifier.height(32.dp))
 
         SettingsSection(
-            title = strings.settingsAppearance,
-            footnote = strings.themeDescription
+            title = stringResource(Res.string.settings_appearance_title),
+            footnote = stringResource(Res.string.settings_appearance_footnote)
         ) {
             SegmentedSelector(
                 options = Theme.entries,
                 selected = theme,
                 onSelect = onThemeChange,
-                label = { it.label(strings) }
+                label = { themeLabels.getValue(it) }
             )
         }
 
         Spacer(Modifier.height(28.dp))
 
         SettingsSection(
-            title = strings.settingsLanguage,
-            footnote = strings.languageDescription
+            title = stringResource(Res.string.settings_language_title),
+            footnote = stringResource(Res.string.settings_language_footnote)
         ) {
             SegmentedSelector(
                 options = AppLanguage.entries,
@@ -126,7 +144,7 @@ private fun SettingsContent(
 
         Spacer(Modifier.height(28.dp))
 
-        SettingsSection(title = strings.settingsAccount) {
+        SettingsSection(title = stringResource(Res.string.settings_account_title)) {
             Row(
                 Modifier
                     .fillMaxWidth()
@@ -141,7 +159,7 @@ private fun SettingsContent(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = strings.signOut,
+                    text = stringResource(Res.string.settings_sign_out),
                     style = CashierServiceTheme.typography.text1.copy(
                         fontWeight = FontWeight.SemiBold
                     ),
@@ -155,10 +173,10 @@ private fun SettingsContent(
 
     if (confirmingSignOut) {
         ConfirmSheet(
-            title = strings.signOutConfirmTitle,
-            body = strings.signOutConfirmBody,
-            confirmLabel = strings.signOutConfirm,
-            cancelLabel = strings.cancel,
+            title = stringResource(Res.string.settings_sign_out_confirm_title),
+            body = stringResource(Res.string.settings_sign_out_confirm_body),
+            confirmLabel = stringResource(Res.string.settings_sign_out),
+            cancelLabel = stringResource(Res.string.action_cancel),
             confirmEnabled = !isSigningOut,
             onConfirm = {
                 confirmingSignOut = false
@@ -172,12 +190,11 @@ private fun SettingsContent(
 @Composable
 private fun ProfileLoadFailed(
     message: String?,
-    strings: AppStrings,
     onRetry: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth()) {
         Text(
-            text = strings.profileLoadFailed,
+            text = stringResource(Res.string.profile_load_failed),
             style = CashierServiceTheme.typography.h4,
             color = CashierServiceTheme.colors.primaryText
         )
@@ -194,14 +211,12 @@ private fun ProfileLoadFailed(
 
         Spacer(Modifier.height(16.dp))
 
-        Button(label = strings.profileRetry, onClick = onRetry, primary = false)
+        Button(
+            label = stringResource(Res.string.action_try_again),
+            onClick = onRetry,
+            primary = false
+        )
     }
-}
-
-private fun Theme.label(strings: AppStrings): String = when (this) {
-    Theme.SYSTEM -> strings.themeSystem
-    Theme.LIGHT -> strings.themeLight
-    Theme.DARK -> strings.themeDark
 }
 
 private val previewProfile = Profile(
@@ -226,21 +241,25 @@ private fun SettingsScreenPreview() = PreviewHelper(paddingEnabled = false) {
     )
 }
 
+/**
+ * Renders in whichever language the preview host is set to, not necessarily [AppLanguage.ID].
+ * Compose Resources picks its catalog from the platform locale, and a preview has no way to ask for
+ * a different one without moving the locale for every other preview in the process — so checking
+ * the Indonesian copy means running the app and switching in Settings.
+ */
 @PreviewLightDark
 @Composable
 private fun SettingsScreenIndonesianPreview() = PreviewHelper(paddingEnabled = false) {
-    CompositionLocalProvider(LocalStrings provides IndonesianStrings) {
-        SettingsContent(
-            theme = Theme.DARK,
-            language = AppLanguage.ID,
-            profileState = Resource.Success(previewProfile),
-            isSigningOut = false,
-            onThemeChange = {},
-            onLanguageChange = {},
-            onRetryProfile = {},
-            onSignOut = {}
-        )
-    }
+    SettingsContent(
+        theme = Theme.DARK,
+        language = AppLanguage.ID,
+        profileState = Resource.Success(previewProfile),
+        isSigningOut = false,
+        onThemeChange = {},
+        onLanguageChange = {},
+        onRetryProfile = {},
+        onSignOut = {}
+    )
 }
 
 @PreviewLightDark
