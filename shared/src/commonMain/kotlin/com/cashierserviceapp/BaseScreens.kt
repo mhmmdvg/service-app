@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.dp
+import com.cashierserviceapp.navigation.LocalIsTopLevelRoute
 import com.cashierserviceapp.ui.components.AppBar
 import com.cashierserviceapp.ui.icons.ChevronLeftOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
@@ -25,7 +26,18 @@ fun ScreenWithTitle(
     navigationIcon: ImageVector = ChevronLeftOutlined,
     scrollable: Boolean = true,
     contentScrollState: ScrollState = rememberScrollState(),
-    scrollBehavior: TopAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
+    /**
+     * Keeps the bar at its short height with a small centred title, instead of starting tall and
+     * collapsing on scroll. Pins the behaviour too, so nothing tries to animate a range that isn't
+     * there.
+     *
+     * Defaults off the route type — tab roots expand, pushed screens don't — so screens only pass
+     * this to deviate from that. See [LocalIsTopLevelRoute].
+     */
+    alwaysCollapsed: Boolean = !LocalIsTopLevelRoute.current,
+    scrollBehavior: TopAppBarScrollBehavior =
+        if (alwaysCollapsed) TopAppBarDefaults.pinnedScrollBehavior()
+        else TopAppBarDefaults.exitUntilCollapsedScrollBehavior(),
     actions: @Composable RowScope.() -> Unit = {},
     content: @Composable ColumnScope.(PaddingValues) -> Unit,
 ) {
@@ -41,6 +53,7 @@ fun ScreenWithTitle(
                 onNavigationIconClick = onBack,
                 navigationIcon = navigationIcon,
                 actions = actions,
+                alwaysCollapsed = alwaysCollapsed,
             )
         }
     ) { innerPadding ->

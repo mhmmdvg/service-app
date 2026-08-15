@@ -60,7 +60,7 @@ fun SearchField(
     val textStyle = remember(baseStyle, textColor) { baseStyle.copy(color = textColor) }
     val cursorBrush = remember(textColor) { SolidColor(textColor) }
 
-    SearchPill(modifier, trailing) {
+    SearchPill(modifier, trailing = trailing) {
         Box(Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
             if (value.isEmpty()) {
                 Text(
@@ -116,14 +116,15 @@ fun SearchField(
  */
 @Composable
 fun SearchFieldButton(
+    modifier: Modifier = Modifier,
     placeholder: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
     trailing: (@Composable () -> Unit)? = null,
 ) {
     SearchPill(
-        modifier = modifier.clickable(role = Role.Button, onClick = onClick),
-        trailing = trailing
+        modifier = modifier,
+        trailing = trailing,
+        onClick = onClick,
     ) {
         Text(
             text = placeholder,
@@ -138,7 +139,8 @@ fun SearchFieldButton(
 /** The shared shell, so the real field and its stand-in can never drift apart. */
 @Composable
 private fun SearchPill(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit = {},
     trailing: (@Composable () -> Unit)?,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -147,6 +149,7 @@ private fun SearchPill(
             .fillMaxWidth()
             .heightIn(min = 48.dp)
             .clip(CircleShape)
+            .clickable(onClick = onClick, role = Role.Button)
             .background(CashierServiceTheme.colors.tileBackground.copy(alpha = 0.08f))
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically

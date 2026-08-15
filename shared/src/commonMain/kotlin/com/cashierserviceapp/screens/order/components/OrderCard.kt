@@ -19,7 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.ui.components.Avatar
-import com.cashierserviceapp.ui.components.Chip
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
@@ -80,7 +79,7 @@ fun OrderCard(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            Chip(label = status.label(), color = status.color())
+            OrderStatusChip(status)
 
             if (time.isNotEmpty()) {
                 Text(
@@ -95,21 +94,6 @@ fun OrderCard(
 }
 
 private fun Int.deviceLabel(): String = if (this == 1) "1 device" else "$this devices"
-
-private fun OrderStatus.label(): String = when (this) {
-    OrderStatus.RECEIVED -> "Received"
-    OrderStatus.DIAGNOSING -> "Diagnosing"
-    OrderStatus.IN_PROGRESS -> "In Progress"
-    OrderStatus.COMPLETED -> "Completed"
-}
-
-@Composable
-private fun OrderStatus.color() = when (this) {
-    OrderStatus.RECEIVED -> CashierServiceTheme.colors.blueText
-    OrderStatus.DIAGNOSING -> CashierServiceTheme.colors.orangeText
-    OrderStatus.IN_PROGRESS -> CashierServiceTheme.colors.purpleText
-    OrderStatus.COMPLETED -> CashierServiceTheme.colors.greenText
-}
 
 @PreviewLightDark
 @Composable

@@ -2,6 +2,7 @@ package com.cashierserviceapp.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -15,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.lerp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.sp
 import com.cashierserviceapp.ui.icons.ChevronLeftOutlined
@@ -40,9 +42,72 @@ fun AppBar(
     collapsedTitleWeight: FontWeight = FontWeight.Bold,
     actions: @Composable RowScope.() -> Unit = {},
     scrollBehavior: TopAppBarScrollBehavior? = null,
+    /**
+     * Skips the tall state entirely: the bar starts, stays and ends at its collapsed height with a
+     * small centred title. For screens the title is a label on rather than the headline of — an
+     * order code above its own detail, say, where a 112.dp banner would push the content down for
+     * no gain.
+     */
+    alwaysCollapsed: Boolean = false,
 ) {
     val density = LocalDensity.current
-    val appBarHeightPx = with(density) { TopAppBarDefaults.MediumAppBarExpandedHeight.toPx() }
+    val barHeight = if (alwaysCollapsed) {
+        TopAppBarDefaults.TopAppBarExpandedHeight
+    } else {
+        TopAppBarDefaults.MediumAppBarExpandedHeight
+    }
+    val appBarHeightPx = with(density) { barHeight.toPx() }
+
+    // Content scrolls underneath rather than being clipped, so the bar fades into the background
+    // over its lower half instead of ending on a hard edge.
+    val backdrop = modifier.background(
+        brush = Brush.verticalGradient(
+            colors = listOf(
+                CashierServiceTheme.colors.mainBackground,
+                Color.Transparent
+            ),
+            startY = appBarHeightPx / 2,
+            endY = appBarHeightPx,
+        )
+    )
+
+    val navigationSlot: @Composable () -> Unit = {
+        onNavigationIconClick?.let {
+            CircleIconButton(
+                modifier = Modifier
+                    .padding(start = 8.dp),
+                onClick = onNavigationIconClick,
+                icon = navigationIcon,
+                contentDescription = title,
+            )
+        }
+    }
+
+    if (alwaysCollapsed) {
+        // A single row — back button, centred title, actions — which is the shape of a SwiftUI
+        // inline navigation bar. The medium bar can't do this at any height: it always stacks the
+        // title in a second row beneath the icons, so shrinking it just leaves the title stranded
+        // below a lone chevron.
+        CenterAlignedTopAppBar(
+            modifier = backdrop,
+            colors = colors,
+            title = {
+                Text(
+                    text = title,
+                    style = CashierServiceTheme.typography.h1.copy(
+                        fontSize = collapsedTitleSize,
+                        fontWeight = collapsedTitleWeight,
+                    ),
+                    color = CashierServiceTheme.colors.primaryText,
+                    maxLines = 1,
+                )
+            },
+            navigationIcon = navigationSlot,
+            actions = actions,
+            scrollBehavior = scrollBehavior,
+        )
+        return
+    }
 
     // Slides the title from start-aligned to centred as the bar collapses. collapsedFraction is
     // read inside align(), which runs during layout, so a scroll re-positions the title without
@@ -62,16 +127,7 @@ fun AppBar(
     // MediumTopAppBar hardcodes Start. Both default to a 112.dp expanded height, so the bar
     // itself is unchanged.
     MediumFlexibleTopAppBar(
-        modifier = modifier.background(
-            brush = Brush.verticalGradient(
-                colors = listOf(
-                    CashierServiceTheme.colors.mainBackground,
-                    Color.Transparent
-                ),
-                startY = appBarHeightPx / 2,
-                endY = appBarHeightPx,
-            )
-        ),
+        modifier = backdrop,
         colors = colors,
         titleHorizontalAlignment = titleAlignment,
         title = {
@@ -94,16 +150,7 @@ fun AppBar(
             )
         },
         actions = actions,
-        navigationIcon = {
-            onNavigationIconClick?.let {
-                IconButton(onClick = it) {
-                    Icon(
-                        imageVector = navigationIcon,
-                        contentDescription = null,
-                    )
-                }
-            }
-        },
+        navigationIcon = navigationSlot,
         scrollBehavior = scrollBehavior,
     )
 }

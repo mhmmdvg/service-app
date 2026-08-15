@@ -22,6 +22,7 @@ import com.cashierserviceapp.screens.authentication.LoginScreen
 import com.cashierserviceapp.screens.history.HistoryScreen
 import com.cashierserviceapp.screens.home.HomeScreen
 import com.cashierserviceapp.screens.order.OrderScreen
+import com.cashierserviceapp.screens.orderdetail.OrderDetailScreen
 import com.cashierserviceapp.screens.search.SearchScreen
 import com.cashierserviceapp.screens.settings.SettingsScreen
 import com.cashierserviceapp.ui.theme.CashierServiceDarkColors
@@ -126,19 +127,27 @@ private fun EntryProviderScope<AppRoute>.screens(
         HomeScreen(
             onOpenOrders = { navigator.activate(OrderScreen) },
             onOpenSearch = { navigator.add(SearchScreen) },
+            onOpenOrder = { orderId -> navigator.add(OrderDetailScreen(orderId)) },
         )
     }
 
     entry<SearchScreen> {
-        SearchScreen(onBack = onBack)
+        SearchScreen(
+            onBack = onBack,
+            onOpenOrder = { orderId -> navigator.add(OrderDetailScreen(orderId)) },
+        )
+    }
+
+    entry<OrderDetailScreen> { route ->
+        OrderDetailScreen(orderId = route.orderId, onBack = onBack)
     }
 
     topLevelEntry<OrderScreen> {
-        OrderScreen()
+        OrderScreen(onOpenOrder = { orderId -> navigator.add(OrderDetailScreen(orderId)) })
     }
 
     topLevelEntry<HistoryScreen> {
-        HistoryScreen()
+        HistoryScreen(onOpenOrder = { orderId -> navigator.add(OrderDetailScreen(orderId)) })
     }
 
     topLevelEntry<SettingsScreen> {

@@ -6,6 +6,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.ui.NavDisplay
 
@@ -31,9 +33,26 @@ internal val topLevelFadeTransition: Map<String, Any> =
             NavDisplay.popTransitionSpec { fadeThrough() } +
             NavDisplay.predictivePopTransitionSpec { fadeThrough() }
 
+/**
+ * Whether the screen being composed is a tab root.
+ *
+ * Drives the app bar: a tab is a destination in its own right, so its title is the headline and
+ * earns the tall bar that collapses on scroll. Anything pushed on top is somewhere you went *from*
+ * a tab — its title is a label on the content, and a 112.dp banner would just push that content
+ * down. `ScreenWithTitle` reads this so neither kind has to ask.
+ *
+ * Defaults to false: only [topLevelEntry] flips it, so a new pushed screen gets the compact bar
+ * without anyone remembering to say so.
+ */
+val LocalIsTopLevelRoute = staticCompositionLocalOf { false }
+
 /** Adds an entry for a [TopLevelRoute], animated with [topLevelFadeTransition]. */
 internal inline fun <reified K : TopLevelRoute> EntryProviderScope<AppRoute>.topLevelEntry(
     noinline content: @Composable (K) -> Unit
 ) {
-    entry<K>(metadata = topLevelFadeTransition, content = content)
+    entry<K>(metadata = topLevelFadeTransition) { route ->
+        CompositionLocalProvider(LocalIsTopLevelRoute provides true) {
+            content(route)
+        }
+    }
 }

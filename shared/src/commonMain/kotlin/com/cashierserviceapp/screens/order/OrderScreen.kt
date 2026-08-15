@@ -28,6 +28,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun OrderScreen(
+    onOpenOrder: (String) -> Unit = {},
     viewModel: OrderViewModel = metroViewModel(),
 ) {
     val orderState by viewModel.orderState.collectAsStateWithLifecycle()
@@ -38,6 +39,7 @@ fun OrderScreen(
         isRefreshing = isRefreshing,
         onRefresh = viewModel::refresh,
         onRetry = viewModel::retry,
+        onOpenOrder = onOpenOrder,
     )
 }
 
@@ -47,6 +49,7 @@ private fun OrderContent(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
+    onOpenOrder: (String) -> Unit = {},
 ) {
     val pullState = rememberPullToRefreshState()
 
@@ -103,9 +106,7 @@ private fun OrderContent(
                                 itemsCount = order.itemsCount,
                                 status = order.status,
                                 time = order.timeLabel,
-                                onClick = {
-                                    println("Clicked ${order.orderCode}")
-                                }
+                                onClick = { onOpenOrder(order.id) }
                             )
                         }
                 }

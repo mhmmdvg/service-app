@@ -51,6 +51,7 @@ private const val SKELETON_ROW_COUNT = 4
 @Composable
 fun SearchScreen(
     onBack: () -> Unit,
+    onOpenOrder: (String) -> Unit = {},
     viewModel: SearchViewModel = metroViewModel(),
 ) {
     val ordersState by viewModel.ordersState.collectAsStateWithLifecycle()
@@ -64,6 +65,7 @@ fun SearchScreen(
         onQueryChange = viewModel::onQueryChange,
         onRetry = viewModel::retry,
         onBack = onBack,
+        onOpenOrder = onOpenOrder,
     )
 }
 
@@ -75,6 +77,7 @@ private fun SearchContent(
     onQueryChange: (String) -> Unit,
     onRetry: () -> Unit,
     onBack: () -> Unit,
+    onOpenOrder: (String) -> Unit = {},
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboard = LocalSoftwareKeyboardController.current
@@ -161,7 +164,7 @@ private fun SearchContent(
                     }
 
                     items(items = results, key = { it.id }) { row ->
-                        AttentionCard(row = row)
+                        AttentionCard(row = row, onClick = { onOpenOrder(row.id) })
                     }
                 }
             }
