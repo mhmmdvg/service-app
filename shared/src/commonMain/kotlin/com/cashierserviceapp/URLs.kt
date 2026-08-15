@@ -2,7 +2,7 @@ package com.cashierserviceapp
 
 object URLs {
     /** Host machine as seen from the Android emulator, via its NAT alias for the host loopback. */
-    const val ANDROID_LOCAL_URL = "http://192.168.1.215:8080"
+    const val ANDROID_LOCAL_URL = "http://192.168.1.216:8080"
 
     /**
      * Host machine on the LAN. Works from the emulator *and* a physical device, but only while the

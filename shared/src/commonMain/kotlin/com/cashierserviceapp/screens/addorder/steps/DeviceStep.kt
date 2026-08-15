@@ -1,150 +1,177 @@
 package com.cashierserviceapp.screens.addorder.steps
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.screens.addorder.AddOrderForm
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.add_order_device_add
+import cashierserviceapp.shared.generated.resources.add_order_device_incomplete
+import cashierserviceapp.shared.generated.resources.add_order_devices_empty
+import cashierserviceapp.shared.generated.resources.add_order_estimated_total
+import com.cashierserviceapp.screens.addorder.DeviceDraft
+import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.Text
-import com.cashierserviceapp.ui.components.TextField
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import com.cashierserviceapp.ui.theme.PreviewHelper
+import com.cashierserviceapp.ui.utils.PreviewLightDark
+import com.cashierserviceapp.utils.formatRupiah
+import org.jetbrains.compose.resources.stringResource
 
 /**
- * Step 2 — the device itself, plus what's wrong with it.
+ * Step 2 — every device coming in on this order.
  *
- * Service fee sits here rather than on a step of its own because it's often already known at the
- * counter ("screen swap, flat rate"). When it isn't, the field stays empty and the order item is
- * created without a price, to be filled in after the diagnosis.
+ * A list rather than a form: an order can take in several devices, and each carries its own
+ * complaint, fee and parts. Tapping one opens the editor; the estimated total only appears once
+ * something has actually been priced, so an unpriced intake doesn't claim to be worth Rp 0.
  */
 @Composable
 internal fun DeviceStep(
-    form: AddOrderForm,
-    onFormChange: ((AddOrderForm) -> AddOrderForm) -> Unit,
+    devices: List<DeviceDraft>,
     enabled: Boolean,
+    onAddDevice: () -> Unit,
+    onEditDevice: (DeviceDraft) -> Unit,
     modifier: Modifier = Modifier,
-    onSubmit: () -> Unit = {},
 ) {
-    val modelFocus = remember { FocusRequester() }
-    val colorFocus = remember { FocusRequester() }
-    val complaintFocus = remember { FocusRequester() }
-
     Column(modifier) {
-        TextField(
-            value = form.brand,
-            onValueChange = { value -> onFormChange { it.copy(brand = value) } },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Brand",
-            enabled = enabled,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(onNext = { modelFocus.requestFocus() })
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        TextField(
-            value = form.model,
-            onValueChange = { value -> onFormChange { it.copy(model = value) } },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Model",
-            focusRequester = modelFocus,
-            enabled = enabled,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(onNext = { colorFocus.requestFocus() })
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        TextField(
-            value = form.color,
-            onValueChange = { value -> onFormChange { it.copy(color = value) } },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Colour",
-            focusRequester = colorFocus,
-            enabled = enabled,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(onNext = { complaintFocus.requestFocus() })
-        )
-
-        Spacer(Modifier.height(24.dp))
-
-        Text(
-            text = "What's the problem?",
-            style = CashierServiceTheme.typography.h4,
-            color = CashierServiceTheme.colors.primaryText
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        TextField(
-            value = form.complaint,
-            onValueChange = { value -> onFormChange { it.copy(complaint = value) } },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Complaint",
-            focusRequester = complaintFocus,
-            enabled = enabled,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Next
+        if (devices.isEmpty()) {
+            Text(
+                text = stringResource(Res.string.add_order_devices_empty),
+                style = CashierServiceTheme.typography.text2,
+                color = CashierServiceTheme.colors.secondaryText
             )
-        )
+            Spacer(Modifier.height(16.dp))
+        }
 
-        Spacer(Modifier.height(24.dp))
+        devices.let {
+            it.forEach { device ->
+                DeviceRow(
+                    device = device,
+                    enabled = enabled,
+                    onClick = { onEditDevice(device) }
+                )
+                Spacer(Modifier.height(8.dp))
+            }
+        }
 
-        Text(
-            text = "Service fee",
-            style = CashierServiceTheme.typography.h4,
-            color = CashierServiceTheme.colors.primaryText
-        )
-
-        Spacer(Modifier.height(4.dp))
-
-        Text(
-            text = "Only if the price is already settled. Leave it empty to quote after the " +
-                    "diagnosis — spare parts get added then too.",
-            style = CashierServiceTheme.typography.text2,
-            color = CashierServiceTheme.colors.secondaryText
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        TextField(
-            // Filtered rather than validated: a fee is a whole number of rupiah, so anything else
-            // simply never lands in the field.
-            value = form.serviceFee,
-            onValueChange = { value ->
-                val digits = value.filter { it.isDigit() }
-                onFormChange { it.copy(serviceFee = digits) }
-            },
+        Button(
+            label = stringResource(Res.string.add_order_device_add),
+            onClick = onAddDevice,
             modifier = Modifier.fillMaxWidth(),
-            label = "Service fee (optional)",
+            primary = false,
             enabled = enabled,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = { onSubmit() })
         )
+
+        val total = devices.sumOf { it.total }
+        if (devices.any { it.hasPrice }) {
+            Spacer(Modifier.height(20.dp))
+
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = stringResource(Res.string.add_order_estimated_total),
+                    style = CashierServiceTheme.typography.text2,
+                    color = CashierServiceTheme.colors.secondaryText
+                )
+                Text(
+                    text = formatRupiah(total),
+                    style = CashierServiceTheme.typography.h4
+                )
+            }
+        }
     }
+}
+
+@Composable
+private fun DeviceRow(
+    device: DeviceDraft,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .clip(CashierServiceTheme.shapes.roundedCornerLg)
+            .background(CashierServiceTheme.colors.tileBackground.copy(alpha = 0.05f))
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(14.dp)
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+//            Text(
+//                text = device.name.ifBlank { stringResource(Res.string.add_order_device_incomplete) },
+//                modifier = Modifier.weight(1f),
+//                style = CashierServiceTheme.typography.h4,
+//                color = if (device.isValid) CashierServiceTheme.colors.primaryText
+//                else CashierServiceTheme.colors.dangerText,
+//                maxLines = 1
+//            )
+
+            if (device.hasPrice) {
+                Text(
+                    text = formatRupiah(device.total),
+                    style = CashierServiceTheme.typography.text2.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    maxLines = 1
+                )
+            }
+        }
+
+        if (device.complaint.isNotBlank()) {
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = device.complaint,
+                style = CashierServiceTheme.typography.text2,
+                color = CashierServiceTheme.colors.secondaryText,
+                maxLines = 1
+            )
+        }
+
+        if (device.parts.isNotEmpty()) {
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = device.parts.joinToString { "${it.name} ×${it.qty}" },
+                style = CashierServiceTheme.typography.text2,
+                color = CashierServiceTheme.colors.noteText,
+                maxLines = 1
+            )
+        }
+    }
+}
+
+@PreviewLightDark
+@Composable
+private fun DeviceStepPreview() = PreviewHelper {
+    DeviceStep(
+        devices = listOf(
+            DeviceDraft(
+                localId = "1",
+                brand = "Samsung",
+                model = "Galaxy A54",
+                complaint = "Layar mati setelah jatuh",
+                serviceFee = "50000",
+            ),
+            DeviceDraft(localId = "2", brand = "Apple", model = "iPhone 13", complaint = "Battery"),
+        ),
+        enabled = true,
+        onAddDevice = {},
+        onEditDevice = {},
+    )
 }

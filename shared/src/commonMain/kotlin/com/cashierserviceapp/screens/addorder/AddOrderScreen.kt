@@ -30,6 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -52,6 +55,8 @@ import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
+import com.cashierserviceapp.screens.addorder.components.DeviceFormSheet
+import com.cashierserviceapp.screens.addorder.components.PartPickerSheet
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 /**
@@ -78,7 +83,15 @@ fun AddOrderScreen(
         onDispose { viewModel.reset() }
     }
 
+    val catalogue by viewModel.catalogue.collectAsStateWithLifecycle()
     val isSubmitting = submitState is Resource.Loading
+
+    // Which device is being edited, and whether its parts sheet is on top of that. Both are just
+    // sheets being open, so they live here rather than in the ViewModel.
+    var editingId by remember { mutableStateOf<String?>(null) }
+    var addingPartTo by remember { mutableStateOf<String?>(null) }
+
+    val editing = form.devices.firstOrNull { it.localId == editingId }
 
     AddOrderContent(
         form = form,
@@ -90,7 +103,39 @@ fun AddOrderScreen(
         onNext = viewModel::next,
         // The first step has nowhere to go back to, so back means leave.
         onBack = { if (!viewModel.back()) onClose() },
+        onAddDevice = { editingId = viewModel.addDevice().localId },
+        onEditDevice = { device -> editingId = device.localId },
     )
+
+    editing?.let { device ->
+        DeviceFormSheet(
+            device = device,
+            onSave = viewModel::updateDevice,
+            onRemove = {
+                viewModel.removeDevice(device.localId)
+                editingId = null
+            },
+            onAddPart = { addingPartTo = device.localId },
+            onDismiss = {
+                // Backing out of a device that was never filled in shouldn't leave an empty row
+                // behind on the list.
+                if (!device.isValid) viewModel.removeDevice(device.localId)
+                editingId = null
+            }
+        )
+    }
+
+    addingPartTo?.let { deviceId ->
+        PartPickerSheet(
+            catalogue = catalogue,
+            newLocalId = viewModel::newPartLocalId,
+            onAdd = { part ->
+                viewModel.addPart(deviceId, part)
+                addingPartTo = null
+            },
+            onDismiss = { addingPartTo = null }
+        )
+    }
 }
 
 @Composable
@@ -103,6 +148,8 @@ private fun AddOrderContent(
     onFormChange: ((AddOrderForm) -> AddOrderForm) -> Unit,
     onNext: () -> Unit,
     onBack: () -> Unit,
+    onAddDevice: () -> Unit = {},
+    onEditDevice: (DeviceDraft) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -159,10 +206,10 @@ private fun AddOrderContent(
                     )
 
                     AddOrderStep.DEVICE -> DeviceStep(
-                        form = form,
-                        onFormChange = onFormChange,
+                        devices = form.devices,
                         enabled = !isSubmitting,
-                        onSubmit = { if (canContinue) onNext() }
+                        onAddDevice = onAddDevice,
+                        onEditDevice = onEditDevice,
                     )
                 }
 
@@ -213,9 +260,15 @@ private fun AddOrderDeviceStepPreview() = PreviewHelper(paddingEnabled = false) 
     AddOrderContent(
         form = AddOrderForm(
             name = "Rina Wijaya",
-            brand = "Samsung",
-            model = "Galaxy A54",
-            complaint = "Screen won't turn on after a drop"
+            devices = listOf(
+                DeviceDraft(
+                    localId = "1",
+                    brand = "Samsung",
+                    model = "Galaxy A54",
+                    complaint = "Screen won't turn on after a drop",
+                    serviceFee = "50000",
+                )
+            )
         ),
         step = AddOrderStep.DEVICE,
         isSubmitting = false,

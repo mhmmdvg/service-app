@@ -68,4 +68,31 @@
     <string name="order_detail_update_status">Update status</string>
     <string name="order_detail_device_sheet_title">Which device?</string>
     <string name="order_detail_device_sheet_body">This order has more than one.</string>
+
+    <!-- Add order: devices and parts -->
+    <string name="add_order_devices_empty">No devices yet. Add the first one the customer is dropping off.</string>
+    <string name="add_order_device_add">Add device</string>
+    <string name="add_order_device_incomplete">Incomplete device</string>
+    <string name="add_order_device_title">Device</string>
+    <string name="add_order_device_brand">Brand</string>
+    <string name="add_order_device_model">Model</string>
+    <string name="add_order_device_color">Colour</string>
+    <string name="add_order_device_complaint">Complaint</string>
+    <string name="add_order_device_save">Save</string>
+    <string name="add_order_device_remove">Remove</string>
+    <string name="add_order_service_fee">Service fee (optional)</string>
+    <string name="add_order_estimated_total">Estimated total</string>
+
+    <string name="add_order_parts_title">Spare parts</string>
+    <string name="add_order_part_add_another">Add spare part</string>
+    <string name="add_order_part_title">Add spare part</string>
+    <string name="add_order_part_catalogue">Inventory</string>
+    <string name="add_order_part_manual">Type it in</string>
+    <string name="add_order_part_search">Search inventory</string>
+    <string name="add_order_part_empty">Nothing in inventory matches.</string>
+    <string name="add_order_part_out_of_stock">Out of stock</string>
+    <string name="add_order_part_name">Part name</string>
+    <string name="add_order_part_price">Price</string>
+    <string name="add_order_part_qty">Qty</string>
+    <string name="add_order_part_add">Add part</string>
 </resources>

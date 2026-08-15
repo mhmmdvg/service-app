@@ -68,4 +68,31 @@
     <string name="order_detail_update_status">Ubah status</string>
     <string name="order_detail_device_sheet_title">Perangkat yang mana?</string>
     <string name="order_detail_device_sheet_body">Pesanan ini punya lebih dari satu.</string>
+
+    <!-- Add order: devices and parts -->
+    <string name="add_order_devices_empty">Belum ada perangkat. Tambahkan yang pertama dititipkan pelanggan.</string>
+    <string name="add_order_device_add">Tambah perangkat</string>
+    <string name="add_order_device_incomplete">Perangkat belum lengkap</string>
+    <string name="add_order_device_title">Perangkat</string>
+    <string name="add_order_device_brand">Merek</string>
+    <string name="add_order_device_model">Model</string>
+    <string name="add_order_device_color">Warna</string>
+    <string name="add_order_device_complaint">Keluhan</string>
+    <string name="add_order_device_save">Simpan</string>
+    <string name="add_order_device_remove">Hapus</string>
+    <string name="add_order_service_fee">Biaya jasa (opsional)</string>
+    <string name="add_order_estimated_total">Perkiraan total</string>
+
+    <string name="add_order_parts_title">Spare part</string>
+    <string name="add_order_part_add_another">Tambah spare part</string>
+    <string name="add_order_part_title">Tambah spare part</string>
+    <string name="add_order_part_catalogue">Inventori</string>
+    <string name="add_order_part_manual">Ketik manual</string>
+    <string name="add_order_part_search">Cari inventori</string>
+    <string name="add_order_part_empty">Tidak ada yang cocok di inventori.</string>
+    <string name="add_order_part_out_of_stock">Stok habis</string>
+    <string name="add_order_part_name">Nama part</string>
+    <string name="add_order_part_price">Harga</string>
+    <string name="add_order_part_qty">Jml</string>
+    <string name="add_order_part_add">Tambah part</string>
 </resources>
