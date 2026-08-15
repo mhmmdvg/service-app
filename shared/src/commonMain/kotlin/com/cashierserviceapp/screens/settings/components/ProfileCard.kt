@@ -20,7 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cashierserviceapp.domain.models.Profile
 import com.cashierserviceapp.domain.models.UserRole
-import com.cashierserviceapp.localization.LocalStrings
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.profile_role_admin
+import cashierserviceapp.shared.generated.resources.profile_role_cashier
+import org.jetbrains.compose.resources.stringResource
 import com.cashierserviceapp.ui.components.Avatar
 import com.cashierserviceapp.ui.components.Chip
 import com.cashierserviceapp.ui.components.Text
@@ -38,8 +41,6 @@ fun ProfileCard(
     profile: Profile,
     modifier: Modifier = Modifier,
 ) {
-    val strings = LocalStrings.current
-
     Row(
         modifier
             .fillMaxWidth()
@@ -82,8 +83,8 @@ fun ProfileCard(
 
         Chip(
             label = when (profile.role) {
-                UserRole.ADMIN -> strings.roleAdmin
-                UserRole.CASHIER -> strings.roleCashier
+                UserRole.ADMIN -> stringResource(Res.string.profile_role_admin)
+                UserRole.CASHIER -> stringResource(Res.string.profile_role_cashier)
             },
             color = when (profile.role) {
                 UserRole.ADMIN -> CashierServiceTheme.colors.purpleText

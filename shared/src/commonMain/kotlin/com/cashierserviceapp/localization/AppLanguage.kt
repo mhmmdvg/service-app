@@ -5,8 +5,9 @@ import kotlinx.serialization.Serializable
 /**
  * The languages the app ships.
  *
- * @param tag BCP-47 tag, matching the qualifier Compose Resources would use for a `values-<tag>`
- *   directory, so the two stay aligned if the catalogs ever move there.
+ * @param tag BCP-47 tag. Doubles as the Compose Resources qualifier, so [ID] is exactly the `id` in
+ *   `composeResources/values-id/` — adding a language means adding an entry here and the matching
+ *   directory, nothing else.
  * @param label the language's own name, shown in the picker — never translated, because someone
  *   looking for their language recognises it in that language.
  */

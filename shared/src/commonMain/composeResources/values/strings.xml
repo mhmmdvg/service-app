@@ -1,8 +1,34 @@
 <resources>
     <!-- General resources -->
+
+    <string name="action_cancel">Cancel</string>
+    <string name="action_try_again">Try again</string>
+
     <string name="nav_destination_home">Home</string>
     <string name="nav_destination_order">Order</string>
     <string name="nav_destination_add_order">Add Order</string>
     <string name="nav_destination_history">History</string>
     <string name="nav_destination_settings">Settings</string>
+
+    <!-- Screen resources -->
+
+    <string name="settings_title">Settings</string>
+
+    <string name="settings_appearance_title">Appearance</string>
+    <string name="settings_appearance_footnote">System follows your device’s setting.</string>
+    <string name="settings_theme_system">System</string>
+    <string name="settings_theme_light">Light</string>
+    <string name="settings_theme_dark">Dark</string>
+
+    <string name="settings_language_title">Language</string>
+    <string name="settings_language_footnote">Applies immediately, across the whole app.</string>
+
+    <string name="settings_account_title">Account</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_sign_out_confirm_title">Sign out?</string>
+    <string name="settings_sign_out_confirm_body">You’ll need your email and password to get back in.</string>
+
+    <string name="profile_load_failed">Couldn’t load your profile</string>
+    <string name="profile_role_admin">Admin</string>
+    <string name="profile_role_cashier">Cashier</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.cashierserviceapp.domain.models
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
@@ -15,6 +16,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class CustomerInput(
+    @SerialName("customer_id")
     val customerID: String? = null,
     val name: String? = null,
     val phone: String? = null,

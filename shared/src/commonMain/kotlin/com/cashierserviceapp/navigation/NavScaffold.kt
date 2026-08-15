@@ -16,14 +16,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
-import com.cashierserviceapp.localization.AppStrings
-import com.cashierserviceapp.localization.LocalStrings
 import com.cashierserviceapp.utils.LocalWindowSize
 import com.cashierserviceapp.utils.WindowSize
 import com.cashierserviceapp.ui.components.MainNavDestination
@@ -38,6 +35,13 @@ import com.cashierserviceapp.ui.icons.PlusOutlined
 import com.cashierserviceapp.ui.icons.SettingFilled
 import com.cashierserviceapp.ui.icons.SettingOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.nav_destination_add_order
+import cashierserviceapp.shared.generated.resources.nav_destination_history
+import cashierserviceapp.shared.generated.resources.nav_destination_home
+import cashierserviceapp.shared.generated.resources.nav_destination_order
+import cashierserviceapp.shared.generated.resources.nav_destination_settings
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Typed on AppRoute rather than TopLevelRoute: the add-order destination opens a cover instead of
@@ -46,33 +50,34 @@ import com.cashierserviceapp.ui.theme.CashierServiceTheme
  * The labels are the icons' content descriptions, so they follow the chosen language along with
  * everything else.
  */
-private fun bottomNavDestinations(strings: AppStrings): List<MainNavDestination<AppRoute>> = listOf(
+@Composable
+private fun bottomNavDestinations(): List<MainNavDestination<AppRoute>> = listOf(
     MainNavDestination(
-        label = strings.navHome,
+        label = stringResource(Res.string.nav_destination_home),
         icon = HomeOutlined,
         iconSelected = HomeFilled,
         route = HomeScreen
     ),
     MainNavDestination(
-        label = strings.navOrder,
+        label = stringResource(Res.string.nav_destination_order),
         icon = NotepadOutlined,
         iconSelected = NotepadFilled,
         route = OrderScreen
     ),
     MainNavDestination(
-        label = strings.navAddOrder,
+        label = stringResource(Res.string.nav_destination_add_order),
         icon = PlusOutlined,
         iconSelected = PlusFilled,
         route = AddOrderScreen
     ),
     MainNavDestination(
-        label = strings.navHistory,
+        label = stringResource(Res.string.nav_destination_history),
         icon = HistoryOutlined,
         iconSelected = HistoryFilled,
         route = HistoryScreen
     ),
     MainNavDestination(
-        label = strings.navSettings,
+        label = stringResource(Res.string.nav_destination_settings),
         icon = SettingOutlined,
         iconSelected = SettingFilled,
         route = SettingsScreen
@@ -90,8 +95,7 @@ internal fun NavScaffold(
         navigator.add(route)
     }
 
-    val strings = LocalStrings.current
-    val destinations = remember(strings) { bottomNavDestinations(strings) }
+    val destinations = bottomNavDestinations()
     val windowSize = LocalWindowSize.current
     val showLargeNavigation = windowSize != WindowSize.Compact &&
             navState.topLevelRoute != null
