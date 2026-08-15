@@ -5,6 +5,8 @@ import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.HttpResponse
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.models.OrderDetail
+import com.cashierserviceapp.domain.models.OrderDetailItem
+import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.utils.Logger
@@ -39,6 +41,17 @@ class OrderApiImpl(
         safeApiCall(taggedLogger) {
             client.get { apiUrl("orders/${orderId.encodeURLPathPart()}") }.body()
         }
+
+    override suspend fun updateOrderItem(
+        orderItemId: String,
+        request: UpdateOrderItemRequest,
+    ): HttpResponse<OrderDetailItem>? = safeApiCall(taggedLogger) {
+        client.patch {
+            apiUrl("order-items/${orderItemId.encodeURLPathPart()}")
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }.body()
+    }
 
     override suspend fun trackOrder(qrToken: String): HttpResponse<OrderTracking>? =
         safeApiCall(taggedLogger) {

@@ -54,4 +54,18 @@
     <string name="order_detail_load_failed">Pesanan gagal dimuat</string>
     <string name="order_detail_no_devices">Belum ada perangkat pada pesanan ini.</string>
     <string name="error_generic">Terjadi kesalahan.</string>
+
+    <string name="action_close">Tutup</string>
+
+    <!-- Order detail actions -->
+    <string name="order_detail_status_sheet_title">Ubah status</string>
+    <string name="order_detail_status_sheet_body">perangkat ini sampai mana?</string>
+    <string name="order_detail_print">Cetak invoice</string>
+    <string name="order_detail_receipt_title">Pratinjau invoice</string>
+    <string name="order_detail_receipt_body">Disusun 32 kolom, selebar kertas 58mm.</string>
+    <string name="order_detail_update_failed">Status gagal diubah</string>
+
+    <string name="order_detail_update_status">Ubah status</string>
+    <string name="order_detail_device_sheet_title">Perangkat yang mana?</string>
+    <string name="order_detail_device_sheet_body">Pesanan ini punya lebih dari satu.</string>
 </resources>

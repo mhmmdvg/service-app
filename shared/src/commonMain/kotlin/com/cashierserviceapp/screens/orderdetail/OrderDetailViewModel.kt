@@ -2,6 +2,8 @@ package com.cashierserviceapp.screens.orderdetail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cashierserviceapp.domain.models.OrderStatus
+import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
@@ -20,8 +22,17 @@ class OrderDetailViewModel(
     val detailState: StateFlow<Resource<OrderDetailUiModel>>
         field = MutableStateFlow<Resource<OrderDetailUiModel>>(Resource.Loading())
 
+    /** Which device is mid-update, so its row can show progress without blocking the rest. */
+    val updatingItemId: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
+
+    /** Surfaced separately from [detailState]: a failed update shouldn't blank the loaded order. */
+    val updateError: StateFlow<String?>
+        field = MutableStateFlow<String?>(null)
+
     private var loadedOrderId: String? = null
     private var fetchJob: Job? = null
+    private var updateJob: Job? = null
 
     /**
      * Takes the id as an argument rather than through construction, so the screen can use the plain
@@ -43,10 +54,40 @@ class OrderDetailViewModel(
         fetch(orderId)
     }
 
-    private fun fetch(orderId: String) {
+    /**
+     * Moves one device to [status].
+     *
+     * Reloads the whole order afterwards rather than patching the item in place: the server
+     * recalculates that item's final cost, and the order's overall status is derived from every
+     * device, so a local edit would only be right by coincidence.
+     */
+    fun setItemStatus(itemId: String, status: OrderStatus) {
+        if (updateJob?.isActive == true) return
+
+        val orderId = loadedOrderId ?: return
+
+        updateJob = viewModelScope.launch {
+            updatingItemId.value = itemId
+            updateError.value = null
+
+            orderRepository.updateOrderItem(itemId, UpdateOrderItemRequest(status = status))
+                .fold(
+                    onSuccess = { fetch(orderId).join() },
+                    onFailure = { exception -> updateError.value = exception.message }
+                )
+
+            updatingItemId.value = null
+        }
+    }
+
+    fun clearUpdateError() {
+        updateError.value = null
+    }
+
+    private fun fetch(orderId: String): Job {
         fetchJob?.cancel()
 
-        fetchJob = viewModelScope.launch {
+        val job = viewModelScope.launch {
             orderRepository.getOrderDetail(orderId)
                 .fold(
                     onSuccess = { detail ->
@@ -57,10 +98,14 @@ class OrderDetailViewModel(
                     }
                 )
         }
+
+        fetchJob = job
+        return job
     }
 
     override fun onCleared() {
         super.onCleared()
         fetchJob?.cancel()
+        updateJob?.cancel()
     }
 }

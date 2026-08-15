@@ -2,6 +2,7 @@ package com.cashierserviceapp.screens.orderdetail.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.order_detail_awaiting_price
@@ -39,6 +41,7 @@ import org.jetbrains.compose.resources.stringResource
 fun DeviceCard(
     item: OrderDetailItemUiModel,
     modifier: Modifier = Modifier,
+    isUpdating: Boolean = false,
 ) {
     Column(
         modifier
@@ -60,7 +63,10 @@ fun DeviceCard(
 
             Spacer(Modifier.width(8.dp))
 
-            OrderStatusChip(item.status)
+            // Dimmed while its update is in flight; the control itself lives in the screen footer.
+            Box(Modifier.graphicsLayer { alpha = if (isUpdating) 0.4f else 1f }) {
+                OrderStatusChip(item.status)
+            }
         }
 
         item.complaint?.let { complaint ->
@@ -89,7 +95,7 @@ fun DeviceCard(
         }
 
         Spacer(Modifier.height(10.dp))
-        HorizontalDivider(thickness = 1.dp, color = CashierServiceTheme.colors.strokePale)
+        HorizontalDivider(thickness = 1.dp, color = CashierServiceTheme.colors.tileBackground)
 
         Column(verticalArrangement = Arrangement.spacedBy(0.dp)) {
             item.parts.forEach { part ->
@@ -109,7 +115,7 @@ fun DeviceCard(
             item.totalLabel?.let { total ->
                 HorizontalDivider(
                     thickness = 1.dp,
-                    color = CashierServiceTheme.colors.strokePale
+                    color = CashierServiceTheme.colors.tileBackground
                 )
                 DetailRow(
                     label = stringResource(Res.string.order_detail_total),

@@ -54,4 +54,18 @@
     <string name="order_detail_load_failed">Couldn’t load this order</string>
     <string name="order_detail_no_devices">This order has no devices on it.</string>
     <string name="error_generic">Something went wrong.</string>
+
+    <string name="action_close">Close</string>
+
+    <!-- Order detail actions -->
+    <string name="order_detail_status_sheet_title">Update status</string>
+    <string name="order_detail_status_sheet_body">where is this device up to?</string>
+    <string name="order_detail_print">Print invoice</string>
+    <string name="order_detail_receipt_title">Invoice preview</string>
+    <string name="order_detail_receipt_body">Laid out at 32 columns, the width of a 58mm roll.</string>
+    <string name="order_detail_update_failed">Couldn’t update the status</string>
+
+    <string name="order_detail_update_status">Update status</string>
+    <string name="order_detail_device_sheet_title">Which device?</string>
+    <string name="order_detail_device_sheet_body">This order has more than one.</string>
 </resources>
