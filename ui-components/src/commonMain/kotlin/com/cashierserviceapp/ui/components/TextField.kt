@@ -32,6 +32,7 @@ fun TextField(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     singleLine: Boolean = false,
     enabled: Boolean = true,
+    error: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     keyboardActions: KeyboardActions = KeyboardActions.Default,
@@ -50,6 +51,7 @@ fun TextField(
         modifier = modifier,
         label = label,
         isFocused = isFocused,
+        error = error,
         isFilled = value.isNotEmpty(),
         trailing = trailing,
     ) {

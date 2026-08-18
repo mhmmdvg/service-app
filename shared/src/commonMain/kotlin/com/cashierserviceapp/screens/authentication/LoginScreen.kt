@@ -19,15 +19,15 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cashierserviceapp.utils.Resource
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.components.TextField
+import com.cashierserviceapp.ui.icons.ClosedEyeOutlined
+import com.cashierserviceapp.ui.icons.OpenEyeOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
-import com.cashierserviceapp.ui.icons.ClosedEyeOutlined
-import com.cashierserviceapp.ui.icons.OpenEyeOutlined
+import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metrox.viewmodel.metroViewModel
 
 @Composable
@@ -39,6 +39,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = metroViewModel(),
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
+    val formState by viewModel.formState.collectAsStateWithLifecycle()
 
     LaunchedEffect(loginState) {
         if (loginState is Resource.Success) onLoginSuccess()
@@ -48,8 +49,9 @@ fun LoginScreen(
         modifier = modifier,
         isLoading = loginState is Resource.Loading,
         errorMessage = (loginState as? Resource.Error)?.message,
-        onSubmit = viewModel::login,
-        onInputChanged = viewModel::clearError,
+        formState = formState,
+        onSubmit = viewModel::onLogin,
+        onInputChanged = viewModel::onLoginEvent,
         onForgotPassword = onForgotPassword,
         onSignUp = onSignUp,
     )
@@ -63,20 +65,18 @@ fun LoginScreen(
 private fun LoginContent(
     isLoading: Boolean,
     errorMessage: String?,
-    onSubmit: (email: String, password: String) -> Unit,
+    onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
-    onInputChanged: () -> Unit = {},
+    formState: LoginFormState,
+    onInputChanged: (LoginFormEvent) -> Unit = {},
     onForgotPassword: () -> Unit = {},
     onSignUp: () -> Unit = {},
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     val passwordFocus = remember { FocusRequester() }
     val passwordMask = remember { PasswordVisualTransformation() }
-    val canSubmit = email.isNotBlank() && password.isNotBlank() && !isLoading
-    val submit = { if (canSubmit) onSubmit(email, password) }
+    val canSubmit = formState.email.isNotBlank() && formState.password.isNotBlank() && !isLoading
 
     Column(
         modifier = modifier
@@ -107,48 +107,75 @@ private fun LoginContent(
 
         Spacer(Modifier.height(40.dp))
 
-        TextField(
-            value = email,
-            onValueChange = { email = it; onInputChanged() },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Email",
-            enabled = !isLoading,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() })
-        )
+        Column(
+            Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            TextField(
+                value = formState.email,
+                onValueChange = { onInputChanged(LoginFormEvent.EmailChanged(it)) },
+                modifier = Modifier.fillMaxWidth(),
+                error = formState.emailError != null,
+                label = "Email",
+                enabled = !isLoading,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() })
+            )
+            formState.emailError?.let {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = it,
+                    style = CashierServiceTheme.typography.text2,
+                    color = CashierServiceTheme.colors.dangerText
+                )
+            }
+        }
 
         Spacer(Modifier.height(12.dp))
 
-        TextField(
-            value = password,
-            onValueChange = { password = it; onInputChanged() },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Password",
-            focusRequester = passwordFocus,
-            enabled = !isLoading,
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else passwordMask,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = { submit() }),
-            trailing = {
-                Icon(
-                    imageVector = if (passwordVisible) ClosedEyeOutlined else OpenEyeOutlined,
-                    contentDescription = "showPassword",
-                    tint = CashierServiceTheme.colors.secondaryText,
-                    modifier = Modifier.clickable(
-                        interactionSource = null,
-                        indication = null,
-                    ) { passwordVisible = !passwordVisible }
+        Column(
+            Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            TextField(
+                value = formState.password,
+                onValueChange = { onInputChanged(LoginFormEvent.PasswordChanged(it)) },
+                error = formState.passwordError != null,
+                modifier = Modifier.fillMaxWidth(),
+                label = "Password",
+                focusRequester = passwordFocus,
+                enabled = !isLoading,
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else passwordMask,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { onSubmit() }),
+                trailing = {
+                    Icon(
+                        imageVector = if (passwordVisible) ClosedEyeOutlined else OpenEyeOutlined,
+                        contentDescription = "showPassword",
+                        tint = CashierServiceTheme.colors.secondaryText,
+                        modifier = Modifier.clickable(
+                            interactionSource = null,
+                            indication = null,
+                        ) { passwordVisible = !passwordVisible }
+                    )
+                }
+            )
+            formState.passwordError?.let {
+                Text(
+                    text = it,
+                    style = CashierServiceTheme.typography.text2,
+                    color = CashierServiceTheme.colors.dangerText
                 )
             }
-        )
+        }
 
         if (errorMessage != null) {
             Spacer(Modifier.height(12.dp))
@@ -175,7 +202,7 @@ private fun LoginContent(
 
         Button(
             label = if (isLoading) "Signing in…" else "Sign in",
-            onClick = submit,
+            onClick = onSubmit,
             modifier = Modifier.fillMaxWidth(),
             primary = true,
             enabled = canSubmit,
@@ -224,6 +251,11 @@ private fun LabelledDivider() {
     }
 }
 
+private val formStatePreview = LoginFormState(
+    email = "",
+    password = "",
+)
+
 @Composable
 private fun Rule(modifier: Modifier = Modifier) {
     Box(
@@ -236,7 +268,9 @@ private fun Rule(modifier: Modifier = Modifier) {
 @PreviewLightDark
 @Composable
 private fun LoginScreenPreview() = PreviewHelper(paddingEnabled = false) {
-    LoginContent(isLoading = false, errorMessage = null, onSubmit = { _, _ -> })
+
+
+    LoginContent(isLoading = false, errorMessage = null, formState = formStatePreview, onSubmit = { })
 }
 
 @PreviewLightDark
@@ -245,6 +279,7 @@ private fun LoginScreenErrorPreview() = PreviewHelper(paddingEnabled = false) {
     LoginContent(
         isLoading = false,
         errorMessage = "Email or password is incorrect.",
-        onSubmit = { _, _ -> }
+        formState = formStatePreview,
+        onSubmit = { }
     )
 }
