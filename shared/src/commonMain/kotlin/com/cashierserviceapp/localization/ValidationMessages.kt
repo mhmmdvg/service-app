@@ -24,8 +24,8 @@ val ValidationError.stringResource: StringResource
         ValidationError.EmailFormat -> Res.string.validation_email_format
         ValidationError.PasswordBlank -> Res.string.validation_password_blank
         ValidationError.PasswordTooShort -> Res.string.validation_password_too_short
-        ValidationError.PasswordNeedsLetterAndDigit ->
-            Res.string.validation_password_letter_and_digit
+//        ValidationError.PasswordNeedsLetterAndDigit ->
+//            Res.string.validation_password_letter_and_digit
         ValidationError.PhoneNumberBlank -> Res.string.validation_phone_blank
         ValidationError.PhoneNumberTooShort -> Res.string.validation_phone_too_short
     }

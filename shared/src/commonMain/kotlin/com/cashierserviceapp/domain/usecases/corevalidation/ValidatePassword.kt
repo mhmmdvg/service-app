@@ -9,12 +9,12 @@ class ValidatePassword {
 
         if (password.length < 8) return Validation.Invalid(ValidationError.PasswordTooShort)
 
-        val containsLettersAndDigits =
-            password.any { it.isDigit() } && password.any { it.isLetter() }
-
-        if (!containsLettersAndDigits) {
-            return Validation.Invalid(ValidationError.PasswordNeedsLetterAndDigit)
-        }
+//        val containsLettersAndDigits =
+//            password.any { it.isDigit() } && password.any { it.isLetter() }
+//
+//        if (!containsLettersAndDigits) {
+//            return Validation.Invalid(ValidationError.PasswordNeedsLetterAndDigit)
+//        }
 
         return Validation.Valid
     }

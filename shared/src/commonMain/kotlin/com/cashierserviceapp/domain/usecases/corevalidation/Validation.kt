@@ -18,7 +18,7 @@ enum class ValidationError {
     EmailFormat,
     PasswordBlank,
     PasswordTooShort,
-    PasswordNeedsLetterAndDigit,
+//    PasswordNeedsLetterAndDigit,
     PhoneNumberBlank,
     PhoneNumberTooShort,
 }
