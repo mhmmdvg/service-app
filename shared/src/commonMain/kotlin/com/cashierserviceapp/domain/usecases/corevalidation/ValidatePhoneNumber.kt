@@ -1,25 +1,16 @@
 package com.cashierserviceapp.domain.usecases.corevalidation
 
-import com.cashierserviceapp.domain.models.Validation
+import dev.zacsweers.metro.Inject
 
+@Inject
 class ValidatePhoneNumber {
     fun execute(phoneNumber: String): Validation {
-        if (phoneNumber.isBlank()) {
-            return Validation(
-                success = false,
-                message = "The phone number can't be blank"
-            )
-        }
+        if (phoneNumber.isBlank()) return Validation.Invalid(ValidationError.PhoneNumberBlank)
 
         if (phoneNumber.length < 10) {
-            return Validation(
-                success = false,
-                message = "The phone number needs to consist of at least 10 characters"
-            )
+            return Validation.Invalid(ValidationError.PhoneNumberTooShort)
         }
 
-        return Validation(
-            success = true,
-        )
+        return Validation.Valid
     }
 }

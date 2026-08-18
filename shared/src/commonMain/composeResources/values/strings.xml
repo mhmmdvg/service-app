@@ -95,4 +95,12 @@
     <string name="add_order_part_price">Price</string>
     <string name="add_order_part_qty">Qty</string>
     <string name="add_order_part_add">Add part</string>
+
+    <string name="validation_email_blank">Email can\'t be blank.</string>
+    <string name="validation_email_format">That doesn\'t look like a valid email.</string>
+    <string name="validation_password_blank">Password can\'t be blank.</string>
+    <string name="validation_password_too_short">Password needs at least 8 characters.</string>
+    <string name="validation_password_letter_and_digit">Password needs at least one letter and one number.</string>
+    <string name="validation_phone_blank">Phone number can\'t be blank.</string>
+    <string name="validation_phone_too_short">Phone number needs at least 10 digits.</string>
 </resources>

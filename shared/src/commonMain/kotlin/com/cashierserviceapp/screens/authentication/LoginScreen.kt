@@ -19,6 +19,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cashierserviceapp.localization.message
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.components.TextField
@@ -128,7 +129,7 @@ private fun LoginContent(
             formState.emailError?.let {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = it,
+                    text = it.message(),
                     style = CashierServiceTheme.typography.text2,
                     color = CashierServiceTheme.colors.dangerText
                 )
@@ -170,7 +171,8 @@ private fun LoginContent(
             )
             formState.passwordError?.let {
                 Text(
-                    text = it,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = it.message(),
                     style = CashierServiceTheme.typography.text2,
                     color = CashierServiceTheme.colors.dangerText
                 )

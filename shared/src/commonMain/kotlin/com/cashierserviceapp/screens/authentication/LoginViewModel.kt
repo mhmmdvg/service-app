@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cashierserviceapp.domain.models.User
 import com.cashierserviceapp.domain.repositories.AuthRepository
+import com.cashierserviceapp.domain.usecases.corevalidation.errorOrNull
 import com.cashierserviceapp.domain.usecases.login.LoginValidators
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
@@ -30,15 +31,24 @@ class LoginViewModel(
 
     private var loginJob: Job? = null
 
-
     fun onLoginEvent(event: LoginFormEvent) {
         when (event) {
-            is LoginFormEvent.EmailChanged -> formState.update { it.copy(email = event.email, emailError = null) }
-            is LoginFormEvent.PasswordChanged -> formState.update {
-                it.copy(
-                    password = event.password,
-                    passwordError = null
-                )
+            // Trimmed on the way in: the anchored regex in ValidateEmail rejects the stray
+            // trailing space that soft keyboards and autocomplete like to append.
+            is LoginFormEvent.EmailChanged -> {
+                formState.update {
+                    it.copy(email = event.email.trim(), emailError = null)
+                }
+                clearError()
+            }
+            is LoginFormEvent.PasswordChanged -> {
+                formState.update {
+                    it.copy(
+                        password = event.password,
+                        passwordError = null
+                    )
+                }
+                clearError()
             }
         }
     }
@@ -46,19 +56,13 @@ class LoginViewModel(
     fun onLogin() {
         if (loginJob?.isActive == true) return
 
-        val emailValidation = validators.validateEmail.execute(formState.value.email)
-        val passwordValidation = validators.validatePassword.execute(formState.value.password)
-        val hasError = listOf(
-            emailValidation,
-            passwordValidation
-        ).any { !it.success }
+        val emailError = validators.validateEmail.execute(formState.value.email).errorOrNull
+        val passwordError =
+            validators.validatePassword.execute(formState.value.password).errorOrNull
 
-        if (hasError) {
+        if (emailError != null || passwordError != null) {
             formState.update {
-                it.copy(
-                    emailError = emailValidation.message,
-                    passwordError = passwordValidation.message
-                )
+                it.copy(emailError = emailError, passwordError = passwordError)
             }
             return
         }
@@ -76,21 +80,8 @@ class LoginViewModel(
         }
     }
 
-    fun login(email: String, password: String) {
-        if (loginJob?.isActive == true) return
-
-        loginJob = viewModelScope.launch {
-            loginState.value = Resource.Loading()
-            authRepository.login(email.trim(), password)
-                .fold(
-                    onSuccess = { user -> loginState.value = Resource.Success(user) },
-                    onFailure = { exception -> loginState.value = Resource.Error(exception.message) }
-                )
-        }
-    }
-
     /** Drops the error banner once the user starts correcting their input. */
-    fun clearError() {
+    private fun clearError() {
         if (loginState.value is Resource.Error) loginState.value = null
     }
 
