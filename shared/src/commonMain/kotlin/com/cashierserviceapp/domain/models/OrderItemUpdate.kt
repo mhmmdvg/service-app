@@ -18,3 +18,20 @@ data class UpdateOrderItemRequest(
     @SerialName("service_fee")
     val serviceFee: Long? = null,
 )
+
+/**
+ * What `PATCH /order-items/:orderItemID` echoes back.
+ *
+ * Deliberately not [OrderDetailItem]: the patch returns the stored row, not the joined view, so
+ * the device columns aren't in it. Every field is optional — the caller refetches the whole order
+ * anyway, so a response that only confirms the write is still a success.
+ */
+@Serializable
+data class UpdatedOrderItem(
+    val id: String? = null,
+    val status: OrderStatus? = null,
+    @SerialName("service_fee")
+    val serviceFee: Long? = null,
+    @SerialName("final_cost")
+    val finalCost: Long? = null,
+)

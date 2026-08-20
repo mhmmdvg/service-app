@@ -7,7 +7,7 @@ import com.cashierserviceapp.utils.toLocalDateTime
 import kotlinx.datetime.LocalDate
 
 /** How many of the waiting orders the home screen shows before deferring to the Order tab. */
-const val ATTENTION_PREVIEW_COUNT = 3
+const val ATTENTION_PREVIEW_COUNT = 8
 
 /**
  * One in-progress order as a list row, with the waiting time already worked out.

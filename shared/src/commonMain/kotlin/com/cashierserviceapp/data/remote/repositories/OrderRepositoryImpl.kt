@@ -4,7 +4,7 @@ import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.models.OrderDetail
-import com.cashierserviceapp.domain.models.OrderDetailItem
+import com.cashierserviceapp.domain.models.UpdatedOrderItem
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.domain.models.QueryParams
@@ -48,7 +48,7 @@ class OrderRepositoryImpl(
     override suspend fun updateOrderItem(
         orderItemId: String,
         request: UpdateOrderItemRequest,
-    ): Result<OrderDetailItem> = runCatching {
+    ): Result<UpdatedOrderItem> = runCatching {
         val response = api.updateOrderItem(orderItemId, request)
             ?: throw Exception(UNREACHABLE_MESSAGE)
 

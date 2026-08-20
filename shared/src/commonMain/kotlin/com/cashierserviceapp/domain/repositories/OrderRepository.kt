@@ -4,7 +4,7 @@ import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.models.OrderDetail
-import com.cashierserviceapp.domain.models.OrderDetailItem
+import com.cashierserviceapp.domain.models.UpdatedOrderItem
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.domain.models.QueryParams
@@ -24,7 +24,7 @@ interface OrderRepository {
     suspend fun updateOrderItem(
         orderItemId: String,
         request: UpdateOrderItemRequest,
-    ): Result<OrderDetailItem>
+    ): Result<UpdatedOrderItem>
 
     /** Resolves a receipt QR token to that order's progress. */
     suspend fun trackOrder(qrToken: String): Result<OrderTracking>
