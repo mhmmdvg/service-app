@@ -54,4 +54,175 @@
     <string name="order_detail_load_failed">Couldn’t load this order</string>
     <string name="order_detail_no_devices">This order has no devices on it.</string>
     <string name="error_generic">Something went wrong.</string>
+
+    <string name="action_close">Close</string>
+
+    <!-- Order detail actions -->
+    <string name="order_detail_status_sheet_title">Update status</string>
+    <string name="order_detail_status_sheet_body">where is this device up to?</string>
+    <string name="order_detail_status_sheet_fee">Service fee</string>
+    <string name="order_detail_status_sheet_fee_required">Set the service fee before moving this device on.</string>
+    <string name="order_detail_status_sheet_fee_locked">The price can be set once this device is In Progress.</string>
+    <string name="order_detail_status_sheet_fee_zero">No price on this device yet — completing it now leaves it at Rp 0.</string>
+    <string name="order_detail_status_sheet_save">Save</string>
+
+    <string name="order_detail_print">Print invoice</string>
+    <string name="order_detail_receipt_title">Invoice preview</string>
+    <string name="order_detail_receipt_body">Laid out at 32 columns, the width of a 58mm roll.</string>
+    <string name="order_detail_update_failed">Couldn’t update the status</string>
+
+    <string name="order_detail_update_status">Update status</string>
+    <string name="order_detail_device_sheet_title">Which device?</string>
+    <string name="order_detail_device_sheet_body">This order has more than one.</string>
+
+    <!-- Add order: devices and parts -->
+    <string name="add_order_devices_empty">No devices yet. Add the first one the customer is dropping off.</string>
+    <string name="add_order_device_add">Add device</string>
+    <string name="add_order_device_title">Device</string>
+    <string name="add_order_device_brand">Brand</string>
+    <string name="add_order_device_model">Model</string>
+    <string name="add_order_device_color">Colour</string>
+    <string name="add_order_device_complaint">Complaint</string>
+    <string name="add_order_device_save">Save</string>
+    <string name="add_order_device_remove">Remove</string>
+    <string name="add_order_service_fee">Service fee (optional)</string>
+    <string name="add_order_estimated_total">Estimated total</string>
+
+    <string name="add_order_parts_title">Spare parts</string>
+    <string name="add_order_part_add_another">Add spare part</string>
+    <string name="add_order_part_title">Add spare part</string>
+    <string name="add_order_part_catalogue">Inventory</string>
+    <string name="add_order_part_manual">Type it in</string>
+    <string name="add_order_part_search">Search inventory</string>
+    <string name="add_order_part_empty">Nothing in inventory matches.</string>
+    <string name="add_order_part_out_of_stock">Out of stock</string>
+    <string name="add_order_part_name">Part name</string>
+    <string name="add_order_part_price">Price</string>
+    <string name="add_order_part_qty">Qty</string>
+    <string name="add_order_part_missing_id">The server created “%1$s” but didn’t return its id.</string>
+
+    <string name="add_order_part_add">Add part</string>
+
+    <string name="validation_email_blank">Email can\'t be blank.</string>
+    <string name="validation_email_format">That doesn\'t look like a valid email.</string>
+    <string name="validation_password_blank">Password can\'t be blank.</string>
+    <string name="validation_password_too_short">Password needs at least 8 characters.</string>
+    <string name="validation_password_letter_and_digit">Password needs at least one letter and one number.</string>
+    <string name="validation_phone_blank">Phone number can\'t be blank.</string>
+    <string name="validation_phone_too_short">Phone number needs at least 10 digits.</string>
+    <string name="validation_name_blank">Customer name can\'t be blank.</string>
+    <string name="validation_device_brand_blank">Brand can\'t be blank.</string>
+    <string name="validation_device_model_blank">Model can\'t be blank.</string>
+    <string name="validation_device_complaint_blank">Describe what\'s wrong with the device.</string>
+
+    <!-- General actions -->
+    <string name="action_back">Back</string>
+    <string name="action_next">Next</string>
+    <string name="action_see_all">See all</string>
+
+    <!-- Shared errors -->
+    <string name="error_unreachable">Couldn’t reach the server. Check your connection and try again.</string>
+    <string name="error_unknown">Unknown error</string>
+
+    <!-- Shared row labels -->
+    <string name="device_count_one">1 device</string>
+    <string name="device_count_other">%1$d devices</string>
+    <string name="wait_days_one">1 day</string>
+    <string name="wait_days_other">%1$d days</string>
+
+    <!-- Sign in -->
+    <string name="auth_title">Welcome back</string>
+    <string name="auth_subtitle">Sign in to your cashier account to keep taking orders.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_toggle_password">Show password</string>
+    <string name="auth_forgot_password">Forgot password?</string>
+    <string name="auth_sign_in">Sign in</string>
+    <string name="auth_signing_in">Signing in…</string>
+    <string name="auth_create_account">Create an account</string>
+    <string name="auth_divider_or">or</string>
+    <string name="auth_terms">By continuing you agree to our Terms of Service and Privacy Policy.</string>
+    <string name="auth_sign_in_failed">Could not sign in. Check your details and try again.</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hi, %1$s</string>
+    <string name="home_stat_in_progress">In progress</string>
+    <string name="home_stat_all_income">All income</string>
+    <string name="home_attention_title">Needs attention</string>
+    <string name="home_empty_title">Nothing waiting</string>
+    <string name="home_empty_body">Every device that’s come in has been finished. New orders show up here.</string>
+    <string name="home_orders_load_failed">Couldn’t load orders</string>
+    <string name="home_scan_qr">Scan QR</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">Search name or order code</string>
+    <string name="search_hint_title">Find an order</string>
+    <string name="search_hint_body">Search the in-progress list by customer name or order code.</string>
+    <string name="search_empty_title">Nothing matches “%1$s”</string>
+    <string name="search_empty_body">Only orders still in progress are searchable. Finished ones live in History.</string>
+    <string name="search_result_count_one">1 result</string>
+    <string name="search_result_count_other">%1$d results</string>
+
+    <!-- Scan sheet -->
+    <string name="scan_title">Find an order</string>
+    <string name="scan_body">Enter the code printed under the QR on the customer’s receipt.</string>
+    <string name="scan_looking_up">Looking it up…</string>
+    <string name="scan_not_found">No order matches that code.</string>
+    <string name="scan_lookup">Look up</string>
+
+    <!-- Order list -->
+    <string name="order_list_load_failed">Couldn’t load order</string>
+    <string name="order_list_empty_title">No orders yet</string>
+    <string name="order_list_empty_body">Orders you create will show up here while they’re in progress.</string>
+
+    <!-- History -->
+    <string name="history_load_failed">Couldn’t load history</string>
+    <string name="history_empty_title">No completed orders yet</string>
+    <string name="history_empty_body">Once every device on an order is finished, the order moves here.</string>
+
+    <!-- Add order: steps -->
+    <string name="add_order_step_progress">Step %1$d of %2$d</string>
+    <string name="add_order_step_customer_title">Who’s the customer?</string>
+    <string name="add_order_step_customer_subtitle">We’ll use this to reach them when the repair is done. Only the name is required.</string>
+    <string name="add_order_step_device_title">What are we fixing?</string>
+    <string name="add_order_step_device_subtitle">Describe the device and what’s wrong with it.</string>
+    <string name="add_order_customer_name">Full name</string>
+    <string name="add_order_customer_phone">Phone number</string>
+    <string name="add_order_customer_address">Address</string>
+    <string name="add_order_creating">Creating order…</string>
+    <string name="add_order_create">Create order</string>
+
+    <!-- Order created -->
+    <string name="order_success_title">Order Code</string>
+
+    <!-- Printed receipt -->
+    <string name="receipt_order">Order</string>
+    <string name="receipt_date">Date</string>
+    <string name="receipt_cashier">Cashier</string>
+    <string name="receipt_customer">Customer</string>
+    <string name="receipt_phone">Phone</string>
+    <string name="receipt_service_fee">Service fee</string>
+    <string name="receipt_subtotal">Subtotal</string>
+    <string name="receipt_status">Status</string>
+    <string name="receipt_total">TOTAL</string>
+    <string name="receipt_track">Track this repair:</string>
+    <string name="receipt_footer">Thank you — keep this receipt</string>
+
+    <!-- Dates -->
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="date_undated">Undated</string>
+
+    <string name="month_1">January</string>
+    <string name="month_2">February</string>
+    <string name="month_3">March</string>
+    <string name="month_4">April</string>
+    <string name="month_5">May</string>
+    <string name="month_6">June</string>
+    <string name="month_7">July</string>
+    <string name="month_8">August</string>
+    <string name="month_9">September</string>
+    <string name="month_10">October</string>
+    <string name="month_11">November</string>
+    <string name="month_12">December</string>
 </resources>

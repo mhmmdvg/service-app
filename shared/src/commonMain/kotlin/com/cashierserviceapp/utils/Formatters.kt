@@ -1,9 +1,26 @@
 package com.cashierserviceapp.utils
 
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.date_today
+import cashierserviceapp.shared.generated.resources.date_yesterday
+import cashierserviceapp.shared.generated.resources.month_1
+import cashierserviceapp.shared.generated.resources.month_10
+import cashierserviceapp.shared.generated.resources.month_11
+import cashierserviceapp.shared.generated.resources.month_12
+import cashierserviceapp.shared.generated.resources.month_2
+import cashierserviceapp.shared.generated.resources.month_3
+import cashierserviceapp.shared.generated.resources.month_4
+import cashierserviceapp.shared.generated.resources.month_5
+import cashierserviceapp.shared.generated.resources.month_6
+import cashierserviceapp.shared.generated.resources.month_7
+import cashierserviceapp.shared.generated.resources.month_8
+import cashierserviceapp.shared.generated.resources.month_9
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import kotlin.time.Instant
 
 /**
@@ -32,15 +49,21 @@ fun parseTimestamp(iso: String): Instant? = runCatching { Instant.parse(iso) }.g
 
 fun Instant.toLocalDateTime(): LocalDateTime = toLocalDateTime(TimeZone.currentSystemDefault())
 
-/** 24-hour clock, `09:05`. */
+/** 24-hour clock, `09:05`. Digits only, so no catalog lookup is needed. */
 fun LocalDateTime.formatTime(): String =
     "${hour.padded()}:${minute.padded()}"
 
-/** `13 Aug 2026`. */
-fun LocalDate.formatDate(): String = "$day ${month.shortName()} $year"
+/**
+ * `13 Aug 2026`.
+ *
+ * Suspending because the month name comes out of the string catalog: these formatters run in
+ * mappers on the way to a UI model, not inside composition, so [getString] is the only way to reach
+ * the same `values-<tag>` catalog a `stringResource` would.
+ */
+suspend fun LocalDate.formatDate(): String = "$day ${month.shortName()} $year"
 
 /** `13 Aug` — for dates recent enough that the year is noise. */
-fun LocalDate.formatDayMonth(): String = "$day ${month.shortName()}"
+suspend fun LocalDate.formatDayMonth(): String = "$day ${month.shortName()}"
 
 /**
  * How a list row states when something happened, in the space of a few characters: a clock time if
@@ -51,36 +74,42 @@ fun LocalDate.formatDayMonth(): String = "$day ${month.shortName()}"
  * once per row. Returns "" for a timestamp that didn't parse, so a row renders without a stray
  * placeholder.
  */
-fun formatRelativeTimestamp(iso: String, today: LocalDate): String {
+suspend fun formatRelativeTimestamp(iso: String, today: LocalDate): String {
     val moment = parseTimestamp(iso)?.toLocalDateTime() ?: return ""
     val date = moment.date
 
     return when {
         date == today -> moment.formatTime()
-        date.toEpochDays() == today.toEpochDays() - 1 -> "Yesterday"
+        date.toEpochDays() == today.toEpochDays() - 1 -> getString(Res.string.date_yesterday)
         date.year == today.year -> date.formatDayMonth()
         else -> date.formatDate()
     }
 }
 
 /** `13 August 2026`. */
-fun LocalDate.formatLongDate(): String = "$day ${month.fullName()} $year"
+suspend fun LocalDate.formatLongDate(): String = "$day ${month.fullName()} $year"
 
 private fun Int.padded(): String = toString().padStart(2, '0')
 
-private fun kotlinx.datetime.Month.shortName(): String = fullName().take(3)
+/**
+ * Three letters is the right width for a list row in both languages the app ships — `Aug`/`Agu`,
+ * `Dec`/`Des` — so the short form is a trim of the full one rather than a second set of strings.
+ */
+private suspend fun kotlinx.datetime.Month.shortName(): String = fullName().take(3)
 
-private fun kotlinx.datetime.Month.fullName(): String = when (ordinal) {
-    0 -> "January"
-    1 -> "February"
-    2 -> "March"
-    3 -> "April"
-    4 -> "May"
-    5 -> "June"
-    6 -> "July"
-    7 -> "August"
-    8 -> "September"
-    9 -> "October"
-    10 -> "November"
-    else -> "December"
-}
+private suspend fun kotlinx.datetime.Month.fullName(): String = getString(monthNames[ordinal])
+
+private val monthNames: List<StringResource> = listOf(
+    Res.string.month_1,
+    Res.string.month_2,
+    Res.string.month_3,
+    Res.string.month_4,
+    Res.string.month_5,
+    Res.string.month_6,
+    Res.string.month_7,
+    Res.string.month_8,
+    Res.string.month_9,
+    Res.string.month_10,
+    Res.string.month_11,
+    Res.string.month_12,
+)

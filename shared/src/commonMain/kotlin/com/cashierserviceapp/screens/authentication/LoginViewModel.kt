@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cashierserviceapp.domain.models.User
 import com.cashierserviceapp.domain.repositories.AuthRepository
+import com.cashierserviceapp.domain.usecases.corevalidation.errorOrNull
+import com.cashierserviceapp.domain.usecases.login.LoginValidators
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -11,33 +13,75 @@ import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
 class LoginViewModel(
     private val authRepository: AuthRepository,
+    private val validators: LoginValidators
 ) : ViewModel() {
     val loginState: StateFlow<Resource<User>?>
         field = MutableStateFlow<Resource<User>?>(null)
 
+    /* Form State */
+    val formState: StateFlow<LoginFormState>
+        field = MutableStateFlow(LoginFormState())
+
     private var loginJob: Job? = null
 
-    fun login(email: String, password: String) {
+    fun onLoginEvent(event: LoginFormEvent) {
+        when (event) {
+            // Trimmed on the way in: the anchored regex in ValidateEmail rejects the stray
+            // trailing space that soft keyboards and autocomplete like to append.
+            is LoginFormEvent.EmailChanged -> {
+                formState.update {
+                    it.copy(email = event.email.trim(), emailError = null)
+                }
+                clearError()
+            }
+            is LoginFormEvent.PasswordChanged -> {
+                formState.update {
+                    it.copy(
+                        password = event.password,
+                        passwordError = null
+                    )
+                }
+                clearError()
+            }
+        }
+    }
+
+    fun onLogin() {
         if (loginJob?.isActive == true) return
+
+        val emailError = validators.validateEmail.execute(formState.value.email).errorOrNull
+        val passwordError =
+            validators.validatePassword.execute(formState.value.password).errorOrNull
+
+        if (emailError != null || passwordError != null) {
+            formState.update {
+                it.copy(emailError = emailError, passwordError = passwordError)
+            }
+            return
+        }
 
         loginJob = viewModelScope.launch {
             loginState.value = Resource.Loading()
-            authRepository.login(email.trim(), password)
-                .fold(
-                    onSuccess = { user -> loginState.value = Resource.Success(user) },
-                    onFailure = { exception -> loginState.value = Resource.Error(exception.message) }
-                )
+
+            authRepository.login(
+                formState.value.email,
+                formState.value.password
+            ).fold(
+                onSuccess = { user -> loginState.value = Resource.Success(user) },
+                onFailure = { exception -> loginState.value = Resource.Error(exception.message) }
+            )
         }
     }
 
     /** Drops the error banner once the user starts correcting their input. */
-    fun clearError() {
+    private fun clearError() {
         if (loginState.value is Resource.Error) loginState.value = null
     }
 

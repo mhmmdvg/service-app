@@ -1,5 +1,9 @@
 package com.cashierserviceapp.screens.history
 
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.date_today
+import cashierserviceapp.shared.generated.resources.date_undated
+import cashierserviceapp.shared.generated.resources.date_yesterday
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.utils.formatLongDate
 import com.cashierserviceapp.utils.formatRupiah
@@ -7,6 +11,7 @@ import com.cashierserviceapp.utils.formatTime
 import com.cashierserviceapp.utils.parseTimestamp
 import com.cashierserviceapp.utils.toLocalDateTime
 import kotlinx.datetime.LocalDate
+import org.jetbrains.compose.resources.getString
 
 /**
  * One finished order, with its timestamp and total already turned into the strings the row shows.
@@ -46,7 +51,7 @@ data class HistorySection(
  * Takes [today] as an argument rather than reading the clock so the "Today"/"Yesterday" labels stay
  * a pure function of the inputs.
  */
-fun groupOrdersByDay(orders: List<Order>, today: LocalDate): List<HistorySection> {
+suspend fun groupOrdersByDay(orders: List<Order>, today: LocalDate): List<HistorySection> {
     val yesterday = LocalDate.fromEpochDays(today.toEpochDays() - 1)
 
     val byDay = orders.groupBy { order ->
@@ -60,9 +65,9 @@ fun groupOrdersByDay(orders: List<Order>, today: LocalDate): List<HistorySection
     return ordered.map { (date, dayOrders) ->
         HistorySection(
             label = when (date) {
-                null -> "Undated"
-                today -> "Today"
-                yesterday -> "Yesterday"
+                null -> getString(Res.string.date_undated)
+                today -> getString(Res.string.date_today)
+                yesterday -> getString(Res.string.date_yesterday)
                 else -> date.formatLongDate()
             },
             date = date,

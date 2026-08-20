@@ -27,7 +27,23 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_see_all
+import cashierserviceapp.shared.generated.resources.action_try_again
+import cashierserviceapp.shared.generated.resources.error_generic
+import cashierserviceapp.shared.generated.resources.home_attention_title
+import cashierserviceapp.shared.generated.resources.home_empty_body
+import cashierserviceapp.shared.generated.resources.home_empty_title
+import cashierserviceapp.shared.generated.resources.home_greeting
+import cashierserviceapp.shared.generated.resources.home_orders_load_failed
+import cashierserviceapp.shared.generated.resources.home_scan_qr
+import cashierserviceapp.shared.generated.resources.home_stat_all_income
+import cashierserviceapp.shared.generated.resources.home_stat_in_progress
+import cashierserviceapp.shared.generated.resources.nav_destination_home
+import cashierserviceapp.shared.generated.resources.search_placeholder
 import com.cashierserviceapp.ScreenWithTitle
+import com.cashierserviceapp.navigation.SharedElementKey
+import com.cashierserviceapp.navigation.sharedElementBounds
 import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.home.components.AttentionCard
@@ -42,6 +58,7 @@ import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import org.jetbrains.compose.resources.stringResource
 
 private const val SKELETON_ROW_COUNT = 3
 
@@ -93,7 +110,9 @@ private fun HomeContent(
     val snapshot = state.data
 
     ScreenWithTitle(
-        title = userName?.firstName()?.let { "Hi, $it" } ?: "Home",
+        title = userName?.firstName()
+            ?.let { stringResource(Res.string.home_greeting, it) }
+            ?: stringResource(Res.string.nav_destination_home),
         scrollable = false,
     ) { innerPadding ->
         LazyColumn(
@@ -106,7 +125,9 @@ private fun HomeContent(
 
             item("search") {
                 SearchFieldButton(
-                    placeholder = "Search name or order code",
+                    // Half of the morph into the search screen; the field there carries the twin.
+                    modifier = Modifier.sharedElementBounds(SharedElementKey.SearchPill),
+                    placeholder = stringResource(Res.string.search_placeholder),
                     onClick = onSearchClick,
                     trailing = { ScanButton(onClick = onScanClick) }
                 )
@@ -125,13 +146,13 @@ private fun HomeContent(
                     } else {
                         StatTile(
                             value = snapshot.orderCount.toString(),
-                            label = "In progress",
+                            label = stringResource(Res.string.home_stat_in_progress),
                             modifier = Modifier.weight(1f)
                         )
                         StatTile(
                             // Stays a dash until the server can report it.
                             value = snapshot.incomeLabel,
-                            label = "All income",
+                            label = stringResource(Res.string.home_stat_all_income),
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -164,8 +185,12 @@ private fun LazyListScope.attentionSection(
 
     item("attention_header") {
         SectionHeader(
-            title = "Needs attention",
-            action = if (attention.size > ATTENTION_PREVIEW_COUNT) "See all" else null,
+            title = stringResource(Res.string.home_attention_title),
+            action = if (attention.size > ATTENTION_PREVIEW_COUNT) {
+                stringResource(Res.string.action_see_all)
+            } else {
+                null
+            },
             onAction = onOpenOrders
         )
     }
@@ -177,17 +202,17 @@ private fun LazyListScope.attentionSection(
 
         state is Resource.Error && snapshot == null -> item("error") {
             ContentMessage(
-                title = "Couldn't load orders",
-                body = state.message ?: "Something went wrong.",
-                actionLabel = "Try again",
+                title = stringResource(Res.string.home_orders_load_failed),
+                body = state.message ?: stringResource(Res.string.error_generic),
+                actionLabel = stringResource(Res.string.action_try_again),
                 onAction = onRetry
             )
         }
 
         attention.isEmpty() -> item("empty") {
             ContentMessage(
-                title = "Nothing waiting",
-                body = "Every device that's come in has been finished. New orders show up here."
+                title = stringResource(Res.string.home_empty_title),
+                body = stringResource(Res.string.home_empty_body)
             )
         }
 
@@ -249,7 +274,7 @@ private fun ScanButton(onClick: () -> Unit) {
     ) {
         Icon(
             imageVector = ScanOutlined,
-            contentDescription = "Scan QR",
+            contentDescription = stringResource(Res.string.home_scan_qr),
             modifier = Modifier.size(19.dp),
             tint = CashierServiceTheme.colors.primaryText
         )

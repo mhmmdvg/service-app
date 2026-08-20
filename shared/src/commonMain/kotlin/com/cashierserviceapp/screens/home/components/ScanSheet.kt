@@ -19,6 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_close
+import cashierserviceapp.shared.generated.resources.order_detail_qr_token
+import cashierserviceapp.shared.generated.resources.scan_body
+import cashierserviceapp.shared.generated.resources.scan_looking_up
+import cashierserviceapp.shared.generated.resources.scan_lookup
+import cashierserviceapp.shared.generated.resources.scan_not_found
+import cashierserviceapp.shared.generated.resources.scan_title
 import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.domain.models.OrderItemTracking
 import com.cashierserviceapp.domain.models.OrderTracking
@@ -31,6 +39,7 @@ import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Looks up a receipt's QR token and shows what that order is doing.
@@ -52,7 +61,7 @@ fun ScanSheet(
 
         Column(Modifier.padding(horizontal = 20.dp)) {
             Text(
-                text = "Find an order",
+                text = stringResource(Res.string.scan_title),
                 style = CashierServiceTheme.typography.h3,
                 color = CashierServiceTheme.colors.primaryText
             )
@@ -60,7 +69,7 @@ fun ScanSheet(
             Spacer(Modifier.height(6.dp))
 
             Text(
-                text = "Enter the code printed under the QR on the customer's receipt.",
+                text = stringResource(Res.string.scan_body),
                 style = CashierServiceTheme.typography.text2,
                 color = CashierServiceTheme.colors.secondaryText
             )
@@ -70,7 +79,7 @@ fun ScanSheet(
             SearchField(
                 value = token,
                 onValueChange = { token = it },
-                placeholder = "QR token",
+                placeholder = stringResource(Res.string.order_detail_qr_token),
                 enabled = state !is Resource.Loading,
                 keyboardActions = KeyboardActions(onSearch = { onLookup(token) })
             )
@@ -79,10 +88,10 @@ fun ScanSheet(
 
             val tracking = state?.data
             when {
-                state is Resource.Loading -> ScanMessage("Looking it up…")
+                state is Resource.Loading -> ScanMessage(stringResource(Res.string.scan_looking_up))
 
                 state is Resource.Error -> ScanMessage(
-                    text = state.message ?: "No order matches that code.",
+                    text = state.message ?: stringResource(Res.string.scan_not_found),
                     isError = true
                 )
 
@@ -96,13 +105,13 @@ fun ScanSheet(
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
-                    label = "Close",
+                    label = stringResource(Res.string.action_close),
                     onClick = hide,
                     modifier = Modifier.weight(1f),
                     primary = false
                 )
                 Button(
-                    label = "Look up",
+                    label = stringResource(Res.string.scan_lookup),
                     onClick = { onLookup(token) },
                     modifier = Modifier.weight(1f),
                     primary = true,

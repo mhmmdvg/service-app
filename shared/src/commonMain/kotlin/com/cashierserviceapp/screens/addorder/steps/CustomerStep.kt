@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -13,8 +14,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.cashierserviceapp.screens.addorder.AddOrderForm
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.add_order_customer_address
+import cashierserviceapp.shared.generated.resources.add_order_customer_name
+import cashierserviceapp.shared.generated.resources.add_order_customer_phone
+import com.cashierserviceapp.domain.usecases.corevalidation.ValidationError
+import com.cashierserviceapp.localization.message
+import com.cashierserviceapp.screens.addorder.AddOrderFormEvent
+import com.cashierserviceapp.screens.addorder.AddOrderFormState
+import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.components.TextField
+import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Step 1 — who's dropping the device off. Only the name is required; the rest is contact detail the
@@ -22,21 +33,22 @@ import com.cashierserviceapp.ui.components.TextField
  */
 @Composable
 internal fun CustomerStep(
-    form: AddOrderForm,
-    onFormChange: ((AddOrderForm) -> AddOrderForm) -> Unit,
+    formState: AddOrderFormState,
+    onInputChanged: (AddOrderFormEvent) -> Unit,
     enabled: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val phoneFocus = remember { FocusRequester() }
-    val emailFocus = remember { FocusRequester() }
+//    val emailFocus = remember { FocusRequester() }
     val addressFocus = remember { FocusRequester() }
 
     Column(modifier) {
         TextField(
-            value = form.name,
-            onValueChange = { value -> onFormChange { it.copy(name = value) } },
+            value = formState.name,
+            onValueChange = { onInputChanged(AddOrderFormEvent.NameChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
-            label = "Full name",
+            error = formState.nameError != null,
+            label = stringResource(Res.string.add_order_customer_name),
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -46,13 +58,16 @@ internal fun CustomerStep(
             keyboardActions = KeyboardActions(onNext = { phoneFocus.requestFocus() })
         )
 
+        FieldError(formState.nameError)
+
         Spacer(Modifier.height(12.dp))
 
         TextField(
-            value = form.phone,
-            onValueChange = { value -> onFormChange { it.copy(phone = value) } },
+            value = formState.phone,
+            onValueChange = { onInputChanged(AddOrderFormEvent.PhoneChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
-            label = "Phone number",
+            error = formState.phoneError != null,
+            label = stringResource(Res.string.add_order_customer_phone),
             focusRequester = phoneFocus,
             enabled = enabled,
             singleLine = true,
@@ -60,33 +75,38 @@ internal fun CustomerStep(
                 keyboardType = KeyboardType.Phone,
                 imeAction = ImeAction.Next
             ),
-            keyboardActions = KeyboardActions(onNext = { emailFocus.requestFocus() })
-        )
-
-        Spacer(Modifier.height(12.dp))
-
-        TextField(
-            value = form.email,
-            onValueChange = { value -> onFormChange { it.copy(email = value) } },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Email",
-            focusRequester = emailFocus,
-            enabled = enabled,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
             keyboardActions = KeyboardActions(onNext = { addressFocus.requestFocus() })
         )
 
+        FieldError(formState.phoneError)
+
+//        Spacer(Modifier.height(12.dp))
+//
+//        TextField(
+//            value = formState.email,
+//            onValueChange = { onInputChanged(AddOrderFormEvent.EmailChanged(it)) },
+//            modifier = Modifier.fillMaxWidth(),
+//            error = formState.emailError != null,
+//            label = "Email",
+//            focusRequester = emailFocus,
+//            enabled = enabled,
+//            singleLine = true,
+//            keyboardOptions = KeyboardOptions(
+//                keyboardType = KeyboardType.Email,
+//                imeAction = ImeAction.Next
+//            ),
+//            keyboardActions = KeyboardActions(onNext = { addressFocus.requestFocus() })
+//        )
+//
+//        FieldError(formState.emailError)
+
         Spacer(Modifier.height(12.dp))
 
         TextField(
-            value = form.address,
-            onValueChange = { value -> onFormChange { it.copy(address = value) } },
+            value = formState.address,
+            onValueChange = { onInputChanged(AddOrderFormEvent.AddressChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
-            label = "Address",
+            label = stringResource(Res.string.add_order_customer_address),
             focusRequester = addressFocus,
             enabled = enabled,
             keyboardOptions = KeyboardOptions(
@@ -95,4 +115,19 @@ internal fun CustomerStep(
             )
         )
     }
+}
+
+/** The message under a field, or nothing at all when it's fine. */
+@Composable
+private fun FieldError(error: ValidationError?) {
+    error ?: return
+
+    Text(
+        text = error.message(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 4.dp),
+        style = CashierServiceTheme.typography.text2,
+        color = CashierServiceTheme.colors.dangerText
+    )
 }

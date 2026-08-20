@@ -46,6 +46,10 @@ kotlin {
             implementation(libs.material3.adaptive.navigation)
 
             implementation(libs.settings)
+
+            // Pure-Kotlin QR encoder: `api` so :shared can reach the raw module matrix for the
+            // printer path, not just the composable.
+            api(libs.qrcode.kotlin)
         }
         androidMain.dependencies {
             implementation(libs.compose.uiToolingPreview)

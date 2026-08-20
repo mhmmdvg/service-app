@@ -28,6 +28,20 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_back
+import cashierserviceapp.shared.generated.resources.action_try_again
+import cashierserviceapp.shared.generated.resources.error_generic
+import cashierserviceapp.shared.generated.resources.home_orders_load_failed
+import cashierserviceapp.shared.generated.resources.search_empty_body
+import cashierserviceapp.shared.generated.resources.search_empty_title
+import cashierserviceapp.shared.generated.resources.search_hint_body
+import cashierserviceapp.shared.generated.resources.search_hint_title
+import cashierserviceapp.shared.generated.resources.search_placeholder
+import cashierserviceapp.shared.generated.resources.search_result_count_one
+import cashierserviceapp.shared.generated.resources.search_result_count_other
+import com.cashierserviceapp.navigation.SharedElementKey
+import com.cashierserviceapp.navigation.sharedElementBounds
 import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.home.AttentionRow
@@ -41,6 +55,7 @@ import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import org.jetbrains.compose.resources.stringResource
 
 private const val SKELETON_ROW_COUNT = 4
 
@@ -63,7 +78,7 @@ fun SearchScreen(
         query = query,
         results = results,
         onQueryChange = viewModel::onQueryChange,
-        onRetry = viewModel::retry,
+//        onRetry = viewModel::retry,
         onBack = onBack,
         onOpenOrder = onOpenOrder,
     )
@@ -75,7 +90,7 @@ private fun SearchContent(
     query: String,
     results: List<AttentionRow>,
     onQueryChange: (String) -> Unit,
-    onRetry: () -> Unit,
+//    onRetry: () -> Unit,
     onBack: () -> Unit,
     onOpenOrder: (String) -> Unit = {},
 ) {
@@ -103,15 +118,17 @@ private fun SearchContent(
                 modifier = Modifier.size(44.dp),
                 onClick = onBack,
                 icon = ChevronLeftOutlined,
-                contentDescription = "Back"
+                contentDescription = stringResource(Res.string.action_back)
             )
 
             Spacer(Modifier.width(8.dp))
 
             SearchField(
+                // Lands where Home's tap target was, morphing out of it rather than appearing.
+                modifier = Modifier.sharedElementBounds(SharedElementKey.SearchPill),
                 value = query,
                 onValueChange = onQueryChange,
-                placeholder = "Search name or order code",
+                placeholder = stringResource(Res.string.search_placeholder),
                 focusRequester = focusRequester,
                 keyboardActions = KeyboardActions(onSearch = { keyboard?.hide() })
             )
@@ -127,8 +144,8 @@ private fun SearchContent(
                 // Nothing typed yet: say what search covers instead of showing a blank screen.
                 query.isBlank() -> item("hint") {
                     ContentMessage(
-                        title = "Find an order",
-                        body = "Search the in-progress list by customer name or order code."
+                        title = stringResource(Res.string.search_hint_title),
+                        body = stringResource(Res.string.search_hint_body)
                     )
                 }
 
@@ -138,25 +155,28 @@ private fun SearchContent(
 
                 state is Resource.Error -> item("error") {
                     ContentMessage(
-                        title = "Couldn't load orders",
-                        body = state.message ?: "Something went wrong.",
-                        actionLabel = "Try again",
-                        onAction = onRetry
+                        title = stringResource(Res.string.home_orders_load_failed),
+                        body = state.message ?: stringResource(Res.string.error_generic),
+                        actionLabel = stringResource(Res.string.action_try_again),
+//                        onAction = onRetry
                     )
                 }
 
                 results.isEmpty() -> item("empty") {
                     ContentMessage(
-                        title = "Nothing matches \"$query\"",
-                        body = "Only orders still in progress are searchable. Finished ones live " +
-                                "in History."
+                        title = stringResource(Res.string.search_empty_title, query),
+                        body = stringResource(Res.string.search_empty_body)
                     )
                 }
 
                 else -> {
                     item("count") {
                         Text(
-                            text = if (results.size == 1) "1 result" else "${results.size} results",
+                            text = if (results.size == 1) {
+                                stringResource(Res.string.search_result_count_one)
+                            } else {
+                                stringResource(Res.string.search_result_count_other, results.size)
+                            },
                             modifier = Modifier.padding(vertical = 4.dp),
                             style = CashierServiceTheme.typography.text2,
                             color = CashierServiceTheme.colors.secondaryText
@@ -187,7 +207,7 @@ private fun SearchScreenResultsPreview() = PreviewHelper(paddingEnabled = false)
         query = "rina",
         results = previewRows,
         onQueryChange = {},
-        onRetry = {},
+//        onRetry = {},
         onBack = {}
     )
 }
@@ -200,7 +220,7 @@ private fun SearchScreenHintPreview() = PreviewHelper(paddingEnabled = false) {
         query = "",
         results = emptyList(),
         onQueryChange = {},
-        onRetry = {},
+//        onRetry = {},
         onBack = {}
     )
 }

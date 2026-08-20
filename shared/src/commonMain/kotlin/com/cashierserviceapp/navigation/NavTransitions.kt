@@ -13,6 +13,7 @@ import androidx.navigation3.ui.NavDisplay
 
 private const val FADE_OUT_DURATION_MILLIS = 90
 private const val FADE_IN_DURATION_MILLIS = 210
+private const val CROSS_FADE_DURATION_MILLIS = 220
 
 /**
  * Material style fade-through: the outgoing screen fades out first, then the incoming one fades in.
@@ -32,6 +33,24 @@ internal val topLevelFadeTransition: Map<String, Any> =
     NavDisplay.transitionSpec { fadeThrough() } +
             NavDisplay.popTransitionSpec { fadeThrough() } +
             NavDisplay.predictivePopTransitionSpec { fadeThrough() }
+
+/**
+ * For screens whose motion *is* a shared element: the two screens cross-fade in place so the only
+ * thing visibly travelling is the matched element.
+ *
+ * The NavDisplay default slides the incoming screen in from the side, which would drag the matched
+ * element's new home across the display while the element is trying to settle into it — two motions
+ * fighting over the same pixels.
+ */
+internal val sharedElementTransition: Map<String, Any> =
+    NavDisplay.transitionSpec { crossFade() } +
+            NavDisplay.popTransitionSpec { crossFade() } +
+            NavDisplay.predictivePopTransitionSpec { crossFade() }
+
+/** Both screens fade at once, unlike [fadeThrough], so neither is ever fully missing. */
+private fun crossFade(): ContentTransform =
+    fadeIn(tween(CROSS_FADE_DURATION_MILLIS)) togetherWith
+            fadeOut(tween(CROSS_FADE_DURATION_MILLIS))
 
 /**
  * Whether the screen being composed is a tab root.

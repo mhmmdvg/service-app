@@ -30,6 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -39,6 +42,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.add_order_step_customer_subtitle
+import cashierserviceapp.shared.generated.resources.add_order_step_customer_title
+import cashierserviceapp.shared.generated.resources.add_order_step_device_subtitle
+import cashierserviceapp.shared.generated.resources.add_order_step_device_title
 import com.cashierserviceapp.screens.addorder.components.StepFooter
 import com.cashierserviceapp.screens.addorder.components.StepHeader
 import com.cashierserviceapp.screens.addorder.steps.CustomerStep
@@ -51,8 +59,12 @@ import com.cashierserviceapp.ui.icons.XOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
+import com.cashierserviceapp.domain.usecases.corevalidation.isValid
 import com.cashierserviceapp.utils.Resource
+import com.cashierserviceapp.screens.addorder.components.DeviceFormSheet
+import com.cashierserviceapp.screens.addorder.components.PartPickerSheet
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Taking in a new repair, one question at a time: who's dropping it off, then what they're dropping
@@ -62,14 +74,18 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
 @Composable
 fun AddOrderScreen(
     onClose: () -> Unit,
+    onSuccess: (String) -> Unit,
     viewModel: AddOrderViewModel = metroViewModel(),
 ) {
-    val form by viewModel.form.collectAsStateWithLifecycle()
+    val formState by viewModel.formState.collectAsStateWithLifecycle()
     val step by viewModel.step.collectAsStateWithLifecycle()
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
     LaunchedEffect(submitState) {
-        if (submitState is Resource.Success) onClose()
+        val state = submitState
+        if (state is Resource.Success && state.data?.order?.id != null) {
+            onSuccess(state.data.order.id)
+        }
     }
 
     // The cover isn't a nav entry, so this ViewModel outlives it. Without clearing it here the
@@ -78,32 +94,77 @@ fun AddOrderScreen(
         onDispose { viewModel.reset() }
     }
 
+    val catalogue by viewModel.catalogue.collectAsStateWithLifecycle()
     val isSubmitting = submitState is Resource.Loading
 
+    // The device being edited, and whether its parts sheet is on top of that. Both are just sheets
+    // being open, so they live here rather than in the ViewModel.
+    //
+    // The draft itself lives here too, not in the form: a device only joins the order once it's
+    // saved, so a half-filled one never shows up as a row behind the sheet.
+    var editingDevice by remember { mutableStateOf<DeviceDraft?>(null) }
+    var addingPart by remember { mutableStateOf(false) }
+
     AddOrderContent(
-        form = form,
+        formState = formState,
         step = step,
         isSubmitting = isSubmitting,
         errorMessage = (submitState as? Resource.Error)?.message,
-        canContinue = form.isValid(step) && !isSubmitting,
-        onFormChange = viewModel::update,
+        canContinue = viewModel.isStepComplete(formState, step) && !isSubmitting,
+        onInputChanged = viewModel::onAddOrderEvent,
         onNext = viewModel::next,
         // The first step has nowhere to go back to, so back means leave.
         onBack = { if (!viewModel.back()) onClose() },
+        onAddDevice = { editingDevice = viewModel.newDevice() },
+        onEditDevice = { device -> editingDevice = device },
     )
+
+    editingDevice?.let { device ->
+        DeviceFormSheet(
+            device = device,
+            validate = viewModel::validateDevice,
+            onDraftChange = { draft -> editingDevice = draft },
+            onSave = { saved -> viewModel.onAddOrderEvent(AddOrderFormEvent.DeviceSaved(saved)) },
+            onRemove = {
+                viewModel.onAddOrderEvent(AddOrderFormEvent.DeviceRemoved(device.localId))
+                editingDevice = null
+            },
+            onAddPart = { draft ->
+                editingDevice = draft
+                addingPart = true
+            },
+            // Nothing to undo: an unsaved device was never in the order, and an edit to an existing
+            // one only ever touched this draft.
+            onDismiss = { editingDevice = null }
+        )
+    }
+
+    if (addingPart) {
+        PartPickerSheet(
+            catalogue = catalogue,
+            newLocalId = viewModel::newPartLocalId,
+            onAdd = { part ->
+                editingDevice = editingDevice?.let { it.copy(parts = it.parts + part) }
+                addingPart = false
+            },
+            onDismiss = { addingPart = false }
+        )
+    }
 }
 
 @Composable
 private fun AddOrderContent(
-    form: AddOrderForm,
+    modifier: Modifier = Modifier,
+    formState: AddOrderFormState,
     step: AddOrderStep,
     isSubmitting: Boolean,
     errorMessage: String?,
     canContinue: Boolean,
-    onFormChange: ((AddOrderForm) -> AddOrderForm) -> Unit,
+    onInputChanged: (AddOrderFormEvent) -> Unit,
     onNext: () -> Unit,
     onBack: () -> Unit,
-    modifier: Modifier = Modifier,
+    onAddDevice: () -> Unit = {},
+    onEditDevice: (DeviceDraft) -> Unit = {},
 ) {
     Column(
         modifier
@@ -153,16 +214,16 @@ private fun AddOrderContent(
 
                 when (currentStep) {
                     AddOrderStep.CUSTOMER -> CustomerStep(
-                        form = form,
-                        onFormChange = onFormChange,
+                        formState = formState,
+                        onInputChanged = onInputChanged,
                         enabled = !isSubmitting
                     )
 
                     AddOrderStep.DEVICE -> DeviceStep(
-                        form = form,
-                        onFormChange = onFormChange,
+                        devices = formState.devices,
                         enabled = !isSubmitting,
-                        onSubmit = { if (canContinue) onNext() }
+                        onAddDevice = onAddDevice,
+                        onEditDevice = onEditDevice,
                     )
                 }
 
@@ -181,27 +242,32 @@ private fun AddOrderContent(
     }
 }
 
-private fun AddOrderStep.title(): String = when (this) {
-    AddOrderStep.CUSTOMER -> "Who's the customer?"
-    AddOrderStep.DEVICE -> "What are we fixing?"
-}
+@Composable
+private fun AddOrderStep.title(): String = stringResource(
+    when (this) {
+        AddOrderStep.CUSTOMER -> Res.string.add_order_step_customer_title
+        AddOrderStep.DEVICE -> Res.string.add_order_step_device_title
+    }
+)
 
-private fun AddOrderStep.subtitle(): String = when (this) {
-    AddOrderStep.CUSTOMER -> "We'll use this to reach them when the repair is done. Only the " +
-            "name is required."
-    AddOrderStep.DEVICE -> "Describe the device and what's wrong with it."
-}
+@Composable
+private fun AddOrderStep.subtitle(): String = stringResource(
+    when (this) {
+        AddOrderStep.CUSTOMER -> Res.string.add_order_step_customer_subtitle
+        AddOrderStep.DEVICE -> Res.string.add_order_step_device_subtitle
+    }
+)
 
 @PreviewLightDark
 @Composable
 private fun AddOrderCustomerStepPreview() = PreviewHelper(paddingEnabled = false) {
     AddOrderContent(
-        form = AddOrderForm(name = "Rina Wijaya", phone = "08123456789"),
+        formState = AddOrderFormState(name = "Rina Wijaya", phone = "08123456789"),
         step = AddOrderStep.CUSTOMER,
         isSubmitting = false,
         errorMessage = null,
         canContinue = true,
-        onFormChange = {},
+        onInputChanged = {},
         onNext = {},
         onBack = {}
     )
@@ -211,17 +277,23 @@ private fun AddOrderCustomerStepPreview() = PreviewHelper(paddingEnabled = false
 @Composable
 private fun AddOrderDeviceStepPreview() = PreviewHelper(paddingEnabled = false) {
     AddOrderContent(
-        form = AddOrderForm(
+        formState = AddOrderFormState(
             name = "Rina Wijaya",
-            brand = "Samsung",
-            model = "Galaxy A54",
-            complaint = "Screen won't turn on after a drop"
+            devices = listOf(
+                DeviceDraft(
+                    localId = "1",
+                    brand = "Samsung",
+                    model = "Galaxy A54",
+                    complaint = "Screen won't turn on after a drop",
+                    serviceFee = "50000",
+                )
+            )
         ),
         step = AddOrderStep.DEVICE,
         isSubmitting = false,
         errorMessage = "Nama customer wajib diisi untuk customer baru",
         canContinue = true,
-        onFormChange = {},
+        onInputChanged = {},
         onNext = {},
         onBack = {}
     )

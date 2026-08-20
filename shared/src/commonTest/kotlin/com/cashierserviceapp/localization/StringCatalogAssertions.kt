@@ -12,6 +12,17 @@ import org.jetbrains.compose.resources.getString
  */
 private val IDENTICAL_IN_BOTH_LANGUAGES = setOf(
     "profile_role_admin", // "Admin" either way
+    "auth_email", // "Email"
+    "add_order_device_model", // "Model"
+    "order_detail_total", // "Total"
+    "receipt_status", // "Status"
+    "receipt_subtotal", // "Subtotal"
+    "receipt_total", // "TOTAL"
+    // Month names Indonesian borrowed unchanged. The other nine differ, so a whole catalog of
+    // English months can't hide behind this list.
+    "month_4", // April
+    "month_9", // September
+    "month_11", // November
 )
 
 /**

@@ -72,7 +72,7 @@ internal object Brand {
     val redTextDark = Color(0xFFFF6B6B)
 }
 
-internal object UI {
+object UI {
 //    val black100 = Color(0xFF19191C)
     val black100 = Color(0xFF000000)
     val black90 = Color(0xE519191C)
@@ -106,4 +106,14 @@ internal object UI {
     val grey400 = Color(0xFFA3A3A4)
     val grey500 = Color(0xFF757577)
     val grey900 = Color(0xFF303033)
+
+    val zinc100 = Color(0xFFF4F4F5)
+    val zinc200 = Color(0xFFE4E4E7)
+    val zinc300 = Color(0xFFD4D4D8)
+    val zinc400 = Color(0xFFA1A1AA)
+    val zinc500 = Color(0xFF71717A)
+    val zinc600 = Color(0xFF52525B)
+    val zinc700 = Color(0xFF3F3F46)
+    val zinc800 = Color(0xFF27272A)
+    val zinc900 = Color(0xFF18181B)
 }

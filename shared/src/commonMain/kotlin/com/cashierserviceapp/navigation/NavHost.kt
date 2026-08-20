@@ -1,5 +1,6 @@
 package com.cashierserviceapp.navigation
 
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -23,11 +25,13 @@ import com.cashierserviceapp.screens.history.HistoryScreen
 import com.cashierserviceapp.screens.home.HomeScreen
 import com.cashierserviceapp.screens.order.OrderScreen
 import com.cashierserviceapp.screens.orderdetail.OrderDetailScreen
+import com.cashierserviceapp.screens.ordersuccess.OrderSuccessScreen
 import com.cashierserviceapp.screens.search.SearchScreen
 import com.cashierserviceapp.screens.settings.SettingsScreen
 import com.cashierserviceapp.ui.theme.CashierServiceDarkColors
 import com.cashierserviceapp.ui.theme.CashierServiceLightColors
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import io.ktor.client.request.invoke
 
 @Composable
 internal fun NavHost(
@@ -92,10 +96,17 @@ internal fun NavHost(
                     navState = navState,
                     navigator = navigator,
                 ) {
-                    NavDisplay(
-                        entries = navState.toDecoratedEntries(entryProvider),
-                        onBack = navigator::goBack,
-                    )
+                    // Wraps the whole NavDisplay so an element can be matched between any two
+                    // screens: the scope owns the overlay the moving element is drawn into, and
+                    // that overlay has to outlive both the screen it leaves and the one it lands on.
+                    SharedTransitionLayout(Modifier.fillMaxSize()) {
+                        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                            NavDisplay(
+                                entries = navState.toDecoratedEntries(entryProvider),
+                                onBack = navigator::goBack,
+                            )
+                        }
+                    }
                 }
 
                 // Sibling of the scaffold, not a NavDisplay entry, so it covers the bottom
@@ -104,7 +115,11 @@ internal fun NavHost(
                     route = navState.coverRoute,
                     onDismiss = navigator::dismissCover
                 ) { coverRoute ->
-                    CoverContent(coverRoute, onDismiss = navigator::dismissCover)
+                    CoverContent(
+                        navigator = navigator,
+                        route = coverRoute,
+                        onDismiss = navigator::dismissCover,
+                    )
                 }
             }
         }
@@ -131,7 +146,7 @@ private fun EntryProviderScope<AppRoute>.screens(
         )
     }
 
-    entry<SearchScreen> {
+    entry<SearchScreen>(metadata = sharedElementTransition) {
         SearchScreen(
             onBack = onBack,
             onOpenOrder = { orderId -> navigator.add(OrderDetailScreen(orderId)) },
@@ -161,10 +176,17 @@ private fun EntryProviderScope<AppRoute>.screens(
 /** Content for each [CoverRoute], the modal counterpart of [screens]. */
 @Composable
 private fun CoverContent(
+    navigator: Navigator,
     route: CoverRoute,
     onDismiss: () -> Unit
 ) {
     when (route) {
-        AddOrderScreen -> AddOrderScreen(onClose = onDismiss)
+        AddOrderScreen -> AddOrderScreen(onClose = onDismiss, onSuccess = { navigator.set(OrderSuccessScreen(it)) })
+        is OrderSuccessScreen -> {
+            OrderSuccessScreen(
+                orderId = route.id,
+                onClose = onDismiss,
+            )
+        }
     }
 }

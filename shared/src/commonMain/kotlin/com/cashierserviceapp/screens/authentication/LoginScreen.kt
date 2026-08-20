@@ -19,16 +19,30 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.cashierserviceapp.utils.Resource
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.auth_create_account
+import cashierserviceapp.shared.generated.resources.auth_divider_or
+import cashierserviceapp.shared.generated.resources.auth_email
+import cashierserviceapp.shared.generated.resources.auth_forgot_password
+import cashierserviceapp.shared.generated.resources.auth_password
+import cashierserviceapp.shared.generated.resources.auth_sign_in
+import cashierserviceapp.shared.generated.resources.auth_signing_in
+import cashierserviceapp.shared.generated.resources.auth_subtitle
+import cashierserviceapp.shared.generated.resources.auth_terms
+import cashierserviceapp.shared.generated.resources.auth_title
+import cashierserviceapp.shared.generated.resources.auth_toggle_password
+import com.cashierserviceapp.localization.message
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.components.TextField
+import com.cashierserviceapp.ui.icons.ClosedEyeOutlined
+import com.cashierserviceapp.ui.icons.OpenEyeOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
-import com.cashierserviceapp.ui.icons.ClosedEyeOutlined
-import com.cashierserviceapp.ui.icons.OpenEyeOutlined
+import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
@@ -39,6 +53,7 @@ fun LoginScreen(
     viewModel: LoginViewModel = metroViewModel(),
 ) {
     val loginState by viewModel.loginState.collectAsStateWithLifecycle()
+    val formState by viewModel.formState.collectAsStateWithLifecycle()
 
     LaunchedEffect(loginState) {
         if (loginState is Resource.Success) onLoginSuccess()
@@ -48,8 +63,9 @@ fun LoginScreen(
         modifier = modifier,
         isLoading = loginState is Resource.Loading,
         errorMessage = (loginState as? Resource.Error)?.message,
-        onSubmit = viewModel::login,
-        onInputChanged = viewModel::clearError,
+        formState = formState,
+        onSubmit = viewModel::onLogin,
+        onInputChanged = viewModel::onLoginEvent,
         onForgotPassword = onForgotPassword,
         onSignUp = onSignUp,
     )
@@ -63,20 +79,18 @@ fun LoginScreen(
 private fun LoginContent(
     isLoading: Boolean,
     errorMessage: String?,
-    onSubmit: (email: String, password: String) -> Unit,
+    onSubmit: () -> Unit,
     modifier: Modifier = Modifier,
-    onInputChanged: () -> Unit = {},
+    formState: LoginFormState,
+    onInputChanged: (LoginFormEvent) -> Unit = {},
     onForgotPassword: () -> Unit = {},
     onSignUp: () -> Unit = {},
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     val passwordFocus = remember { FocusRequester() }
     val passwordMask = remember { PasswordVisualTransformation() }
-    val canSubmit = email.isNotBlank() && password.isNotBlank() && !isLoading
-    val submit = { if (canSubmit) onSubmit(email, password) }
+    val canSubmit = formState.email.isNotBlank() && formState.password.isNotBlank() && !isLoading
 
     Column(
         modifier = modifier
@@ -92,7 +106,7 @@ private fun LoginContent(
         Spacer(Modifier.height(56.dp))
 
         Text(
-            text = "Welcome back",
+            text = stringResource(Res.string.auth_title),
             style = CashierServiceTheme.typography.h1,
             color = CashierServiceTheme.colors.primaryText
         )
@@ -100,55 +114,83 @@ private fun LoginContent(
         Spacer(Modifier.height(10.dp))
 
         Text(
-            text = "Sign in to your cashier account to keep taking orders.",
+            text = stringResource(Res.string.auth_subtitle),
             style = CashierServiceTheme.typography.text1,
             color = CashierServiceTheme.colors.secondaryText
         )
 
         Spacer(Modifier.height(40.dp))
 
-        TextField(
-            value = email,
-            onValueChange = { email = it; onInputChanged() },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Email",
-            enabled = !isLoading,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() })
-        )
+        Column(
+            Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            TextField(
+                value = formState.email,
+                onValueChange = { onInputChanged(LoginFormEvent.EmailChanged(it)) },
+                modifier = Modifier.fillMaxWidth(),
+                error = formState.emailError != null,
+                label = stringResource(Res.string.auth_email),
+                enabled = !isLoading,
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() })
+            )
+            formState.emailError?.let {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = it.message(),
+                    style = CashierServiceTheme.typography.text2,
+                    color = CashierServiceTheme.colors.dangerText
+                )
+            }
+        }
 
         Spacer(Modifier.height(12.dp))
 
-        TextField(
-            value = password,
-            onValueChange = { password = it; onInputChanged() },
-            modifier = Modifier.fillMaxWidth(),
-            label = "Password",
-            focusRequester = passwordFocus,
-            enabled = !isLoading,
-            singleLine = true,
-            visualTransformation = if (passwordVisible) VisualTransformation.None else passwordMask,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password,
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(onDone = { submit() }),
-            trailing = {
-                Icon(
-                    imageVector = if (passwordVisible) ClosedEyeOutlined else OpenEyeOutlined,
-                    contentDescription = "showPassword",
-                    tint = CashierServiceTheme.colors.secondaryText,
-                    modifier = Modifier.clickable(
-                        interactionSource = null,
-                        indication = null,
-                    ) { passwordVisible = !passwordVisible }
+        Column(
+            Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            TextField(
+                value = formState.password,
+                onValueChange = { onInputChanged(LoginFormEvent.PasswordChanged(it)) },
+                error = formState.passwordError != null,
+                modifier = Modifier.fillMaxWidth(),
+                label = stringResource(Res.string.auth_password),
+                focusRequester = passwordFocus,
+                enabled = !isLoading,
+                singleLine = true,
+                visualTransformation = if (passwordVisible) VisualTransformation.None else passwordMask,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(onDone = { onSubmit() }),
+                trailing = {
+                    Icon(
+                        imageVector = if (passwordVisible) ClosedEyeOutlined else OpenEyeOutlined,
+                        contentDescription = stringResource(Res.string.auth_toggle_password),
+                        tint = CashierServiceTheme.colors.secondaryText,
+                        modifier = Modifier.clickable(
+                            interactionSource = null,
+                            indication = null,
+                        ) { passwordVisible = !passwordVisible }
+                    )
+                }
+            )
+            formState.passwordError?.let {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = it.message(),
+                    style = CashierServiceTheme.typography.text2,
+                    color = CashierServiceTheme.colors.dangerText
                 )
             }
-        )
+        }
 
         if (errorMessage != null) {
             Spacer(Modifier.height(12.dp))
@@ -164,7 +206,7 @@ private fun LoginContent(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "Forgot password?",
+            text = stringResource(Res.string.auth_forgot_password),
             modifier = Modifier
                 .align(Alignment.End)
                 .clickable(onClick = onForgotPassword),
@@ -174,8 +216,10 @@ private fun LoginContent(
         Spacer(Modifier.height(32.dp))
 
         Button(
-            label = if (isLoading) "Signing in…" else "Sign in",
-            onClick = submit,
+            label = stringResource(
+                if (isLoading) Res.string.auth_signing_in else Res.string.auth_sign_in
+            ),
+            onClick = onSubmit,
             modifier = Modifier.fillMaxWidth(),
             primary = true,
             enabled = canSubmit,
@@ -188,7 +232,7 @@ private fun LoginContent(
         Spacer(Modifier.height(24.dp))
 
         Button(
-            label = "Create an account",
+            label = stringResource(Res.string.auth_create_account),
             onClick = onSignUp,
             modifier = Modifier.fillMaxWidth(),
             primary = false
@@ -197,7 +241,7 @@ private fun LoginContent(
         Spacer(Modifier.height(40.dp))
 
         Text(
-            text = "By continuing you agree to our Terms of Service and Privacy Policy.",
+            text = stringResource(Res.string.auth_terms),
             modifier = Modifier.fillMaxWidth(),
             style = CashierServiceTheme.typography.text2.copy(textAlign = TextAlign.Center),
             color = CashierServiceTheme.colors.noteText
@@ -215,7 +259,7 @@ private fun LabelledDivider() {
     ) {
         Rule(Modifier.weight(1f))
         Text(
-            text = "or",
+            text = stringResource(Res.string.auth_divider_or),
             modifier = Modifier.padding(horizontal = 16.dp),
             style = CashierServiceTheme.typography.text2,
             color = CashierServiceTheme.colors.noteText
@@ -223,6 +267,11 @@ private fun LabelledDivider() {
         Rule(Modifier.weight(1f))
     }
 }
+
+private val formStatePreview = LoginFormState(
+    email = "",
+    password = "",
+)
 
 @Composable
 private fun Rule(modifier: Modifier = Modifier) {
@@ -236,7 +285,9 @@ private fun Rule(modifier: Modifier = Modifier) {
 @PreviewLightDark
 @Composable
 private fun LoginScreenPreview() = PreviewHelper(paddingEnabled = false) {
-    LoginContent(isLoading = false, errorMessage = null, onSubmit = { _, _ -> })
+
+
+    LoginContent(isLoading = false, errorMessage = null, formState = formStatePreview, onSubmit = { })
 }
 
 @PreviewLightDark
@@ -245,6 +296,7 @@ private fun LoginScreenErrorPreview() = PreviewHelper(paddingEnabled = false) {
     LoginContent(
         isLoading = false,
         errorMessage = "Email or password is incorrect.",
-        onSubmit = { _, _ -> }
+        formState = formStatePreview,
+        onSubmit = { }
     )
 }

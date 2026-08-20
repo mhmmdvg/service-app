@@ -30,12 +30,15 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.cashierserviceapp.ui.generated.resources.UiRes
+import com.cashierserviceapp.ui.generated.resources.search_field_clear
 import com.cashierserviceapp.ui.icons.ScanOutlined
 import com.cashierserviceapp.ui.icons.SearchOutlined
 import com.cashierserviceapp.ui.icons.XOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * A pill-shaped search box: magnifier on the left, a clear button once there's text, and room for
@@ -91,7 +94,7 @@ fun SearchField(
 
             Icon(
                 imageVector = XOutlined,
-                contentDescription = "Clear search",
+                contentDescription = stringResource(UiRes.string.search_field_clear),
                 modifier = Modifier
                     .size(18.dp)
                     .clickable(

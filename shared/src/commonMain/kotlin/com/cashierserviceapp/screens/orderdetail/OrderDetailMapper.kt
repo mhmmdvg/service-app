@@ -43,6 +43,8 @@ data class OrderDetailItemUiModel(
     val deviceName: String,
     val complaint: String?,
     val status: OrderStatus,
+    /** The raw fee, kept alongside the label so the status sheet can put it back in its field. */
+    val serviceFee: Long?,
     val serviceFeeLabel: String?,
     val totalLabel: String?,
     val parts: List<OrderPartUiModel>,
@@ -55,7 +57,7 @@ data class OrderPartUiModel(
     val subtotalLabel: String,
 )
 
-fun OrderDetail.toUiModel(): OrderDetailUiModel {
+suspend fun OrderDetail.toUiModel(): OrderDetailUiModel {
     val moment = createdAt?.let { parseTimestamp(it)?.toLocalDateTime() }
     // Only devices with a settled price count towards the total; the rest are still open.
     val pricedCosts = items.mapNotNull { it.finalCost }
@@ -81,6 +83,7 @@ private fun OrderDetailItem.toUiModel(index: Int): OrderDetailItemUiModel =
         deviceName = "$deviceBrand $deviceModel",
         complaint = complaint?.takeIf { it.isNotBlank() },
         status = status,
+        serviceFee = serviceFee,
         serviceFeeLabel = serviceFee?.let { formatRupiah(it) },
         totalLabel = finalCost?.let { formatRupiah(it) },
         parts = parts.mapIndexed { partIndex, part ->

@@ -17,6 +17,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cashierserviceapp.localization.deviceCountLabel
+import com.cashierserviceapp.localization.waitLabel
 import com.cashierserviceapp.screens.home.AttentionRow
 import com.cashierserviceapp.ui.components.Avatar
 import com.cashierserviceapp.ui.components.Chip
@@ -64,7 +66,7 @@ fun AttentionCard(
                 maxLines = 1
             )
             Text(
-                text = "${row.orderCode} · ${row.itemsCount.deviceLabel()}",
+                text = "${row.orderCode} · ${deviceCountLabel(row.itemsCount)}",
                 style = CashierServiceTheme.typography.text2,
                 color = CashierServiceTheme.colors.secondaryText,
                 maxLines = 1
@@ -73,27 +75,18 @@ fun AttentionCard(
 
         Spacer(Modifier.width(8.dp))
 
-        val waitLabel = row.daysWaiting.waitLabel()
+        val wait = waitLabel(row.daysWaiting)
         if (row.isOverdue) {
-            Chip(label = waitLabel, color = CashierServiceTheme.colors.orangeText)
+            Chip(label = wait, color = CashierServiceTheme.colors.orangeText)
         } else {
             Text(
-                text = waitLabel,
+                text = wait,
                 style = CashierServiceTheme.typography.text2.copy(textAlign = TextAlign.End),
                 color = CashierServiceTheme.colors.secondaryText,
                 maxLines = 1
             )
         }
     }
-}
-
-private fun Int.deviceLabel(): String = if (this == 1) "1 device" else "$this devices"
-
-private fun Int?.waitLabel(): String = when {
-    this == null -> ""
-    this <= 0 -> "Today"
-    this == 1 -> "1 day"
-    else -> "$this days"
 }
 
 @PreviewLightDark
