@@ -72,7 +72,6 @@
     <!-- Add order: devices and parts -->
     <string name="add_order_devices_empty">No devices yet. Add the first one the customer is dropping off.</string>
     <string name="add_order_device_add">Add device</string>
-    <string name="add_order_device_incomplete">Incomplete device</string>
     <string name="add_order_device_title">Device</string>
     <string name="add_order_device_brand">Brand</string>
     <string name="add_order_device_model">Model</string>
@@ -103,4 +102,8 @@
     <string name="validation_password_letter_and_digit">Password needs at least one letter and one number.</string>
     <string name="validation_phone_blank">Phone number can\'t be blank.</string>
     <string name="validation_phone_too_short">Phone number needs at least 10 digits.</string>
+    <string name="validation_name_blank">Customer name can\'t be blank.</string>
+    <string name="validation_device_brand_blank">Brand can\'t be blank.</string>
+    <string name="validation_device_model_blank">Model can\'t be blank.</string>
+    <string name="validation_device_complaint_blank">Describe what\'s wrong with the device.</string>
 </resources>

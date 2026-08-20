@@ -18,7 +18,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.add_order_device_add
-import cashierserviceapp.shared.generated.resources.add_order_device_incomplete
 import cashierserviceapp.shared.generated.resources.add_order_devices_empty
 import cashierserviceapp.shared.generated.resources.add_order_estimated_total
 import com.cashierserviceapp.screens.addorder.DeviceDraft
@@ -114,14 +113,15 @@ private fun DeviceRow(
             Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-//            Text(
-//                text = device.name.ifBlank { stringResource(Res.string.add_order_device_incomplete) },
-//                modifier = Modifier.weight(1f),
-//                style = CashierServiceTheme.typography.h4,
-//                color = if (device.isValid) CashierServiceTheme.colors.primaryText
-//                else CashierServiceTheme.colors.dangerText,
-//                maxLines = 1
-//            )
+            // Always a real name: a device only reaches this list once ValidateDevice has passed
+            // it, and that needs a brand and a model.
+            Text(
+                text = device.name,
+                modifier = Modifier.weight(1f),
+                style = CashierServiceTheme.typography.h4,
+                color = CashierServiceTheme.colors.primaryText,
+                maxLines = 1
+            )
 
             if (device.hasPrice) {
                 Text(

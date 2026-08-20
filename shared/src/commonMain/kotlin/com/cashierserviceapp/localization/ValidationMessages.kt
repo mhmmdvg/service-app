@@ -2,11 +2,15 @@ package com.cashierserviceapp.localization
 
 import androidx.compose.runtime.Composable
 import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.validation_device_brand_blank
+import cashierserviceapp.shared.generated.resources.validation_device_complaint_blank
+import cashierserviceapp.shared.generated.resources.validation_device_model_blank
 import cashierserviceapp.shared.generated.resources.validation_email_blank
 import cashierserviceapp.shared.generated.resources.validation_email_format
 import cashierserviceapp.shared.generated.resources.validation_password_blank
 import cashierserviceapp.shared.generated.resources.validation_password_letter_and_digit
 import cashierserviceapp.shared.generated.resources.validation_password_too_short
+import cashierserviceapp.shared.generated.resources.validation_name_blank
 import cashierserviceapp.shared.generated.resources.validation_phone_blank
 import cashierserviceapp.shared.generated.resources.validation_phone_too_short
 import com.cashierserviceapp.domain.usecases.corevalidation.ValidationError
@@ -28,6 +32,10 @@ val ValidationError.stringResource: StringResource
 //            Res.string.validation_password_letter_and_digit
         ValidationError.PhoneNumberBlank -> Res.string.validation_phone_blank
         ValidationError.PhoneNumberTooShort -> Res.string.validation_phone_too_short
+        ValidationError.NameBlank -> Res.string.validation_name_blank
+        ValidationError.DeviceBrandBlank -> Res.string.validation_device_brand_blank
+        ValidationError.DeviceModelBlank -> Res.string.validation_device_model_blank
+        ValidationError.DeviceComplaintBlank -> Res.string.validation_device_complaint_blank
     }
 
 @Composable

@@ -39,6 +39,8 @@ import cashierserviceapp.shared.generated.resources.add_order_device_title
 import cashierserviceapp.shared.generated.resources.add_order_part_add_another
 import cashierserviceapp.shared.generated.resources.add_order_parts_title
 import cashierserviceapp.shared.generated.resources.add_order_service_fee
+import com.cashierserviceapp.domain.usecases.corevalidation.Validation
+import com.cashierserviceapp.domain.usecases.corevalidation.isValid
 import com.cashierserviceapp.screens.addorder.DeviceDraft
 import com.cashierserviceapp.ui.components.BottomSheet
 import com.cashierserviceapp.ui.components.Button
@@ -51,12 +53,16 @@ import org.jetbrains.compose.resources.stringResource
 /**
  * The whole of one device: what it is, what's wrong with it, and what it's expected to cost.
  *
- * Edits a copy and only reports back on save, so backing out of the sheet leaves the order as it
- * was — important when the same sheet is used to add a device and to correct one.
+ * Edits a copy and only commits on save, so backing out of the sheet leaves the order as it was —
+ * important when the same sheet is used to add a device and to correct one. A device being added
+ * isn't in the order at all until [onSave]; [onDraftChange] only keeps the caller's copy of the
+ * draft in step, which the parts sheet needs.
  */
 @Composable
 fun DeviceFormSheet(
     device: DeviceDraft,
+    validate: (DeviceDraft) -> Validation,
+    onDraftChange: (DeviceDraft) -> Unit,
     onSave: (DeviceDraft) -> Unit,
     onRemove: () -> Unit,
     onAddPart: (DeviceDraft) -> Unit,
@@ -67,6 +73,10 @@ fun DeviceFormSheet(
     // Parts are added through a sheet of their own, so they arrive on the incoming [device] rather
     // than through this local copy — take them whenever they change.
     if (draft.parts != device.parts) draft = draft.copy(parts = device.parts)
+
+    // Only the Save button reacts to this. Flagging the fields themselves would paint a brand-new
+    // device red the moment the sheet opens, before anything has been typed.
+    val isComplete = validate(draft).isValid
 
     BottomSheet(onDismissRequest = onDismiss) { hide ->
         Spacer(Modifier.height(20.dp))
@@ -180,7 +190,9 @@ fun DeviceFormSheet(
                                 draft = draft.copy(
                                     parts = draft.parts.filterNot { it.localId == part.localId }
                                 )
-                                onSave(draft)
+                                // Pushed back so the incoming [device] matches, or the parts sync
+                                // above would put the part straight back.
+                                onDraftChange(draft)
                             },
                         tint = CashierServiceTheme.colors.secondaryText
                     )
@@ -192,8 +204,7 @@ fun DeviceFormSheet(
             Button(
                 label = stringResource(Res.string.add_order_part_add_another),
                 onClick = {
-                    // Persist what's typed before the parts sheet takes over, or it'd be lost.
-                    onSave(draft)
+                    // Hand over what's typed before the parts sheet takes over, or it'd be lost.
                     onAddPart(draft)
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -205,7 +216,7 @@ fun DeviceFormSheet(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
                     label = stringResource(
-                        if (device.isValid) Res.string.add_order_device_remove
+                        if (validate(device).isValid) Res.string.add_order_device_remove
                         else Res.string.action_cancel
                     ),
                     onClick = {
@@ -223,7 +234,7 @@ fun DeviceFormSheet(
                     },
                     modifier = Modifier.weight(1f),
                     primary = true,
-                    enabled = draft.isValid,
+                    enabled = isComplete,
                 )
             }
         }

@@ -21,6 +21,10 @@ enum class ValidationError {
 //    PasswordNeedsLetterAndDigit,
     PhoneNumberBlank,
     PhoneNumberTooShort,
+    NameBlank,
+    DeviceBrandBlank,
+    DeviceModelBlank,
+    DeviceComplaintBlank,
 }
 
 /** Reads better than `is Validation.Invalid` at the call sites that only need a yes/no. */
@@ -30,3 +34,7 @@ val Validation.isValid: Boolean
 /** The reason this check failed, or null when it passed. */
 val Validation.errorOrNull: ValidationError?
     get() = (this as? Validation.Invalid)?.error
+
+/** The first rule that failed, or [Validation.Valid] when they all passed. */
+fun firstInvalid(vararg results: Validation): Validation =
+    results.firstOrNull { it is Validation.Invalid } ?: Validation.Valid

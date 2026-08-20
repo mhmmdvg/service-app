@@ -4,8 +4,15 @@ import dev.zacsweers.metro.Inject
 
 @Inject
 class ValidatePhoneNumber {
-    fun execute(phoneNumber: String): Validation {
-        if (phoneNumber.isBlank()) return Validation.Invalid(ValidationError.PhoneNumberBlank)
+    /** @param required when false a blank value passes. See [ValidateEmail.execute]. */
+    fun execute(phoneNumber: String, required: Boolean = true): Validation {
+        if (phoneNumber.isBlank()) {
+            return if (required) {
+                Validation.Invalid(ValidationError.PhoneNumberBlank)
+            } else {
+                Validation.Valid
+            }
+        }
 
         if (phoneNumber.length < 10) {
             return Validation.Invalid(ValidationError.PhoneNumberTooShort)

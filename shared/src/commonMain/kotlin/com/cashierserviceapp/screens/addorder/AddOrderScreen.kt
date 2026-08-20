@@ -54,6 +54,7 @@ import com.cashierserviceapp.ui.icons.XOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
+import com.cashierserviceapp.domain.usecases.corevalidation.isValid
 import com.cashierserviceapp.utils.Resource
 import com.cashierserviceapp.screens.addorder.components.DeviceFormSheet
 import com.cashierserviceapp.screens.addorder.components.PartPickerSheet
@@ -69,7 +70,7 @@ fun AddOrderScreen(
     onClose: () -> Unit,
     viewModel: AddOrderViewModel = metroViewModel(),
 ) {
-    val form by viewModel.form.collectAsStateWithLifecycle()
+    val formState by viewModel.formState.collectAsStateWithLifecycle()
     val step by viewModel.step.collectAsStateWithLifecycle()
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
@@ -86,71 +87,74 @@ fun AddOrderScreen(
     val catalogue by viewModel.catalogue.collectAsStateWithLifecycle()
     val isSubmitting = submitState is Resource.Loading
 
-    // Which device is being edited, and whether its parts sheet is on top of that. Both are just
-    // sheets being open, so they live here rather than in the ViewModel.
-    var editingId by remember { mutableStateOf<String?>(null) }
-    var addingPartTo by remember { mutableStateOf<String?>(null) }
-
-    val editing = form.devices.firstOrNull { it.localId == editingId }
+    // The device being edited, and whether its parts sheet is on top of that. Both are just sheets
+    // being open, so they live here rather than in the ViewModel.
+    //
+    // The draft itself lives here too, not in the form: a device only joins the order once it's
+    // saved, so a half-filled one never shows up as a row behind the sheet.
+    var editingDevice by remember { mutableStateOf<DeviceDraft?>(null) }
+    var addingPart by remember { mutableStateOf(false) }
 
     AddOrderContent(
-        form = form,
+        formState = formState,
         step = step,
         isSubmitting = isSubmitting,
         errorMessage = (submitState as? Resource.Error)?.message,
-        canContinue = form.isValid(step) && !isSubmitting,
-        onFormChange = viewModel::update,
+        canContinue = viewModel.isStepComplete(formState, step) && !isSubmitting,
+        onInputChanged = viewModel::onAddOrderEvent,
         onNext = viewModel::next,
         // The first step has nowhere to go back to, so back means leave.
         onBack = { if (!viewModel.back()) onClose() },
-        onAddDevice = { editingId = viewModel.addDevice().localId },
-        onEditDevice = { device -> editingId = device.localId },
+        onAddDevice = { editingDevice = viewModel.newDevice() },
+        onEditDevice = { device -> editingDevice = device },
     )
 
-    editing?.let { device ->
+    editingDevice?.let { device ->
         DeviceFormSheet(
             device = device,
-            onSave = viewModel::updateDevice,
+            validate = viewModel::validateDevice,
+            onDraftChange = { draft -> editingDevice = draft },
+            onSave = { saved -> viewModel.onAddOrderEvent(AddOrderFormEvent.DeviceSaved(saved)) },
             onRemove = {
-                viewModel.removeDevice(device.localId)
-                editingId = null
+                viewModel.onAddOrderEvent(AddOrderFormEvent.DeviceRemoved(device.localId))
+                editingDevice = null
             },
-            onAddPart = { addingPartTo = device.localId },
-            onDismiss = {
-                // Backing out of a device that was never filled in shouldn't leave an empty row
-                // behind on the list.
-                if (!device.isValid) viewModel.removeDevice(device.localId)
-                editingId = null
-            }
+            onAddPart = { draft ->
+                editingDevice = draft
+                addingPart = true
+            },
+            // Nothing to undo: an unsaved device was never in the order, and an edit to an existing
+            // one only ever touched this draft.
+            onDismiss = { editingDevice = null }
         )
     }
 
-    addingPartTo?.let { deviceId ->
+    if (addingPart) {
         PartPickerSheet(
             catalogue = catalogue,
             newLocalId = viewModel::newPartLocalId,
             onAdd = { part ->
-                viewModel.addPart(deviceId, part)
-                addingPartTo = null
+                editingDevice = editingDevice?.let { it.copy(parts = it.parts + part) }
+                addingPart = false
             },
-            onDismiss = { addingPartTo = null }
+            onDismiss = { addingPart = false }
         )
     }
 }
 
 @Composable
 private fun AddOrderContent(
-    form: AddOrderForm,
+    modifier: Modifier = Modifier,
+    formState: AddOrderFormState,
     step: AddOrderStep,
     isSubmitting: Boolean,
     errorMessage: String?,
     canContinue: Boolean,
-    onFormChange: ((AddOrderForm) -> AddOrderForm) -> Unit,
+    onInputChanged: (AddOrderFormEvent) -> Unit,
     onNext: () -> Unit,
     onBack: () -> Unit,
     onAddDevice: () -> Unit = {},
     onEditDevice: (DeviceDraft) -> Unit = {},
-    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier
@@ -200,13 +204,13 @@ private fun AddOrderContent(
 
                 when (currentStep) {
                     AddOrderStep.CUSTOMER -> CustomerStep(
-                        form = form,
-                        onFormChange = onFormChange,
+                        formState = formState,
+                        onInputChanged = onInputChanged,
                         enabled = !isSubmitting
                     )
 
                     AddOrderStep.DEVICE -> DeviceStep(
-                        devices = form.devices,
+                        devices = formState.devices,
                         enabled = !isSubmitting,
                         onAddDevice = onAddDevice,
                         onEditDevice = onEditDevice,
@@ -243,12 +247,12 @@ private fun AddOrderStep.subtitle(): String = when (this) {
 @Composable
 private fun AddOrderCustomerStepPreview() = PreviewHelper(paddingEnabled = false) {
     AddOrderContent(
-        form = AddOrderForm(name = "Rina Wijaya", phone = "08123456789"),
+        formState = AddOrderFormState(name = "Rina Wijaya", phone = "08123456789"),
         step = AddOrderStep.CUSTOMER,
         isSubmitting = false,
         errorMessage = null,
         canContinue = true,
-        onFormChange = {},
+        onInputChanged = {},
         onNext = {},
         onBack = {}
     )
@@ -258,7 +262,7 @@ private fun AddOrderCustomerStepPreview() = PreviewHelper(paddingEnabled = false
 @Composable
 private fun AddOrderDeviceStepPreview() = PreviewHelper(paddingEnabled = false) {
     AddOrderContent(
-        form = AddOrderForm(
+        formState = AddOrderFormState(
             name = "Rina Wijaya",
             devices = listOf(
                 DeviceDraft(
@@ -274,7 +278,7 @@ private fun AddOrderDeviceStepPreview() = PreviewHelper(paddingEnabled = false) 
         isSubmitting = false,
         errorMessage = "Nama customer wajib diisi untuk customer baru",
         canContinue = true,
-        onFormChange = {},
+        onInputChanged = {},
         onNext = {},
         onBack = {}
     )

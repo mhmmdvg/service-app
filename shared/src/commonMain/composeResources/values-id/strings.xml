@@ -72,7 +72,6 @@
     <!-- Add order: devices and parts -->
     <string name="add_order_devices_empty">Belum ada perangkat. Tambahkan yang pertama dititipkan pelanggan.</string>
     <string name="add_order_device_add">Tambah perangkat</string>
-    <string name="add_order_device_incomplete">Perangkat belum lengkap</string>
     <string name="add_order_device_title">Perangkat</string>
     <string name="add_order_device_brand">Merek</string>
     <string name="add_order_device_model">Model</string>
@@ -103,4 +102,8 @@
     <string name="validation_password_letter_and_digit">Kata sandi harus memuat minimal satu huruf dan satu angka.</string>
     <string name="validation_phone_blank">Nomor telepon tidak boleh kosong.</string>
     <string name="validation_phone_too_short">Nomor telepon minimal 10 digit.</string>
+    <string name="validation_name_blank">Nama pelanggan tidak boleh kosong.</string>
+    <string name="validation_device_brand_blank">Merek tidak boleh kosong.</string>
+    <string name="validation_device_model_blank">Model tidak boleh kosong.</string>
+    <string name="validation_device_complaint_blank">Jelaskan keluhan perangkatnya.</string>
 </resources>
