@@ -8,6 +8,7 @@ import com.cashierserviceapp.domain.models.OrderDetail
 import com.cashierserviceapp.domain.models.OrderDetailItem
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
+import com.cashierserviceapp.domain.models.QueryParams
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.utils.Logger
 import com.cashierserviceapp.utils.apiUrl
@@ -29,8 +30,19 @@ class OrderApiImpl(
 ) : OrderApi {
     private val taggedLogger = logger.tagged("OrderApi")
 
-    override suspend fun getOrders(): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {
-        client.get { apiUrl("orders/in-progress") }.body()
+    override suspend fun getOrders(params: QueryParams): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {
+        client.get {
+            apiUrl("orders/in-progress")
+            params.search?.let {
+                parameter("search", it)
+            }
+            params.perPage?.let {
+                parameter("per_page", it)
+            }
+            params.page?.let {
+                parameter("page", it)
+            }
+        }.body()
     }
 
     override suspend fun getOrderHistory(): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {

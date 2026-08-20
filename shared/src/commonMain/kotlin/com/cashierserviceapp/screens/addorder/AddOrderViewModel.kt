@@ -2,11 +2,15 @@ package com.cashierserviceapp.screens.addorder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
+import com.cashierserviceapp.domain.models.CreateSparePartRequest
+import com.cashierserviceapp.domain.models.OrderItemInput
+import com.cashierserviceapp.domain.models.OrderPartInput
 import com.cashierserviceapp.domain.models.SparePart
+import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.domain.repositories.SparePartRepository
 import com.cashierserviceapp.domain.usecases.addorder.AddOrderValidators
-import com.cashierserviceapp.domain.usecases.addorder.CreateOrderUseCase
 import com.cashierserviceapp.domain.usecases.corevalidation.Validation
 import com.cashierserviceapp.domain.usecases.corevalidation.ValidationError
 import com.cashierserviceapp.domain.usecases.corevalidation.errorOrNull
@@ -20,12 +24,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
 class AddOrderViewModel(
+    private val orderRepository: OrderRepository,
     private val sparePartRepository: SparePartRepository,
-    private val createOrder: CreateOrderUseCase,
     private val validators: AddOrderValidators,
 ) : ViewModel() {
     /* Form State */
@@ -71,10 +76,6 @@ class AddOrderViewModel(
 
             // Trimmed on the way in, like the login form: the anchored regex in ValidateEmail
             // rejects the stray trailing space soft keyboards like to append.
-            is AddOrderFormEvent.EmailChanged -> {
-                formState.update { it.copy(email = event.email.trim(), emailError = null) }
-                clearError()
-            }
 
             is AddOrderFormEvent.PhoneChanged -> {
                 formState.update { it.copy(phone = event.phone.trim(), phoneError = null) }
@@ -175,15 +176,15 @@ class AddOrderViewModel(
         val phoneError = validators.validatePhoneNumber
             .execute(state.phone, required = false)
             .errorOrNull
-        val emailError = validators.validateEmail
-            .execute(state.email, required = false)
-            .errorOrNull
+//        val emailError = validators.validateEmail
+//            .execute(state.email, required = false)
+//            .errorOrNull
 
         formState.update {
-            it.copy(nameError = nameError, phoneError = phoneError, emailError = emailError)
+            it.copy(nameError = nameError, phoneError = phoneError)
         }
 
-        return nameError == null && phoneError == null && emailError == null
+        return nameError == null && phoneError == null
     }
 
     // --- submit ----------------------------------------------------------------------------
@@ -194,12 +195,61 @@ class AddOrderViewModel(
         submitJob = viewModelScope.launch {
             submitState.value = Resource.Loading()
 
-            createOrder.execute(formState.value.toIntake())
+            val current = formState.value
+
+            // Typed-in parts don't exist server-side yet, and order creation can only reference
+            // parts by id — so they're registered first and the ids folded back into the request.
+            val registered = registerManualParts(current)
+            registered.exceptionOrNull()?.let { exception ->
+                submitState.value = Resource.Error(exception.message)
+                return@launch
+            }
+
+            val idsByLocal = registered.getOrDefault(emptyMap())
+
+            orderRepository.createOrder(current.toRequest(idsByLocal))
                 .fold(
                     onSuccess = { response -> submitState.value = Resource.Success(response) },
                     onFailure = { exception -> submitState.value = Resource.Error(exception.message) }
                 )
         }
+    }
+
+    /**
+     * Creates a catalogue entry for every hand-typed part, returning its local id → server id.
+     *
+     * Stock is set to exactly the quantity being used, because `attachPart` refuses to attach more
+     * than a part has in stock and immediately decrements it — a new part with zero stock would
+     * fail the order it was created for.
+     */
+    private suspend fun registerManualParts(form: AddOrderFormState): Result<Map<String, String>> {
+        val manual = form.devices.flatMap { it.parts }.filter { it.isManual }
+        if (manual.isEmpty()) return Result.success(emptyMap())
+
+        val ids = mutableMapOf<String, String>()
+
+        manual.forEach { part ->
+            val result = sparePartRepository.createSparePart(
+                CreateSparePartRequest(
+                    name = part.name,
+                    stock = part.qty,
+                    // The counter only knows what it's charging; margin can be corrected in
+                    // inventory later.
+                    costPrice = 0,
+                    sellPrice = part.unitPrice,
+                    sku = generateSku(part.name),
+                )
+            )
+
+            val created = result.getOrElse { return Result.failure(it) }
+            val id = created.id ?: return Result.failure(
+                Exception("The server created \"${part.name}\" but didn't return its id.")
+            )
+
+            ids[part.localId] = id
+        }
+
+        return Result.success(ids)
     }
 
     fun reset() {
@@ -222,7 +272,41 @@ class AddOrderViewModel(
     }
 }
 
+/**
+ * Builds the wire request, swapping every hand-typed part for the catalogue entry created for it.
+ *
+ * @param manualPartIds local id → server id, from [AddOrderViewModel.registerManualParts].
+ */
+private fun AddOrderFormState.toRequest(manualPartIds: Map<String, String>): CreateOrderRequest =
+    CreateOrderRequest(
+        customer = customerInput(),
+        items = devices.map { device ->
+            OrderItemInput(
+                complaint = device.complaint.trim(),
+                brand = device.brand.trim(),
+                model = device.model.trim(),
+                color = device.color.trim().ifBlank { null },
+                serviceFee = device.serviceFeeValue,
+                parts = device.parts
+                    .mapNotNull { part ->
+                        val id = part.sparePartId ?: manualPartIds[part.localId] ?: return@mapNotNull null
+                        OrderPartInput(sparePartID = id, qty = part.qty)
+                    }
+                    .ifEmpty { null },
+            )
+        }
+    )
+
 private var localIdCounter = 0
 
 /** Unique within one run of the flow, which is all a list key needs. */
 private fun newLocalId(): String = "draft-${localIdCounter++}"
+
+/**
+ * Inventory needs an SKU and the counter shouldn't have to invent one. Not unique-constrained
+ * server-side, so a readable prefix plus a timestamp is enough to tell entries apart.
+ */
+private fun generateSku(name: String): String {
+    val prefix = name.filter { it.isLetterOrDigit() }.take(6).uppercase().ifBlank { "PART" }
+    return "$prefix-${Clock.System.now().toEpochMilliseconds() % 1_000_000}"
+}

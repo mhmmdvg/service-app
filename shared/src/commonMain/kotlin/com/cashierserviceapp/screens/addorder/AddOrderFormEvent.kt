@@ -73,7 +73,7 @@ data class AddOrderFormState(
         name = name.trim(),
         // Blank optional fields go as null rather than "", so the server stores nothing.
         phone = phone.trim().ifBlank { null },
-        email = email.trim().ifBlank { null },
+//        email = email.trim().ifBlank { null },
         address = address.trim().ifBlank { null },
     )
 }
@@ -90,7 +90,7 @@ data class AddOrderFormState(
 sealed class AddOrderFormEvent {
     data class NameChanged(val name: String) : AddOrderFormEvent()
     data class PhoneChanged(val phone: String) : AddOrderFormEvent()
-    data class EmailChanged(val email: String) : AddOrderFormEvent()
+//    data class EmailChanged(val email: String) : AddOrderFormEvent()
     data class AddressChanged(val address: String) : AddOrderFormEvent()
 
     /**

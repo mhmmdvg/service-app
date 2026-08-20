@@ -7,6 +7,7 @@ import com.cashierserviceapp.domain.models.OrderDetail
 import com.cashierserviceapp.domain.models.OrderDetailItem
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
+import com.cashierserviceapp.domain.models.QueryParams
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import dev.zacsweers.metro.AppScope
@@ -18,16 +19,14 @@ import dev.zacsweers.metro.SingleIn
 class OrderRepositoryImpl(
     private val api: OrderApi
 ) : OrderRepository {
-    override suspend fun getOrders(): Result<List<Order>> {
+    override suspend fun getOrders(params: QueryParams): Result<List<Order>> {
        return runCatching {
-           api.getOrders().let { result ->
+           api.getOrders(params).let { result ->
                result?.data ?: throw Exception(result?.message)
            }
        }.onSuccess { response ->
-           print("checking $response")
            Result.success(response)
        }.onFailure { exception ->
-           print("exception $exception")
            Result.failure<Order>(exception)
        }
     }

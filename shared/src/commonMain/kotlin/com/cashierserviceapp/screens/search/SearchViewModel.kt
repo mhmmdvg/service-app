@@ -2,6 +2,7 @@ package com.cashierserviceapp.screens.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cashierserviceapp.domain.models.QueryParams
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.screens.home.AttentionRow
 import com.cashierserviceapp.screens.home.search
@@ -10,13 +11,17 @@ import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
 import dev.zacsweers.metrox.viewmodel.ViewModelKey
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Searching the in-progress list.
@@ -25,6 +30,7 @@ import kotlin.time.Clock
  * in-progress set is small by nature (it's the shop's current workload), so a round trip per
  * keystroke would be slower and worse.
  */
+@OptIn(FlowPreview::class)
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
 class SearchViewModel(
@@ -42,7 +48,14 @@ class SearchViewModel(
     private var fetchJob: Job? = null
 
     init {
-        load()
+        viewModelScope.launch {
+            query
+                .debounce(400.milliseconds)
+                .distinctUntilChanged()
+                .collect { query ->
+                    onSearch(QueryParams(query))
+                }
+        }
     }
 
     fun onQueryChange(value: String) {
@@ -50,20 +63,20 @@ class SearchViewModel(
         results.value = ordersState.value.data.orEmpty().search(value)
     }
 
-    fun retry() {
-        if (fetchJob?.isActive == true) return
+//    fun retry() {
+//        if (fetchJob?.isActive == true) return
+//
+//        ordersState.value = Resource.Loading()
+//        load()
+//    }
 
-        ordersState.value = Resource.Loading()
-        load()
-    }
-
-    private fun load() {
+    private fun onSearch(params: QueryParams) {
         fetchJob?.cancel()
 
         fetchJob = viewModelScope.launch {
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            orderRepository.getOrders()
+            orderRepository.getOrders(params)
                 .fold(
                     onSuccess = { orders ->
                         val rows = orders.toRows(today)

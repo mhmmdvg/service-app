@@ -68,6 +68,7 @@ import dev.zacsweers.metrox.viewmodel.metroViewModel
 @Composable
 fun AddOrderScreen(
     onClose: () -> Unit,
+    onSuccess: (String) -> Unit,
     viewModel: AddOrderViewModel = metroViewModel(),
 ) {
     val formState by viewModel.formState.collectAsStateWithLifecycle()
@@ -75,7 +76,10 @@ fun AddOrderScreen(
     val submitState by viewModel.submitState.collectAsStateWithLifecycle()
 
     LaunchedEffect(submitState) {
-        if (submitState is Resource.Success) onClose()
+        val state = submitState
+        if (state is Resource.Success && state.data?.order?.id != null) {
+            onSuccess(state.data.order.id)
+        }
     }
 
     // The cover isn't a nav entry, so this ViewModel outlives it. Without clearing it here the

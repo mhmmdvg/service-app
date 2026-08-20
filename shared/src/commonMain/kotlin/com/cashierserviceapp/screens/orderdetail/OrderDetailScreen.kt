@@ -12,7 +12,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -46,7 +45,7 @@ import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
-import dev.zacsweers.metrox.viewmodel.metroViewModel
+import dev.zacsweers.metrox.viewmodel.assistedMetroViewModel
 import org.jetbrains.compose.resources.stringResource
 
 
@@ -57,12 +56,10 @@ private val FOOTER_CLEARANCE = 96.dp
 fun OrderDetailScreen(
     orderId: String,
     onBack: () -> Unit,
-    viewModel: OrderDetailViewModel = metroViewModel(),
 ) {
-    // The id arrives as a nav argument rather than through the ViewModel's constructor, so the
-    // screen can use the plain factory. The ViewModel ignores repeats of the same id.
-    LaunchedEffect(orderId) { viewModel.load(orderId) }
-
+    val viewModel: OrderDetailViewModel = assistedMetroViewModel<OrderDetailViewModel, OrderDetailViewModel.Factory>() {
+        create(orderId)
+    }
     val detailState by viewModel.detailState.collectAsStateWithLifecycle()
     val updatingItemId by viewModel.updatingItemId.collectAsStateWithLifecycle()
     val updateError by viewModel.updateError.collectAsStateWithLifecycle()

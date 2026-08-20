@@ -6,18 +6,18 @@ import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.utils.Resource
-import dev.zacsweers.metro.AppScope
-import dev.zacsweers.metro.ContributesIntoMap
-import dev.zacsweers.metrox.viewmodel.ViewModelKey
+import dev.zacsweers.metro.*
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
+import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-@ContributesIntoMap(AppScope::class)
-@ViewModelKey
+@AssistedInject
 class OrderDetailViewModel(
     private val orderRepository: OrderRepository,
+    @Assisted private val orderId: String,
 ) : ViewModel() {
     val detailState: StateFlow<Resource<OrderDetailUiModel>>
         field = MutableStateFlow<Resource<OrderDetailUiModel>>(Resource.Loading())
@@ -30,28 +30,19 @@ class OrderDetailViewModel(
     val updateError: StateFlow<String?>
         field = MutableStateFlow<String?>(null)
 
-    private var loadedOrderId: String? = null
     private var fetchJob: Job? = null
     private var updateJob: Job? = null
 
-    /**
-     * Takes the id as an argument rather than through construction, so the screen can use the plain
-     * `metroViewModel()` factory instead of an assisted one. Repeat calls for the same id are
-     * ignored, which makes it safe to drive from a `LaunchedEffect`.
-     */
-    fun load(orderId: String) {
-        if (loadedOrderId == orderId && detailState.value !is Resource.Error) return
-
-        loadedOrderId = orderId
-        fetch(orderId)
+    init {
+        fetch()
     }
 
+
     fun retry() {
-        val orderId = loadedOrderId ?: return
         if (fetchJob?.isActive == true) return
 
         detailState.value = Resource.Loading()
-        fetch(orderId)
+        fetch()
     }
 
     /**
@@ -64,7 +55,6 @@ class OrderDetailViewModel(
     fun setItemStatus(itemId: String, status: OrderStatus) {
         if (updateJob?.isActive == true) return
 
-        val orderId = loadedOrderId ?: return
 
         updateJob = viewModelScope.launch {
             updatingItemId.value = itemId
@@ -72,7 +62,7 @@ class OrderDetailViewModel(
 
             orderRepository.updateOrderItem(itemId, UpdateOrderItemRequest(status = status))
                 .fold(
-                    onSuccess = { fetch(orderId).join() },
+                    onSuccess = { fetch().join() },
                     onFailure = { exception -> updateError.value = exception.message }
                 )
 
@@ -84,7 +74,7 @@ class OrderDetailViewModel(
         updateError.value = null
     }
 
-    private fun fetch(orderId: String): Job {
+    private fun fetch(): Job {
         fetchJob?.cancel()
 
         val job = viewModelScope.launch {
@@ -107,5 +97,12 @@ class OrderDetailViewModel(
         super.onCleared()
         fetchJob?.cancel()
         updateJob?.cancel()
+    }
+
+    @AssistedFactory
+    @ManualViewModelAssistedFactoryKey
+    @ContributesIntoMap(AppScope::class)
+    fun interface Factory : ManualViewModelAssistedFactory {
+        fun create(orderId: String): OrderDetailViewModel
     }
 }

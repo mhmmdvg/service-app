@@ -8,9 +8,10 @@ import com.cashierserviceapp.domain.models.OrderDetail
 import com.cashierserviceapp.domain.models.OrderDetailItem
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
+import com.cashierserviceapp.domain.models.QueryParams
 
 interface OrderApi {
-    suspend fun getOrders(): HttpResponse<List<Order>>?
+    suspend fun getOrders(params: QueryParams): HttpResponse<List<Order>>?
 
     /** Orders whose every item is completed, newest first. */
     suspend fun getOrderHistory(): HttpResponse<List<Order>>?

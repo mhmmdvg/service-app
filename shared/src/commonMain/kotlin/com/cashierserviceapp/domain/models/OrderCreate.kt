@@ -20,7 +20,7 @@ data class CustomerInput(
     val customerID: String? = null,
     val name: String? = null,
     val phone: String? = null,
-    val email: String? = null,
+//    val email: String? = null,
     val address: String? = null,
 )
 
@@ -65,7 +65,9 @@ data class OrderParty(
 @Serializable
 data class CreatedOrder(
     val id: String? = null,
+    @SerialName("order_code")
     val orderCode: String,
+    @SerialName("qr_token")
     val qrToken: String,
     val customer: OrderParty,
     val cashier: OrderParty,
@@ -74,11 +76,15 @@ data class CreatedOrder(
 @Serializable
 data class CreatedOrderItem(
     val id: String? = null,
+    @SerialName("order_id")
     val orderID: String,
+    @SerialName("device_id")
     val deviceID: String,
     val status: OrderStatus,
     val complaint: String? = null,
+    @SerialName("service_fee")
     val serviceFee: Long? = null,
+    @SerialName("final_cost")
     val finalCost: Long? = null,
 )
 

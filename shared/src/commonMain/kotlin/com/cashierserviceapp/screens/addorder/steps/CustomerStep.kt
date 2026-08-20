@@ -34,7 +34,7 @@ internal fun CustomerStep(
     modifier: Modifier = Modifier,
 ) {
     val phoneFocus = remember { FocusRequester() }
-    val emailFocus = remember { FocusRequester() }
+//    val emailFocus = remember { FocusRequester() }
     val addressFocus = remember { FocusRequester() }
 
     Column(modifier) {
@@ -70,30 +70,30 @@ internal fun CustomerStep(
                 keyboardType = KeyboardType.Phone,
                 imeAction = ImeAction.Next
             ),
-            keyboardActions = KeyboardActions(onNext = { emailFocus.requestFocus() })
+            keyboardActions = KeyboardActions(onNext = { addressFocus.requestFocus() })
         )
 
         FieldError(formState.phoneError)
 
-        Spacer(Modifier.height(12.dp))
-
-        TextField(
-            value = formState.email,
-            onValueChange = { onInputChanged(AddOrderFormEvent.EmailChanged(it)) },
-            modifier = Modifier.fillMaxWidth(),
-            error = formState.emailError != null,
-            label = "Email",
-            focusRequester = emailFocus,
-            enabled = enabled,
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Email,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(onNext = { addressFocus.requestFocus() })
-        )
-
-        FieldError(formState.emailError)
+//        Spacer(Modifier.height(12.dp))
+//
+//        TextField(
+//            value = formState.email,
+//            onValueChange = { onInputChanged(AddOrderFormEvent.EmailChanged(it)) },
+//            modifier = Modifier.fillMaxWidth(),
+//            error = formState.emailError != null,
+//            label = "Email",
+//            focusRequester = emailFocus,
+//            enabled = enabled,
+//            singleLine = true,
+//            keyboardOptions = KeyboardOptions(
+//                keyboardType = KeyboardType.Email,
+//                imeAction = ImeAction.Next
+//            ),
+//            keyboardActions = KeyboardActions(onNext = { addressFocus.requestFocus() })
+//        )
+//
+//        FieldError(formState.emailError)
 
         Spacer(Modifier.height(12.dp))
 

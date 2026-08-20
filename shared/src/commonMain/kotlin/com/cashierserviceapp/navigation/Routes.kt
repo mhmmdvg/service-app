@@ -29,6 +29,11 @@ data object OrderScreen : AppRoute, TopLevelRoute
 data object AddOrderScreen : CoverRoute
 
 @Serializable
+@SerialName("OrderSuccess")
+data class OrderSuccessScreen(val id: String) : CoverRoute
+
+
+@Serializable
 @SerialName("History")
 data object HistoryScreen : AppRoute, TopLevelRoute
 

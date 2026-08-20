@@ -23,11 +23,13 @@ import com.cashierserviceapp.screens.history.HistoryScreen
 import com.cashierserviceapp.screens.home.HomeScreen
 import com.cashierserviceapp.screens.order.OrderScreen
 import com.cashierserviceapp.screens.orderdetail.OrderDetailScreen
+import com.cashierserviceapp.screens.ordersuccess.OrderSuccessScreen
 import com.cashierserviceapp.screens.search.SearchScreen
 import com.cashierserviceapp.screens.settings.SettingsScreen
 import com.cashierserviceapp.ui.theme.CashierServiceDarkColors
 import com.cashierserviceapp.ui.theme.CashierServiceLightColors
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import io.ktor.client.request.invoke
 
 @Composable
 internal fun NavHost(
@@ -104,7 +106,11 @@ internal fun NavHost(
                     route = navState.coverRoute,
                     onDismiss = navigator::dismissCover
                 ) { coverRoute ->
-                    CoverContent(coverRoute, onDismiss = navigator::dismissCover)
+                    CoverContent(
+                        navigator = navigator,
+                        route = coverRoute,
+                        onDismiss = navigator::dismissCover,
+                    )
                 }
             }
         }
@@ -161,10 +167,17 @@ private fun EntryProviderScope<AppRoute>.screens(
 /** Content for each [CoverRoute], the modal counterpart of [screens]. */
 @Composable
 private fun CoverContent(
+    navigator: Navigator,
     route: CoverRoute,
     onDismiss: () -> Unit
 ) {
     when (route) {
-        AddOrderScreen -> AddOrderScreen(onClose = onDismiss)
+        AddOrderScreen -> AddOrderScreen(onClose = onDismiss, onSuccess = { navigator.set(OrderSuccessScreen(it)) })
+        is OrderSuccessScreen -> {
+            OrderSuccessScreen(
+                orderId = route.id,
+                onClose = onDismiss,
+            )
+        }
     }
 }
