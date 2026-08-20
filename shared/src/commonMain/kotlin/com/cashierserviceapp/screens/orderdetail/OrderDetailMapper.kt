@@ -43,6 +43,8 @@ data class OrderDetailItemUiModel(
     val deviceName: String,
     val complaint: String?,
     val status: OrderStatus,
+    /** The raw fee, kept alongside the label so the status sheet can put it back in its field. */
+    val serviceFee: Long?,
     val serviceFeeLabel: String?,
     val totalLabel: String?,
     val parts: List<OrderPartUiModel>,
@@ -81,6 +83,7 @@ private fun OrderDetailItem.toUiModel(index: Int): OrderDetailItemUiModel =
         deviceName = "$deviceBrand $deviceModel",
         complaint = complaint?.takeIf { it.isNotBlank() },
         status = status,
+        serviceFee = serviceFee,
         serviceFeeLabel = serviceFee?.let { formatRupiah(it) },
         totalLabel = finalCost?.let { formatRupiah(it) },
         parts = parts.mapIndexed { partIndex, part ->

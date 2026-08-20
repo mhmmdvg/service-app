@@ -98,7 +98,11 @@ fun OrderDetailScreen(
         StatusPickerSheet(
             deviceName = item.deviceName,
             current = item.status,
-            onSelect = { status -> viewModel.setItemStatus(item.id, status) },
+            currentServiceFee = item.serviceFee,
+            hasParts = item.parts.isNotEmpty(),
+            onSubmit = { status, serviceFee ->
+                viewModel.setItemStatus(item.id, status, serviceFee)
+            },
             onDismiss = { editing = null }
         )
     }
@@ -269,7 +273,9 @@ internal fun OrderDetailContent(
         Spacer(Modifier.height(if (detail != null) FOOTER_CLEARANCE else 32.dp))
     }
 
-        if (detail != null && detail.status != OrderStatus.COMPLETED) {
+        // Shown even on a finished order: the price is set through this sheet too, and a fee typed
+        // wrong still has to be correctable after the device has been handed back.
+        if (detail != null && detail.items.isNotEmpty() && detail.status != OrderStatus.COMPLETED) {
             UpdateStatusFooter(
                 modifier = Modifier.align(Alignment.BottomCenter),
                 enabled = updatingItemId == null,
@@ -297,6 +303,7 @@ private val previewDetail = OrderDetailUiModel(
             deviceName = "Samsung Galaxy A54",
             complaint = "Layar mati setelah jatuh",
             status = OrderStatus.IN_PROGRESS,
+            serviceFee = 50000L,
             serviceFeeLabel = "Rp 50.000",
             totalLabel = "Rp 350.000",
             parts = listOf(OrderPartUiModel("p1", "LCD Galaxy A54", 1, "Rp 300.000"))
@@ -306,6 +313,7 @@ private val previewDetail = OrderDetailUiModel(
             deviceName = "Apple iPhone 13",
             complaint = "Battery drains fast",
             status = OrderStatus.RECEIVED,
+            serviceFee = null,
             serviceFeeLabel = null,
             totalLabel = null,
             parts = emptyList()
@@ -331,7 +339,7 @@ private fun OrderDetailUnpricedPreview() = PreviewHelper(paddingEnabled = false)
             previewDetail.copy(
                 isUnpriced = true,
                 items = previewDetail.items.map {
-                    it.copy(serviceFeeLabel = null, totalLabel = null, parts = emptyList())
+                    it.copy(serviceFee = null, serviceFeeLabel = null, totalLabel = null, parts = emptyList())
                 }
             )
         ),

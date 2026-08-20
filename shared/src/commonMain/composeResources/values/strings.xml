@@ -60,6 +60,11 @@
     <!-- Order detail actions -->
     <string name="order_detail_status_sheet_title">Update status</string>
     <string name="order_detail_status_sheet_body">where is this device up to?</string>
+    <string name="order_detail_status_sheet_fee">Service fee</string>
+    <string name="order_detail_status_sheet_fee_locked">The price can be set once this device is In Progress.</string>
+    <string name="order_detail_status_sheet_fee_zero">No price on this device yet — completing it now leaves it at Rp 0.</string>
+    <string name="order_detail_status_sheet_save">Save</string>
+
     <string name="order_detail_print">Print invoice</string>
     <string name="order_detail_receipt_title">Invoice preview</string>
     <string name="order_detail_receipt_body">Laid out at 32 columns, the width of a 58mm roll.</string>

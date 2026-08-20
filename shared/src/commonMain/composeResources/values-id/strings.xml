@@ -60,6 +60,11 @@
     <!-- Order detail actions -->
     <string name="order_detail_status_sheet_title">Ubah status</string>
     <string name="order_detail_status_sheet_body">perangkat ini sampai mana?</string>
+    <string name="order_detail_status_sheet_fee">Biaya jasa</string>
+    <string name="order_detail_status_sheet_fee_locked">Biaya bisa diisi setelah perangkat ini Sedang Dikerjakan.</string>
+    <string name="order_detail_status_sheet_fee_zero">Perangkat ini belum ada biaya — kalau diselesaikan sekarang jadi Rp 0.</string>
+    <string name="order_detail_status_sheet_save">Simpan</string>
+
     <string name="order_detail_print">Cetak invoice</string>
     <string name="order_detail_receipt_title">Pratinjau invoice</string>
     <string name="order_detail_receipt_body">Disusun 32 kolom, selebar kertas 58mm.</string>

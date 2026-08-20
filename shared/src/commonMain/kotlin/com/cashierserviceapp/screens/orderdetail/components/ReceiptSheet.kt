@@ -139,6 +139,7 @@ private val previewReceiptDetail = OrderDetailUiModel(
             deviceName = "Samsung Galaxy A54",
             complaint = "Layar mati setelah jatuh",
             status = OrderStatus.IN_PROGRESS,
+            serviceFee = 50000L,
             serviceFeeLabel = "Rp 50.000",
             totalLabel = "Rp 350.000",
             parts = listOf(OrderPartUiModel("p1", "LCD Galaxy A54", 1, "Rp 300.000"))
