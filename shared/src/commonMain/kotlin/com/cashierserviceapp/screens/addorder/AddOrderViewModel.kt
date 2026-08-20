@@ -2,6 +2,8 @@ package com.cashierserviceapp.screens.addorder
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.add_order_part_missing_id
 import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.CreateSparePartRequest
@@ -25,6 +27,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
+import org.jetbrains.compose.resources.getString
 
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
@@ -243,7 +246,7 @@ class AddOrderViewModel(
 
             val created = result.getOrElse { return Result.failure(it) }
             val id = created.id ?: return Result.failure(
-                Exception("The server created \"${part.name}\" but didn't return its id.")
+                Exception(getString(Res.string.add_order_part_missing_id, part.name))
             )
 
             ids[part.localId] = id

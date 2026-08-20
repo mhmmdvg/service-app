@@ -19,6 +19,18 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.auth_create_account
+import cashierserviceapp.shared.generated.resources.auth_divider_or
+import cashierserviceapp.shared.generated.resources.auth_email
+import cashierserviceapp.shared.generated.resources.auth_forgot_password
+import cashierserviceapp.shared.generated.resources.auth_password
+import cashierserviceapp.shared.generated.resources.auth_sign_in
+import cashierserviceapp.shared.generated.resources.auth_signing_in
+import cashierserviceapp.shared.generated.resources.auth_subtitle
+import cashierserviceapp.shared.generated.resources.auth_terms
+import cashierserviceapp.shared.generated.resources.auth_title
+import cashierserviceapp.shared.generated.resources.auth_toggle_password
 import com.cashierserviceapp.localization.message
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.Text
@@ -30,6 +42,7 @@ import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
@@ -93,7 +106,7 @@ private fun LoginContent(
         Spacer(Modifier.height(56.dp))
 
         Text(
-            text = "Welcome back",
+            text = stringResource(Res.string.auth_title),
             style = CashierServiceTheme.typography.h1,
             color = CashierServiceTheme.colors.primaryText
         )
@@ -101,7 +114,7 @@ private fun LoginContent(
         Spacer(Modifier.height(10.dp))
 
         Text(
-            text = "Sign in to your cashier account to keep taking orders.",
+            text = stringResource(Res.string.auth_subtitle),
             style = CashierServiceTheme.typography.text1,
             color = CashierServiceTheme.colors.secondaryText
         )
@@ -117,7 +130,7 @@ private fun LoginContent(
                 onValueChange = { onInputChanged(LoginFormEvent.EmailChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
                 error = formState.emailError != null,
-                label = "Email",
+                label = stringResource(Res.string.auth_email),
                 enabled = !isLoading,
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
@@ -147,7 +160,7 @@ private fun LoginContent(
                 onValueChange = { onInputChanged(LoginFormEvent.PasswordChanged(it)) },
                 error = formState.passwordError != null,
                 modifier = Modifier.fillMaxWidth(),
-                label = "Password",
+                label = stringResource(Res.string.auth_password),
                 focusRequester = passwordFocus,
                 enabled = !isLoading,
                 singleLine = true,
@@ -160,7 +173,7 @@ private fun LoginContent(
                 trailing = {
                     Icon(
                         imageVector = if (passwordVisible) ClosedEyeOutlined else OpenEyeOutlined,
-                        contentDescription = "showPassword",
+                        contentDescription = stringResource(Res.string.auth_toggle_password),
                         tint = CashierServiceTheme.colors.secondaryText,
                         modifier = Modifier.clickable(
                             interactionSource = null,
@@ -193,7 +206,7 @@ private fun LoginContent(
         Spacer(Modifier.height(16.dp))
 
         Text(
-            text = "Forgot password?",
+            text = stringResource(Res.string.auth_forgot_password),
             modifier = Modifier
                 .align(Alignment.End)
                 .clickable(onClick = onForgotPassword),
@@ -203,7 +216,9 @@ private fun LoginContent(
         Spacer(Modifier.height(32.dp))
 
         Button(
-            label = if (isLoading) "Signing in…" else "Sign in",
+            label = stringResource(
+                if (isLoading) Res.string.auth_signing_in else Res.string.auth_sign_in
+            ),
             onClick = onSubmit,
             modifier = Modifier.fillMaxWidth(),
             primary = true,
@@ -217,7 +232,7 @@ private fun LoginContent(
         Spacer(Modifier.height(24.dp))
 
         Button(
-            label = "Create an account",
+            label = stringResource(Res.string.auth_create_account),
             onClick = onSignUp,
             modifier = Modifier.fillMaxWidth(),
             primary = false
@@ -226,7 +241,7 @@ private fun LoginContent(
         Spacer(Modifier.height(40.dp))
 
         Text(
-            text = "By continuing you agree to our Terms of Service and Privacy Policy.",
+            text = stringResource(Res.string.auth_terms),
             modifier = Modifier.fillMaxWidth(),
             style = CashierServiceTheme.typography.text2.copy(textAlign = TextAlign.Center),
             color = CashierServiceTheme.colors.noteText
@@ -244,7 +259,7 @@ private fun LabelledDivider() {
     ) {
         Rule(Modifier.weight(1f))
         Text(
-            text = "or",
+            text = stringResource(Res.string.auth_divider_or),
             modifier = Modifier.padding(horizontal = 16.dp),
             style = CashierServiceTheme.typography.text2,
             color = CashierServiceTheme.colors.noteText

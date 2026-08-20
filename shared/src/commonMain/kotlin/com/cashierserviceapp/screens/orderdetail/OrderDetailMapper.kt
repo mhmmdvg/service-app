@@ -57,7 +57,7 @@ data class OrderPartUiModel(
     val subtotalLabel: String,
 )
 
-fun OrderDetail.toUiModel(): OrderDetailUiModel {
+suspend fun OrderDetail.toUiModel(): OrderDetailUiModel {
     val moment = createdAt?.let { parseTimestamp(it)?.toLocalDateTime() }
     // Only devices with a settled price count towards the total; the rest are still open.
     val pricedCosts = items.mapNotNull { it.finalCost }

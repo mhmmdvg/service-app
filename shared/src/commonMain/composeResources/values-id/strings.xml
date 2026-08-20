@@ -35,7 +35,7 @@
     <!-- Order status -->
     <string name="order_status_received">Diterima</string>
     <string name="order_status_diagnosing">Diagnosa</string>
-    <string name="order_status_in_progress">Dikerjakan</string>
+    <string name="order_status_in_progress">Diproses</string>
     <string name="order_status_completed">Selesai</string>
 
     <!-- Order detail -->
@@ -99,6 +99,8 @@
     <string name="add_order_part_name">Nama part</string>
     <string name="add_order_part_price">Harga</string>
     <string name="add_order_part_qty">Jml</string>
+    <string name="add_order_part_missing_id">Server membuat “%1$s” tapi tidak mengembalikan id-nya.</string>
+
     <string name="add_order_part_add">Tambah part</string>
 
     <string name="validation_email_blank">Email tidak boleh kosong.</string>
@@ -112,4 +114,115 @@
     <string name="validation_device_brand_blank">Merek tidak boleh kosong.</string>
     <string name="validation_device_model_blank">Model tidak boleh kosong.</string>
     <string name="validation_device_complaint_blank">Jelaskan keluhan perangkatnya.</string>
+
+    <!-- General actions -->
+    <string name="action_back">Kembali</string>
+    <string name="action_next">Lanjut</string>
+    <string name="action_see_all">Lihat semua</string>
+
+    <!-- Shared errors -->
+    <string name="error_unreachable">Tidak bisa terhubung ke server. Periksa koneksi kamu lalu coba lagi.</string>
+    <string name="error_unknown">Kesalahan tidak diketahui</string>
+
+    <!-- Shared row labels -->
+    <string name="device_count_one">1 perangkat</string>
+    <string name="device_count_other">%1$d perangkat</string>
+    <string name="wait_days_one">1 hari</string>
+    <string name="wait_days_other">%1$d hari</string>
+
+    <!-- Sign in -->
+    <string name="auth_title">Selamat datang kembali</string>
+    <string name="auth_subtitle">Masuk ke akun kasir kamu untuk lanjut menerima pesanan.</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Kata sandi</string>
+    <string name="auth_toggle_password">Tampilkan kata sandi</string>
+    <string name="auth_forgot_password">Lupa kata sandi?</string>
+    <string name="auth_sign_in">Masuk</string>
+    <string name="auth_signing_in">Sedang masuk…</string>
+    <string name="auth_create_account">Buat akun</string>
+    <string name="auth_divider_or">atau</string>
+    <string name="auth_terms">Dengan melanjutkan, kamu setuju dengan Ketentuan Layanan dan Kebijakan Privasi kami.</string>
+    <string name="auth_sign_in_failed">Gagal masuk. Periksa data kamu lalu coba lagi.</string>
+
+    <!-- Home -->
+    <string name="home_greeting">Hai, %1$s</string>
+    <string name="home_stat_in_progress">Dikerjakan</string>
+    <string name="home_stat_all_income">Total pemasukan</string>
+    <string name="home_attention_title">Perlu perhatian</string>
+    <string name="home_empty_title">Tidak ada antrean</string>
+    <string name="home_empty_body">Semua perangkat yang masuk sudah selesai. Pesanan baru akan muncul di sini.</string>
+    <string name="home_orders_load_failed">Pesanan gagal dimuat</string>
+    <string name="home_scan_qr">Pindai QR</string>
+
+    <!-- Search -->
+    <string name="search_placeholder">Cari nama atau kode pesanan</string>
+    <string name="search_hint_title">Cari pesanan</string>
+    <string name="search_hint_body">Telusuri daftar yang sedang dikerjakan lewat nama pelanggan atau kode pesanan.</string>
+    <string name="search_empty_title">Tidak ada yang cocok dengan “%1$s”</string>
+    <string name="search_empty_body">Hanya pesanan yang masih dikerjakan yang bisa dicari. Yang sudah selesai ada di Riwayat.</string>
+    <string name="search_result_count_one">1 hasil</string>
+    <string name="search_result_count_other">%1$d hasil</string>
+
+    <!-- Scan sheet -->
+    <string name="scan_title">Cari pesanan</string>
+    <string name="scan_body">Masukkan kode yang tercetak di bawah QR pada struk pelanggan.</string>
+    <string name="scan_looking_up">Sedang mencari…</string>
+    <string name="scan_not_found">Tidak ada pesanan dengan kode itu.</string>
+    <string name="scan_lookup">Cari</string>
+
+    <!-- Order list -->
+    <string name="order_list_load_failed">Pesanan gagal dimuat</string>
+    <string name="order_list_empty_title">Belum ada pesanan</string>
+    <string name="order_list_empty_body">Pesanan yang kamu buat akan muncul di sini selama masih dikerjakan.</string>
+
+    <!-- History -->
+    <string name="history_load_failed">Riwayat gagal dimuat</string>
+    <string name="history_empty_title">Belum ada pesanan selesai</string>
+    <string name="history_empty_body">Begitu semua perangkat pada sebuah pesanan selesai, pesanan itu pindah ke sini.</string>
+
+    <!-- Add order: steps -->
+    <string name="add_order_step_progress">Langkah %1$d dari %2$d</string>
+    <string name="add_order_step_customer_title">Siapa pelanggannya?</string>
+    <string name="add_order_step_customer_subtitle">Ini kami pakai untuk menghubungi mereka saat servis selesai. Hanya nama yang wajib diisi.</string>
+    <string name="add_order_step_device_title">Apa yang diperbaiki?</string>
+    <string name="add_order_step_device_subtitle">Jelaskan perangkatnya dan apa keluhannya.</string>
+    <string name="add_order_customer_name">Nama lengkap</string>
+    <string name="add_order_customer_phone">Nomor telepon</string>
+    <string name="add_order_customer_address">Alamat</string>
+    <string name="add_order_creating">Membuat pesanan…</string>
+    <string name="add_order_create">Buat pesanan</string>
+
+    <!-- Order created -->
+    <string name="order_success_title">Kode Pesanan</string>
+
+    <!-- Printed receipt -->
+    <string name="receipt_order">Pesanan</string>
+    <string name="receipt_date">Tanggal</string>
+    <string name="receipt_cashier">Kasir</string>
+    <string name="receipt_customer">Pelanggan</string>
+    <string name="receipt_phone">Telepon</string>
+    <string name="receipt_service_fee">Biaya jasa</string>
+    <string name="receipt_subtotal">Subtotal</string>
+    <string name="receipt_status">Status</string>
+    <string name="receipt_total">TOTAL</string>
+    <string name="receipt_track">Lacak servis ini:</string>
+    <string name="receipt_footer">Terima kasih — simpan struk ini</string>
+
+    <!-- Dates -->
+    <string name="date_today">Hari ini</string>
+    <string name="date_yesterday">Kemarin</string>
+    <string name="date_undated">Tanpa tanggal</string>
+
+    <string name="month_1">Januari</string>
+    <string name="month_2">Februari</string>
+    <string name="month_3">Maret</string>
+    <string name="month_4">April</string>
+    <string name="month_5">Mei</string>
+    <string name="month_6">Juni</string>
+    <string name="month_7">Juli</string>
+    <string name="month_8">Agustus</string>
+    <string name="month_9">September</string>
+    <string name="month_10">Oktober</string>
+    <string name="month_11">November</string>
+    <string name="month_12">Desember</string>
 </resources>

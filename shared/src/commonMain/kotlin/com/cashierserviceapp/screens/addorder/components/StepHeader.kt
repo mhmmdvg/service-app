@@ -7,12 +7,17 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.unit.dp
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_back
+import cashierserviceapp.shared.generated.resources.action_close
+import cashierserviceapp.shared.generated.resources.add_order_step_progress
 import com.cashierserviceapp.screens.addorder.AddOrderStep
 import com.cashierserviceapp.ui.components.CircleIconButton
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.icons.ChevronLeftOutlined
 import com.cashierserviceapp.ui.icons.XOutlined
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import org.jetbrains.compose.resources.stringResource
 
 @Suppress("DEPRECATION")
 @OptIn(ExperimentalComposeUiApi::class)
@@ -37,13 +42,19 @@ internal fun StepHeader(
                 onClick = onBack,
                 enabled = enabled,
                 icon = if (step.isFirst) XOutlined else ChevronLeftOutlined,
-                contentDescription = if (step.isFirst) "Close" else "Back"
+                contentDescription = stringResource(
+                    if (step.isFirst) Res.string.action_close else Res.string.action_back
+                )
             )
 
             Spacer(Modifier.weight(1f))
 
             Text(
-                text = "Step ${step.ordinal + 1} of ${AddOrderStep.entries.size}",
+                text = stringResource(
+                    Res.string.add_order_step_progress,
+                    step.ordinal + 1,
+                    AddOrderStep.entries.size
+                ),
                 style = CashierServiceTheme.typography.text2,
                 color = CashierServiceTheme.colors.secondaryText
             )

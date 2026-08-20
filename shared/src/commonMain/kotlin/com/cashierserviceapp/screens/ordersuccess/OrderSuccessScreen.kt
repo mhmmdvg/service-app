@@ -42,7 +42,7 @@ fun OrderSuccessScreen(
     val detailState by viewModel.detailState.collectAsStateWithLifecycle()
 
     ScreenWithTitle(
-        title = "Order Code",
+        title = stringResource(Res.string.order_success_title),
         onBack = onClose,
         actions = {
             if (detailState.data != null) {

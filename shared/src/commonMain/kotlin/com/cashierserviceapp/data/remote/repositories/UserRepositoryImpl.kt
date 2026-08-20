@@ -3,6 +3,7 @@ package com.cashierserviceapp.data.remote.repositories
 import com.cashierserviceapp.domain.models.Profile
 import com.cashierserviceapp.domain.network.UserApi
 import com.cashierserviceapp.domain.repositories.UserRepository
+import com.cashierserviceapp.utils.unreachable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn
@@ -14,7 +15,7 @@ class UserRepositoryImpl(
 ) : UserRepository {
     override suspend fun getProfile(): Result<Profile> = runCatching {
         val response = api.getProfile()
-            ?: throw Exception("Couldn't reach the server. Check your connection and try again.")
+            ?: unreachable()
 
         response.data ?: throw Exception(response.message)
     }

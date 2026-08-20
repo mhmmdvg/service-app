@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.cashierserviceapp.domain.models.OrderStatus
+import com.cashierserviceapp.localization.deviceCountLabel
 import com.cashierserviceapp.ui.components.Avatar
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
@@ -66,7 +67,7 @@ fun OrderCard(
                 maxLines = 1
             )
             Text(
-                text = "$code · ${itemsCount.deviceLabel()}",
+                text = "$code · ${deviceCountLabel(itemsCount)}",
                 style = CashierServiceTheme.typography.text2,
                 color = CashierServiceTheme.colors.secondaryText,
                 maxLines = 1
@@ -92,8 +93,6 @@ fun OrderCard(
         }
     }
 }
-
-private fun Int.deviceLabel(): String = if (this == 1) "1 device" else "$this devices"
 
 @PreviewLightDark
 @Composable

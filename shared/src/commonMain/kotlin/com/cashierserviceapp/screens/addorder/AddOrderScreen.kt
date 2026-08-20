@@ -42,6 +42,11 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.add_order_step_customer_subtitle
+import cashierserviceapp.shared.generated.resources.add_order_step_customer_title
+import cashierserviceapp.shared.generated.resources.add_order_step_device_subtitle
+import cashierserviceapp.shared.generated.resources.add_order_step_device_title
 import com.cashierserviceapp.screens.addorder.components.StepFooter
 import com.cashierserviceapp.screens.addorder.components.StepHeader
 import com.cashierserviceapp.screens.addorder.steps.CustomerStep
@@ -59,6 +64,7 @@ import com.cashierserviceapp.utils.Resource
 import com.cashierserviceapp.screens.addorder.components.DeviceFormSheet
 import com.cashierserviceapp.screens.addorder.components.PartPickerSheet
 import dev.zacsweers.metrox.viewmodel.metroViewModel
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Taking in a new repair, one question at a time: who's dropping it off, then what they're dropping
@@ -236,16 +242,21 @@ private fun AddOrderContent(
     }
 }
 
-private fun AddOrderStep.title(): String = when (this) {
-    AddOrderStep.CUSTOMER -> "Who's the customer?"
-    AddOrderStep.DEVICE -> "What are we fixing?"
-}
+@Composable
+private fun AddOrderStep.title(): String = stringResource(
+    when (this) {
+        AddOrderStep.CUSTOMER -> Res.string.add_order_step_customer_title
+        AddOrderStep.DEVICE -> Res.string.add_order_step_device_title
+    }
+)
 
-private fun AddOrderStep.subtitle(): String = when (this) {
-    AddOrderStep.CUSTOMER -> "We'll use this to reach them when the repair is done. Only the " +
-            "name is required."
-    AddOrderStep.DEVICE -> "Describe the device and what's wrong with it."
-}
+@Composable
+private fun AddOrderStep.subtitle(): String = stringResource(
+    when (this) {
+        AddOrderStep.CUSTOMER -> Res.string.add_order_step_customer_subtitle
+        AddOrderStep.DEVICE -> Res.string.add_order_step_device_subtitle
+    }
+)
 
 @PreviewLightDark
 @Composable

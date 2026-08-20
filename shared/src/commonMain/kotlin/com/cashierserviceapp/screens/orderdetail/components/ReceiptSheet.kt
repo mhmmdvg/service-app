@@ -32,6 +32,7 @@ import com.cashierserviceapp.screens.orderdetail.OrderDetailUiModel
 import com.cashierserviceapp.screens.orderdetail.OrderPartUiModel
 import com.cashierserviceapp.screens.orderdetail.ReceiptSegment
 import com.cashierserviceapp.screens.orderdetail.buildReceipt
+import com.cashierserviceapp.screens.orderdetail.rememberReceiptStrings
 import com.cashierserviceapp.ui.components.BottomSheet
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.QrCode
@@ -52,7 +53,8 @@ fun ReceiptSheet(
     detail: OrderDetailUiModel,
     onDismiss: () -> Unit,
 ) {
-    val segments = remember(detail) { buildReceipt(detail) }
+    val strings = rememberReceiptStrings()
+    val segments = remember(detail, strings) { buildReceipt(detail, strings) }
 
     BottomSheet(onDismissRequest = onDismiss) { hide ->
         Spacer(Modifier.height(20.dp))
@@ -159,7 +161,7 @@ private fun receiptTextStyle(): TextStyle = CashierServiceTheme.typography.text2
 @Composable
 private fun ReceiptPreview() = PreviewHelper {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        buildReceipt(previewReceiptDetail).forEach { segment ->
+        buildReceipt(previewReceiptDetail, rememberReceiptStrings()).forEach { segment ->
             when (segment) {
                 is ReceiptSegment.Lines -> Text(text = segment.text, style = receiptTextStyle())
                 is ReceiptSegment.Qr -> QrCode(

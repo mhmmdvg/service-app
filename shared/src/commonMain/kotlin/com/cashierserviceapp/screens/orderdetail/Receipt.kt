@@ -1,5 +1,25 @@
 package com.cashierserviceapp.screens.orderdetail
 
+import androidx.compose.runtime.Composable
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.order_status_completed
+import cashierserviceapp.shared.generated.resources.order_status_diagnosing
+import cashierserviceapp.shared.generated.resources.order_status_in_progress
+import cashierserviceapp.shared.generated.resources.order_status_received
+import cashierserviceapp.shared.generated.resources.receipt_cashier
+import cashierserviceapp.shared.generated.resources.receipt_customer
+import cashierserviceapp.shared.generated.resources.receipt_date
+import cashierserviceapp.shared.generated.resources.receipt_footer
+import cashierserviceapp.shared.generated.resources.receipt_order
+import cashierserviceapp.shared.generated.resources.receipt_phone
+import cashierserviceapp.shared.generated.resources.receipt_service_fee
+import cashierserviceapp.shared.generated.resources.receipt_status
+import cashierserviceapp.shared.generated.resources.receipt_subtotal
+import cashierserviceapp.shared.generated.resources.receipt_total
+import cashierserviceapp.shared.generated.resources.receipt_track
+import com.cashierserviceapp.domain.models.OrderStatus
+import org.jetbrains.compose.resources.stringResource
+
 /**
  * A piece of a receipt, in the order it comes off the roll.
  *
@@ -19,9 +39,53 @@ sealed interface ReceiptSegment {
 private const val DEFAULT_WIDTH = 32
 
 // No shop record on the server yet, so the header is a constant. Move it to a settings screen or a
-// `/shop` endpoint when there's more than one outlet.
+// `/shop` endpoint when there's more than one outlet. Not translated: it's the shop's name.
 private const val SHOP_NAME = "CASHIER SERVICE"
-private const val SHOP_FOOTER = "Thank you — keep this receipt"
+
+/**
+ * Every word the receipt prints that isn't the order's own data.
+ *
+ * Handed in rather than read from the catalog here so [buildReceipt] stays a pure function of its
+ * arguments — the same reason the layout lives in this file at all. Build one with
+ * [rememberReceiptStrings] from a composable; the preview and the printer then share both the
+ * wording and the layout.
+ */
+data class ReceiptStrings(
+    val order: String,
+    val date: String,
+    val cashier: String,
+    val customer: String,
+    val phone: String,
+    val serviceFee: String,
+    val subtotal: String,
+    val status: String,
+    val total: String,
+    val track: String,
+    val footer: String,
+    val statusLabels: Map<OrderStatus, String>,
+)
+
+/** The catalog's receipt wording, in the language the app is currently rendering in. */
+@Composable
+fun rememberReceiptStrings(): ReceiptStrings = ReceiptStrings(
+    order = stringResource(Res.string.receipt_order),
+    date = stringResource(Res.string.receipt_date),
+    cashier = stringResource(Res.string.receipt_cashier),
+    customer = stringResource(Res.string.receipt_customer),
+    phone = stringResource(Res.string.receipt_phone),
+    serviceFee = stringResource(Res.string.receipt_service_fee),
+    subtotal = stringResource(Res.string.receipt_subtotal),
+    status = stringResource(Res.string.receipt_status),
+    total = stringResource(Res.string.receipt_total),
+    track = stringResource(Res.string.receipt_track),
+    footer = stringResource(Res.string.receipt_footer),
+    statusLabels = mapOf(
+        OrderStatus.RECEIVED to stringResource(Res.string.order_status_received),
+        OrderStatus.DIAGNOSING to stringResource(Res.string.order_status_diagnosing),
+        OrderStatus.IN_PROGRESS to stringResource(Res.string.order_status_in_progress),
+        OrderStatus.COMPLETED to stringResource(Res.string.order_status_completed),
+    ),
+)
 
 /**
  * Lays the order out as the segments a receipt printer takes.
@@ -33,22 +97,27 @@ private const val SHOP_FOOTER = "Thank you — keep this receipt"
  */
 fun buildReceipt(
     detail: OrderDetailUiModel,
+    strings: ReceiptStrings,
     width: Int = DEFAULT_WIDTH,
 ): List<ReceiptSegment> = listOf(
-    ReceiptSegment.Lines(buildOrderLines(detail, width)),
+    ReceiptSegment.Lines(buildOrderLines(detail, strings, width)),
     ReceiptSegment.Qr(detail.qrToken),
-    ReceiptSegment.Lines(buildFooterLines(detail, width)),
+    ReceiptSegment.Lines(buildFooterLines(detail, strings, width)),
 )
 
-private fun buildOrderLines(detail: OrderDetailUiModel, width: Int): String = buildString {
+private fun buildOrderLines(
+    detail: OrderDetailUiModel,
+    strings: ReceiptStrings,
+    width: Int,
+): String = buildString {
     appendLine(SHOP_NAME.center(width))
     appendLine("-".repeat(width))
 
-    appendLine(labelled("Order", detail.orderCode, width))
-    detail.createdLabel?.let { appendLine(labelled("Date", it, width)) }
-    detail.cashierName?.let { appendLine(labelled("Cashier", it, width)) }
-    appendLine(labelled("Customer", detail.customerName, width))
-    detail.customerPhone?.let { appendLine(labelled("Phone", it, width)) }
+    appendLine(labelled(strings.order, detail.orderCode, width))
+    detail.createdLabel?.let { appendLine(labelled(strings.date, it, width)) }
+    detail.cashierName?.let { appendLine(labelled(strings.cashier, it, width)) }
+    appendLine(labelled(strings.customer, detail.customerName, width))
+    detail.customerPhone?.let { appendLine(labelled(strings.phone, it, width)) }
 
     appendLine("-".repeat(width))
 
@@ -59,18 +128,18 @@ private fun buildOrderLines(detail: OrderDetailUiModel, width: Int): String = bu
         item.parts.forEach { part ->
             appendLine(row("  ${part.name} x${part.qty}", part.subtotalLabel, width))
         }
-        item.serviceFeeLabel?.let { appendLine(row("  Service fee", it, width)) }
-        item.totalLabel?.let { appendLine(row("  Subtotal", it, width)) }
+        item.serviceFeeLabel?.let { appendLine(row("  ${strings.serviceFee}", it, width)) }
+        item.totalLabel?.let { appendLine(row("  ${strings.subtotal}", it, width)) }
 
-        appendLine(row("  Status", item.status.receiptLabel(), width))
+        appendLine(row("  ${strings.status}", strings.statusLabels.getValue(item.status), width))
         appendLine()
     }
 
     appendLine("-".repeat(width))
-    appendLine(row("TOTAL", if (detail.isUnpriced) "-" else detail.totalLabel, width))
+    appendLine(row(strings.total, if (detail.isUnpriced) "-" else detail.totalLabel, width))
     appendLine("-".repeat(width))
     appendLine()
-    append("Track this repair:".center(width))
+    append(strings.track.center(width))
 }
 
 /**
@@ -80,11 +149,15 @@ private fun buildOrderLines(detail: OrderDetailUiModel, width: Int): String = bu
  * customer reading it down the phone — the QR is the convenience, the characters are the fallback,
  * and the scan sheet on the home screen exists to take them by hand.
  */
-private fun buildFooterLines(detail: OrderDetailUiModel, width: Int): String = buildString {
+private fun buildFooterLines(
+    detail: OrderDetailUiModel,
+    strings: ReceiptStrings,
+    width: Int,
+): String = buildString {
     // Wrapped rather than truncated — a half-printed token is useless to whoever types it in.
     detail.qrToken.chunked(width).forEach { appendLine(it.center(width)) }
     appendLine()
-    append(SHOP_FOOTER.center(width))
+    append(strings.footer.center(width))
 }
 
 /** `Label     value`, with the value hard against the right edge. */
@@ -110,11 +183,4 @@ private fun String.center(width: Int): String {
 
     val padding = (width - length) / 2
     return " ".repeat(padding) + this
-}
-
-private fun com.cashierserviceapp.domain.models.OrderStatus.receiptLabel(): String = when (this) {
-    com.cashierserviceapp.domain.models.OrderStatus.RECEIVED -> "Received"
-    com.cashierserviceapp.domain.models.OrderStatus.DIAGNOSING -> "Diagnosing"
-    com.cashierserviceapp.domain.models.OrderStatus.IN_PROGRESS -> "In Progress"
-    com.cashierserviceapp.domain.models.OrderStatus.COMPLETED -> "Completed"
 }

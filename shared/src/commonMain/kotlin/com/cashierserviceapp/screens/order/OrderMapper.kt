@@ -19,7 +19,7 @@ data class OrderRow(
     val timeLabel: String,
 )
 
-fun List<Order>.toOrderRows(today: LocalDate): List<OrderRow> = map { order ->
+suspend fun List<Order>.toOrderRows(today: LocalDate): List<OrderRow> = map { order ->
     OrderRow(
         id = order.id,
         customerName = order.customerName,

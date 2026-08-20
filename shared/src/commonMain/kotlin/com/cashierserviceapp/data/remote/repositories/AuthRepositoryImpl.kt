@@ -1,5 +1,7 @@
 package com.cashierserviceapp.data.remote.repositories
 
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.auth_sign_in_failed
 import com.cashierserviceapp.domain.models.AuthenticationPayload
 import com.cashierserviceapp.domain.models.User
 import com.cashierserviceapp.domain.network.AuthenticationApi
@@ -17,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import org.jetbrains.compose.resources.getString
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
@@ -41,7 +44,7 @@ class AuthRepositoryImpl(
             // safeApiCall collapses *every* failure to null — a 401 from bad credentials and a
             // dead network are indistinguishable here, so this message has to stay neutral.
             // See AuthenticationApi if you want them told apart.
-            response == null -> error("Could not sign in. Check your details and try again.")
+            response == null -> error(getString(Res.string.auth_sign_in_failed))
             !response.success -> error(response.message)
             response.data == null -> error(response.message)
             else -> response.data

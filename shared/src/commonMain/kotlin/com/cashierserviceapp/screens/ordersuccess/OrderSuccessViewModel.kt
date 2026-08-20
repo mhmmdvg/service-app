@@ -2,6 +2,8 @@ package com.cashierserviceapp.screens.ordersuccess
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.error_unknown
 import com.cashierserviceapp.domain.models.OrderDetail
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.screens.orderdetail.OrderDetailUiModel
@@ -18,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 
 @AssistedInject
 class OrderSuccessViewModel(
@@ -50,7 +53,9 @@ class OrderSuccessViewModel(
                         detailState.value = Resource.Success(detail.toUiModel())
                     },
                     onFailure = { exception ->
-                        detailState.value = Resource.Error(exception.message ?: "Unknown error")
+                        detailState.value = Resource.Error(
+                            exception.message ?: getString(Res.string.error_unknown)
+                        )
                     }
                 )
         }

@@ -13,7 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_try_again
+import cashierserviceapp.shared.generated.resources.error_generic
 import cashierserviceapp.shared.generated.resources.nav_destination_order
+import cashierserviceapp.shared.generated.resources.order_list_empty_body
+import cashierserviceapp.shared.generated.resources.order_list_empty_title
+import cashierserviceapp.shared.generated.resources.order_list_load_failed
 import com.cashierserviceapp.ScreenWithTitle
 import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.screens.order.components.OrderCard
@@ -81,17 +86,17 @@ private fun OrderContent(
 
                     state is Resource.Error && orderData.isEmpty() -> item {
                         ContentMessage(
-                            title = "Couldn't load order",
-                            body = state.message ?: "Something went wrong.",
-                            actionLabel = "Try again",
+                            title = stringResource(Res.string.order_list_load_failed),
+                            body = state.message ?: stringResource(Res.string.error_generic),
+                            actionLabel = stringResource(Res.string.action_try_again),
                             onAction = onRetry
                         )
                     }
 
                     orderData.isEmpty() -> item("empty") {
                         ContentMessage(
-                            title = "No orders yet",
-                            body = "Orders you create will show up here while they're in progress."
+                            title = stringResource(Res.string.order_list_empty_title),
+                            body = stringResource(Res.string.order_list_empty_body)
                         )
                     }
 

@@ -11,10 +11,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_back
+import cashierserviceapp.shared.generated.resources.action_next
+import cashierserviceapp.shared.generated.resources.add_order_create
+import cashierserviceapp.shared.generated.resources.add_order_creating
 import com.cashierserviceapp.screens.addorder.AddOrderStep
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 internal fun StepFooter(
@@ -48,7 +54,7 @@ internal fun StepFooter(
         ) {
             if (!step.isFirst) {
                 Text(
-                    text = "Back",
+                    text = stringResource(Res.string.action_back),
                     modifier = Modifier.clickable(enabled = !isSubmitting, onClick = onBack),
                     style = CashierServiceTheme.typography.h4,
                     color = CashierServiceTheme.colors.primaryText
@@ -58,11 +64,13 @@ internal fun StepFooter(
             Spacer(Modifier.weight(1f))
 
             Button(
-                label = when {
-                    isSubmitting -> "Creating order…"
-                    step.isLast -> "Create order"
-                    else -> "Next"
-                },
+                label = stringResource(
+                    when {
+                        isSubmitting -> Res.string.add_order_creating
+                        step.isLast -> Res.string.add_order_create
+                        else -> Res.string.action_next
+                    }
+                ),
                 onClick = onNext,
                 primary = true,
                 enabled = canContinue

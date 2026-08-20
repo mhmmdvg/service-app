@@ -15,6 +15,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.action_try_again
+import cashierserviceapp.shared.generated.resources.error_generic
+import cashierserviceapp.shared.generated.resources.history_empty_body
+import cashierserviceapp.shared.generated.resources.history_empty_title
+import cashierserviceapp.shared.generated.resources.history_load_failed
 import cashierserviceapp.shared.generated.resources.nav_destination_history
 import com.cashierserviceapp.ScreenWithTitle
 import com.cashierserviceapp.screens.history.components.HistoryOrderCard
@@ -98,18 +103,17 @@ private fun HistoryContent(
 
                     state is Resource.Error && sections.isEmpty() -> item("error") {
                         ContentMessage(
-                            title = "Couldn't load history",
-                            body = state.message ?: "Something went wrong.",
-                            actionLabel = "Try again",
+                            title = stringResource(Res.string.history_load_failed),
+                            body = state.message ?: stringResource(Res.string.error_generic),
+                            actionLabel = stringResource(Res.string.action_try_again),
                             onAction = onRetry
                         )
                     }
 
                     sections.isEmpty() -> item("empty") {
                         ContentMessage(
-                            title = "No completed orders yet",
-                            body = "Once every device on an order is finished, the order moves " +
-                                    "here."
+                            title = stringResource(Res.string.history_empty_title),
+                            body = stringResource(Res.string.history_empty_body)
                         )
                     }
 

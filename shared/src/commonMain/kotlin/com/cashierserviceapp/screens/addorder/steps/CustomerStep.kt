@@ -14,6 +14,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import cashierserviceapp.shared.generated.resources.Res
+import cashierserviceapp.shared.generated.resources.add_order_customer_address
+import cashierserviceapp.shared.generated.resources.add_order_customer_name
+import cashierserviceapp.shared.generated.resources.add_order_customer_phone
 import com.cashierserviceapp.domain.usecases.corevalidation.ValidationError
 import com.cashierserviceapp.localization.message
 import com.cashierserviceapp.screens.addorder.AddOrderFormEvent
@@ -21,6 +25,7 @@ import com.cashierserviceapp.screens.addorder.AddOrderFormState
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.components.TextField
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Step 1 — who's dropping the device off. Only the name is required; the rest is contact detail the
@@ -43,7 +48,7 @@ internal fun CustomerStep(
             onValueChange = { onInputChanged(AddOrderFormEvent.NameChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
             error = formState.nameError != null,
-            label = "Full name",
+            label = stringResource(Res.string.add_order_customer_name),
             enabled = enabled,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
@@ -62,7 +67,7 @@ internal fun CustomerStep(
             onValueChange = { onInputChanged(AddOrderFormEvent.PhoneChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
             error = formState.phoneError != null,
-            label = "Phone number",
+            label = stringResource(Res.string.add_order_customer_phone),
             focusRequester = phoneFocus,
             enabled = enabled,
             singleLine = true,
@@ -101,7 +106,7 @@ internal fun CustomerStep(
             value = formState.address,
             onValueChange = { onInputChanged(AddOrderFormEvent.AddressChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
-            label = "Address",
+            label = stringResource(Res.string.add_order_customer_address),
             focusRequester = addressFocus,
             enabled = enabled,
             keyboardOptions = KeyboardOptions(
