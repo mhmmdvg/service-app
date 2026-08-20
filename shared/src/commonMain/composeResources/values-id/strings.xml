@@ -61,6 +61,7 @@
     <string name="order_detail_status_sheet_title">Ubah status</string>
     <string name="order_detail_status_sheet_body">perangkat ini sampai mana?</string>
     <string name="order_detail_status_sheet_fee">Biaya jasa</string>
+    <string name="order_detail_status_sheet_fee_required">Isi biaya jasa dulu sebelum melanjutkan perangkat ini.</string>
     <string name="order_detail_status_sheet_fee_locked">Biaya bisa diisi setelah perangkat ini Sedang Dikerjakan.</string>
     <string name="order_detail_status_sheet_fee_zero">Perangkat ini belum ada biaya — kalau diselesaikan sekarang jadi Rp 0.</string>
     <string name="order_detail_status_sheet_save">Simpan</string>

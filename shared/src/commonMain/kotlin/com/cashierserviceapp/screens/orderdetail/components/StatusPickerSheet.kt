@@ -33,6 +33,7 @@ import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.order_detail_status_sheet_body
 import cashierserviceapp.shared.generated.resources.order_detail_status_sheet_fee
 import cashierserviceapp.shared.generated.resources.order_detail_status_sheet_fee_locked
+import cashierserviceapp.shared.generated.resources.order_detail_status_sheet_fee_required
 import cashierserviceapp.shared.generated.resources.order_detail_status_sheet_fee_zero
 import cashierserviceapp.shared.generated.resources.order_detail_status_sheet_save
 import cashierserviceapp.shared.generated.resources.order_detail_status_sheet_title
@@ -56,10 +57,13 @@ import org.jetbrains.compose.resources.stringResource
  * be able to go back, and the server records each move in the item's history either way.
  *
  * The fee only appears once the chosen status [acceptsPrice]: quoting a job that hasn't been
- * diagnosed is guesswork, and going through this sheet is what stops a device reaching Completed
- * at Rp 0 without anyone noticing. Because both the status and the fee are on one sheet, the choice
- * is applied on save rather than on tap — otherwise picking In Progress would commit the move
- * before the price next to it had been typed.
+ * diagnosed is guesswork. From there it's required — a device can't start being worked on, or be
+ * handed back, without a figure against it, which is what stops orders reaching Completed at Rp 0
+ * without anyone noticing. A device that genuinely costs nothing is priced at 0 deliberately.
+ *
+ * Because both the status and the fee are on one sheet, the choice is applied on save rather than
+ * on tap — otherwise picking In Progress would commit the move before the price next to it had
+ * been typed.
  */
 @Composable
 fun StatusPickerSheet(
@@ -75,14 +79,30 @@ fun StatusPickerSheet(
 
     val feeValue = fee.toLongOrNull()
 
-    // A status that can't hold a price sends none, so whatever is stored is left alone. Clearing
-    // the field does the same: the patch omits a null fee, so it can be corrected but not unset.
+    // A status that can't hold a price sends none, so whatever is stored is left alone.
     val submittedFee = feeValue.takeIf { selected.acceptsPrice }
     val feeChanged = selected.acceptsPrice && feeValue != null && feeValue != currentServiceFee
-    val canSave = selected != current || feeChanged
 
-    // Nothing to bill and nothing to bill it against: this device is about to be finished at zero.
-    val completingUnpriced = selected == OrderStatus.COMPLETED && submittedFee == null && !hasParts
+    // Empty while the field is on screen blocks the save — the field is prefilled from the stored
+    // fee, so this only bites on a device that has never been priced.
+    val feeMissing = selected.acceptsPrice && feeValue == null
+    val canSave = (selected != current || feeChanged) && !feeMissing
+
+    // Priced, but at nothing: worth saying out loud before the device is handed back.
+    val completingUnpriced =
+        selected == OrderStatus.COMPLETED && !hasParts && submittedFee == 0L
+
+    val note = when {
+        !selected.acceptsPrice -> Res.string.order_detail_status_sheet_fee_locked
+        feeMissing -> Res.string.order_detail_status_sheet_fee_required
+        completingUnpriced -> Res.string.order_detail_status_sheet_fee_zero
+        else -> null
+    }
+
+    // Held over while the note animates away, so its text doesn't blank out before the space it
+    // occupies has finished closing.
+    var lastNote by remember { mutableStateOf(note) }
+    if (note != null) lastNote = note
 
     BottomSheet(onDismissRequest = onDismiss) { hide ->
         Spacer(Modifier.height(20.dp))
@@ -134,16 +154,15 @@ fun StatusPickerSheet(
                 }
             }
 
-            AnimatedVisibility(visible = !selected.acceptsPrice || completingUnpriced) {
+            AnimatedVisibility(visible = note != null) {
                 Column {
-                    Text(
-                        text = stringResource(
-                            if (completingUnpriced) Res.string.order_detail_status_sheet_fee_zero
-                            else Res.string.order_detail_status_sheet_fee_locked
-                        ),
-                        style = CashierServiceTheme.typography.text2,
-                        color = CashierServiceTheme.colors.noteText
-                    )
+                    lastNote?.let { message ->
+                        Text(
+                            text = stringResource(message),
+                            style = CashierServiceTheme.typography.text2,
+                            color = CashierServiceTheme.colors.noteText
+                        )
+                    }
 
                     Spacer(Modifier.height(8.dp))
                 }
