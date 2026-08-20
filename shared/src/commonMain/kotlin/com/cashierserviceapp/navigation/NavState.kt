@@ -93,7 +93,9 @@ class NavState(
     ): SnapshotStateList<NavEntry<AppRoute>> {
         val decorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator<AppRoute>(),
-            rememberViewModelStoreNavEntryDecorator()
+            rememberViewModelStoreNavEntryDecorator(),
+            // Innermost, so the scope it publishes is the one wrapping the screen itself.
+            SharedElementScopes
         )
 
         val topLevelEntries = topLevelBackStacks

@@ -1,5 +1,6 @@
 package com.cashierserviceapp.navigation
 
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -94,10 +96,17 @@ internal fun NavHost(
                     navState = navState,
                     navigator = navigator,
                 ) {
-                    NavDisplay(
-                        entries = navState.toDecoratedEntries(entryProvider),
-                        onBack = navigator::goBack,
-                    )
+                    // Wraps the whole NavDisplay so an element can be matched between any two
+                    // screens: the scope owns the overlay the moving element is drawn into, and
+                    // that overlay has to outlive both the screen it leaves and the one it lands on.
+                    SharedTransitionLayout(Modifier.fillMaxSize()) {
+                        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+                            NavDisplay(
+                                entries = navState.toDecoratedEntries(entryProvider),
+                                onBack = navigator::goBack,
+                            )
+                        }
+                    }
                 }
 
                 // Sibling of the scaffold, not a NavDisplay entry, so it covers the bottom
@@ -137,7 +146,7 @@ private fun EntryProviderScope<AppRoute>.screens(
         )
     }
 
-    entry<SearchScreen> {
+    entry<SearchScreen>(metadata = sharedElementTransition) {
         SearchScreen(
             onBack = onBack,
             onOpenOrder = { orderId -> navigator.add(OrderDetailScreen(orderId)) },

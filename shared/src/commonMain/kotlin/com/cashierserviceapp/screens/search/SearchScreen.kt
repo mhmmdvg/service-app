@@ -28,6 +28,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.cashierserviceapp.navigation.SharedElementKey
+import com.cashierserviceapp.navigation.sharedElementBounds
 import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.home.AttentionRow
@@ -109,6 +111,8 @@ private fun SearchContent(
             Spacer(Modifier.width(8.dp))
 
             SearchField(
+                // Lands where Home's tap target was, morphing out of it rather than appearing.
+                modifier = Modifier.sharedElementBounds(SharedElementKey.SearchPill),
                 value = query,
                 onValueChange = onQueryChange,
                 placeholder = "Search name or order code",

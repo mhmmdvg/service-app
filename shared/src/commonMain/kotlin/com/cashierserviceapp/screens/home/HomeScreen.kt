@@ -28,6 +28,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.cashierserviceapp.ScreenWithTitle
+import com.cashierserviceapp.navigation.SharedElementKey
+import com.cashierserviceapp.navigation.sharedElementBounds
 import com.cashierserviceapp.ui.components.ContentMessage
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.home.components.AttentionCard
@@ -106,6 +108,8 @@ private fun HomeContent(
 
             item("search") {
                 SearchFieldButton(
+                    // Half of the morph into the search screen; the field there carries the twin.
+                    modifier = Modifier.sharedElementBounds(SharedElementKey.SearchPill),
                     placeholder = "Search name or order code",
                     onClick = onSearchClick,
                     trailing = { ScanButton(onClick = onScanClick) }
