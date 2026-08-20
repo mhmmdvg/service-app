@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -17,6 +18,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -28,9 +30,11 @@ import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.screens.orderdetail.OrderDetailItemUiModel
 import com.cashierserviceapp.screens.orderdetail.OrderDetailUiModel
 import com.cashierserviceapp.screens.orderdetail.OrderPartUiModel
+import com.cashierserviceapp.screens.orderdetail.ReceiptSegment
 import com.cashierserviceapp.screens.orderdetail.buildReceipt
 import com.cashierserviceapp.ui.components.BottomSheet
 import com.cashierserviceapp.ui.components.Button
+import com.cashierserviceapp.ui.components.QrCode
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
@@ -48,7 +52,7 @@ fun ReceiptSheet(
     detail: OrderDetailUiModel,
     onDismiss: () -> Unit,
 ) {
-    val receipt = remember(detail) { buildReceipt(detail) }
+    val segments = remember(detail) { buildReceipt(detail) }
 
     BottomSheet(onDismissRequest = onDismiss) { hide ->
         Spacer(Modifier.height(20.dp))
@@ -83,16 +87,22 @@ fun ReceiptSheet(
                     .padding(14.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    text = receipt,
-                    // Monospace or the column alignment the receipt is built around falls apart.
-                    style = CashierServiceTheme.typography.text2.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
-                        lineHeight = 17.sp,
-                    ),
-                    color = CashierServiceTheme.colors.primaryText,
-                )
+                segments.forEach { segment ->
+                    when (segment) {
+                        is ReceiptSegment.Lines -> Text(
+                            text = segment.text,
+                            style = receiptTextStyle(),
+                            color = CashierServiceTheme.colors.primaryText,
+                        )
+
+                        is ReceiptSegment.Qr -> QrCode(
+                            data = segment.data,
+                            modifier = Modifier
+                                .padding(vertical = 10.dp)
+                                .size(132.dp),
+                        )
+                    }
+                }
             }
 
             Spacer(Modifier.height(16.dp))
@@ -136,15 +146,26 @@ private val previewReceiptDetail = OrderDetailUiModel(
     )
 )
 
+/** Monospace, or the column alignment the receipt is built around falls apart. */
+@Composable
+private fun receiptTextStyle(): TextStyle = CashierServiceTheme.typography.text2.copy(
+    fontFamily = FontFamily.Monospace,
+    fontSize = 12.sp,
+    lineHeight = 17.sp,
+)
+
 @PreviewLightDark
 @Composable
 private fun ReceiptPreview() = PreviewHelper {
-    Text(
-        text = buildReceipt(previewReceiptDetail),
-        style = CashierServiceTheme.typography.text2.copy(
-            fontFamily = FontFamily.Monospace,
-            fontSize = 12.sp,
-            lineHeight = 17.sp,
-        ),
-    )
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        buildReceipt(previewReceiptDetail).forEach { segment ->
+            when (segment) {
+                is ReceiptSegment.Lines -> Text(text = segment.text, style = receiptTextStyle())
+                is ReceiptSegment.Qr -> QrCode(
+                    data = segment.data,
+                    modifier = Modifier.padding(vertical = 10.dp).size(132.dp),
+                )
+            }
+        }
+    }
 }
