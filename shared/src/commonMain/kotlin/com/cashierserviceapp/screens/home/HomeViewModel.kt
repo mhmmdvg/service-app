@@ -12,6 +12,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -93,8 +94,8 @@ class HomeViewModel(
         fetchJob = viewModelScope.launch {
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            orderRepository.getOrders()
-                .fold(
+            orderRepository.getOrders().collectLatest { result ->
+                result.fold(
                     onSuccess = { orders ->
                         homeState.value = Resource.Success(buildHomeSnapshot(orders, today))
                     },
@@ -107,7 +108,8 @@ class HomeViewModel(
                     }
                 )
 
-            isRefreshing.value = false
+                isRefreshing.value = false
+            }
         }
     }
 

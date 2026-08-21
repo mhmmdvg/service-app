@@ -4,6 +4,7 @@ import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.auth_sign_in_failed
 import com.cashierserviceapp.domain.models.AuthenticationPayload
 import com.cashierserviceapp.domain.models.User
+import com.cashierserviceapp.data.local.dao.OrderDao
 import com.cashierserviceapp.domain.network.AuthenticationApi
 import com.cashierserviceapp.domain.repositories.AuthRepository
 import com.cashierserviceapp.storage.ApplicationStorage
@@ -27,6 +28,7 @@ class AuthRepositoryImpl(
     private val api: AuthenticationApi,
     private val storage: ApplicationStorage,
     private val client: HttpClient,
+    private val orderDao: OrderDao,
     appScope: CoroutineScope,
     logger: Logger,
 ) : AuthRepository {
@@ -70,6 +72,8 @@ class AuthRepositoryImpl(
 
         storage.clearSession()
         client.authProvider<BearerAuthProvider>()?.clearToken()
+        // Shared counter device: the next cashier must not open the app onto the last one's queue.
+        orderDao.clear()
         taggedLogger.log { "Session cleared" }
     }
 }

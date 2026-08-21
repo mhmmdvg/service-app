@@ -8,9 +8,10 @@ import com.cashierserviceapp.domain.models.UpdatedOrderItem
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
 import com.cashierserviceapp.domain.models.QueryParams
+import kotlinx.coroutines.flow.Flow
 
 interface OrderRepository {
-    suspend fun getOrders(params: QueryParams = QueryParams()): Result<List<Order>>
+    fun getOrders(params: QueryParams = QueryParams()): Flow<Result<List<Order>>>
 
     /** Completed orders, newest first. */
     suspend fun getOrderHistory(): Result<List<Order>>

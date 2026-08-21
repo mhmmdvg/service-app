@@ -3,6 +3,7 @@ package com.cashierserviceapp.di
 import android.app.Application
 import android.content.Context
 import androidx.preference.PreferenceManager
+import com.cashierserviceapp.data.local.database.DatabaseDriveFactory
 import com.russhwolf.settings.ObservableSettings
 import com.russhwolf.settings.SharedPreferencesSettings
 import dev.zacsweers.metro.AppScope
@@ -17,6 +18,10 @@ object AndroidBindings {
     @Provides
     @SingleIn(AppScope::class)
     fun provideApplicationContext(application: Application): Context = application
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideDatabaseDriveFactory(context: Context): DatabaseDriveFactory = DatabaseDriveFactory(context)
 
     @Provides
     @SingleIn(AppScope::class)

@@ -10,6 +10,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -54,15 +55,22 @@ class OrderViewModel(
             // same day, rather than each row asking the clock separately.
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            orderRepository.getOrders()
-                .fold(
-                    onSuccess = { response ->
-                        orderState.value = Resource.Success(response.toOrderRows(today))
+            orderRepository.getOrders().collectLatest { result ->
+                result.fold(
+                    onSuccess = { orders ->
+                        orderState.value = Resource.Success(orders.toOrderRows(today))
                     },
                     onFailure = { exception ->
-                        orderState.value = Resource.Error(exception.message)
+                        // Only the refresh failed; whatever the cache emitted still stands.
+                        orderState.value = Resource.Error(
+                            message = exception.message,
+                            data = orderState.value.data
+                        )
                     }
                 )
+
+                isRefreshing.value = false
+            }
         }
     }
 

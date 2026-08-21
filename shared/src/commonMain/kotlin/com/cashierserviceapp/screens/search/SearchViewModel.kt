@@ -76,8 +76,8 @@ class SearchViewModel(
         fetchJob = viewModelScope.launch {
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            orderRepository.getOrders(params)
-                .fold(
+            orderRepository.getOrders(params).collect { result ->
+                result.fold(
                     onSuccess = { orders ->
                         val rows = orders.toRows(today)
                         ordersState.value = Resource.Success(rows)
@@ -88,6 +88,7 @@ class SearchViewModel(
                         ordersState.value = Resource.Error(exception.message)
                     }
                 )
+            }
         }
     }
 
