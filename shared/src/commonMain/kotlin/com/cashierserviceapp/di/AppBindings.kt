@@ -3,6 +3,7 @@ package com.cashierserviceapp.di
 import androidx.lifecycle.ViewModel
 import com.cashierserviceapp.URLs
 import com.cashierserviceapp.data.local.dao.OrderDao
+import com.cashierserviceapp.data.local.dao.ProfileDao
 import com.cashierserviceapp.data.local.database.AppDatabase
 import com.cashierserviceapp.data.local.database.DatabaseDriveFactory
 import com.cashierserviceapp.data.local.database.getDatabaseBuilder
@@ -57,6 +58,10 @@ object AppBindings {
     @Provides
     @SingleIn(AppScope::class)
     fun provideOrderDao(database: AppDatabase): OrderDao = database.orderDao()
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideProfileDao(database: AppDatabase): ProfileDao = database.profileDao()
 
     @Provides
     @SingleIn(AppScope::class)

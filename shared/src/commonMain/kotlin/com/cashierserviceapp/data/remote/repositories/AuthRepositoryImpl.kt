@@ -5,6 +5,7 @@ import cashierserviceapp.shared.generated.resources.auth_sign_in_failed
 import com.cashierserviceapp.domain.models.AuthenticationPayload
 import com.cashierserviceapp.domain.models.User
 import com.cashierserviceapp.data.local.dao.OrderDao
+import com.cashierserviceapp.data.local.dao.ProfileDao
 import com.cashierserviceapp.domain.network.AuthenticationApi
 import com.cashierserviceapp.domain.repositories.AuthRepository
 import com.cashierserviceapp.storage.ApplicationStorage
@@ -29,6 +30,7 @@ class AuthRepositoryImpl(
     private val storage: ApplicationStorage,
     private val client: HttpClient,
     private val orderDao: OrderDao,
+    private val profileDao: ProfileDao,
     appScope: CoroutineScope,
     logger: Logger,
 ) : AuthRepository {
@@ -75,6 +77,8 @@ class AuthRepositoryImpl(
         // Shared counter device: the next cashier must not open the app onto the last one's queue
         // — nor their history, so this drops both halves of the table rather than one status.
         orderDao.clearAll()
+        // Same reason, and more pointedly: the cached `/me` is the last cashier by name.
+        profileDao.clear()
         taggedLogger.log { "Session cleared" }
     }
 }

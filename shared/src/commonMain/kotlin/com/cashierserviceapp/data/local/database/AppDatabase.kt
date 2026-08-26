@@ -8,21 +8,28 @@ import androidx.room.RoomDatabase
 import androidx.room.RoomDatabaseConstructor
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.cashierserviceapp.data.local.dao.OrderDao
+import com.cashierserviceapp.data.local.dao.ProfileDao
 import com.cashierserviceapp.data.local.entities.OrderEntity
+import com.cashierserviceapp.data.local.entities.ProfileEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
 @Database(
     entities = [
         OrderEntity::class,
+        ProfileEntity::class,
     ],
-    version = 1,
+    // 2: added `profile`. Everything here is a cache and the builder falls back to a destructive
+    // migration, so the old orders are dropped once and refetched.
+    version = 2,
     exportSchema = false
 )
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun orderDao(): OrderDao
+
+    abstract fun profileDao(): ProfileDao
 
     companion object {
         const val DATABASE_NAME = "cashierapp.db"
