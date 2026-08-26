@@ -6,6 +6,7 @@ import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.utils.Resource
+import com.cashierserviceapp.utils.formatRupiah
 import dev.zacsweers.metro.*
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
@@ -51,13 +52,36 @@ class OrderDetailViewModel(
      * [serviceFee] is null whenever the sheet had nothing new to say about the price — the request
      * then omits the field, so a fee that was already agreed survives a plain status change.
      *
-     * Reloads the whole order afterwards rather than patching the item in place: the server
-     * recalculates that item's final cost, and the order's overall status is derived from every
-     * device, so a local edit would only be right by coincidence.
+     * The change lands on screen before the request does — marking the last device completed
+     * finishes the order, and waiting out a PATCH and a refetch to see that makes a tap which
+     * already worked feel like it didn't. The refetch still wins; a failure puts the snapshot back.
      */
     fun setItemStatus(itemId: String, status: OrderStatus, serviceFee: Long? = null) {
         if (updateJob?.isActive == true) return
 
+        // Exactly what is on screen now — the thing to restore if the write is refused.
+        val snapshot = detailState.value.data
+
+        snapshot?.let { detail ->
+            val patched = detail.items.map { item ->
+                if (item.id != itemId) return@map item
+
+                // A null fee means the sheet said nothing about the price, so what was agreed
+                // stands. The cost follows the server's recalculateFinalCost: fee plus every part.
+                val fee = serviceFee ?: item.serviceFee
+                val cost = (fee ?: 0L) + item.parts.sumOf { it.subtotal }
+
+                item.copy(
+                    status = status,
+                    serviceFee = fee,
+                    serviceFeeLabel = fee?.let { formatRupiah(it) },
+                    finalCost = cost,
+                    totalLabel = formatRupiah(cost),
+                )
+            }
+
+            detailState.value = Resource.Success(detail.copy(items = patched))
+        }
 
         updateJob = viewModelScope.launch {
             updatingItemId.value = itemId
@@ -68,7 +92,11 @@ class OrderDetailViewModel(
             orderRepository.updateOrderItem(itemId, request)
                 .fold(
                     onSuccess = { fetch().join() },
-                    onFailure = { exception -> updateError.value = exception.message }
+                    onFailure = { exception ->
+                        // Roll back before surfacing the error, so the banner and the rows agree.
+                        snapshot?.let { detailState.value = Resource.Success(it) }
+                        updateError.value = exception.message
+                    }
                 )
 
             updatingItemId.value = null

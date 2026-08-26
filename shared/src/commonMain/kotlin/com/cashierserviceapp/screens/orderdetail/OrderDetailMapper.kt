@@ -23,11 +23,16 @@ data class OrderDetailUiModel(
     val customerPhone: String?,
     val cashierName: String?,
     val createdLabel: String?,
-    val totalLabel: String,
-    /** True when nothing has been priced yet, so the header shows a dash rather than Rp 0. */
-    val isUnpriced: Boolean,
     val items: List<OrderDetailItemUiModel>,
 ) {
+    /** Only devices with a settled price count towards the total; the rest are still open. */
+    private val pricedCosts: List<Long> = items.mapNotNull { it.finalCost }
+
+    val totalLabel: String = formatRupiah(pricedCosts.sum())
+
+    /** True when nothing has been priced yet, so the header shows a dash rather than Rp 0. */
+    val isUnpriced: Boolean = pricedCosts.isEmpty()
+
     val deviceCount: Int get() = items.size
 
     /**
@@ -46,6 +51,8 @@ data class OrderDetailItemUiModel(
     /** The raw fee, kept alongside the label so the status sheet can put it back in its field. */
     val serviceFee: Long?,
     val serviceFeeLabel: String?,
+    /** The raw cost behind [totalLabel]; the status sheet re-derives the total from it. */
+    val finalCost: Long?,
     val totalLabel: String?,
     val parts: List<OrderPartUiModel>,
 )
@@ -54,13 +61,13 @@ data class OrderPartUiModel(
     val id: String,
     val name: String,
     val qty: Int,
+    /** Raw, for the same reason as [OrderDetailItemUiModel.finalCost]. */
+    val subtotal: Long,
     val subtotalLabel: String,
 )
 
 suspend fun OrderDetail.toUiModel(): OrderDetailUiModel {
     val moment = createdAt?.let { parseTimestamp(it)?.toLocalDateTime() }
-    // Only devices with a settled price count towards the total; the rest are still open.
-    val pricedCosts = items.mapNotNull { it.finalCost }
 
     return OrderDetailUiModel(
         orderCode = orderCode,
@@ -69,8 +76,6 @@ suspend fun OrderDetail.toUiModel(): OrderDetailUiModel {
         customerPhone = customerPhone.takeIf { it.isNotBlank() },
         cashierName = cashierName.takeIf { it.isNotBlank() },
         createdLabel = moment?.let { "${it.date.formatDate()}, ${it.formatTime()}" },
-        totalLabel = formatRupiah(pricedCosts.sum()),
-        isUnpriced = pricedCosts.isEmpty(),
         items = items.mapIndexed { index, item -> item.toUiModel(index) },
     )
 }
@@ -85,12 +90,14 @@ private fun OrderDetailItem.toUiModel(index: Int): OrderDetailItemUiModel =
         status = status,
         serviceFee = serviceFee,
         serviceFeeLabel = serviceFee?.let { formatRupiah(it) },
+        finalCost = finalCost,
         totalLabel = finalCost?.let { formatRupiah(it) },
         parts = parts.mapIndexed { partIndex, part ->
             OrderPartUiModel(
                 id = part.id ?: "part-$index-$partIndex",
                 name = part.sparePartName,
                 qty = part.qty,
+                subtotal = part.subtotal,
                 subtotalLabel = formatRupiah(part.subtotal),
             )
         },

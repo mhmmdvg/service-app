@@ -34,8 +34,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -60,7 +62,9 @@ private val DismissDragThreshold = 120.dp
 /** Or past this flick speed, in pixels per second, however far it travelled. */
 private const val DISMISS_VELOCITY = 1200f
 
-private const val ENTER_DURATION_MILLIS = 340
+// [EnterEasing] is heavily front-loaded — around 80% of the travel lands in the first fifth of the
+// run — so the duration has to be generous for the slide to read as motion rather than a jump.
+private const val ENTER_DURATION_MILLIS = 500
 private const val EXIT_DURATION_MILLIS = 240
 
 /** The same easing the full-screen cover uses, so modals across the app move alike. */
@@ -86,15 +90,28 @@ fun BottomSheet(
     shape: RoundedCornerShape = CashierServiceTheme.shapes.roundedCornerXxl,
     content: @Composable ColumnScope.(hide: () -> Unit) -> Unit,
 ) {
-    // Created already heading for visible, so the sheet animates in from hidden on its first
-    // composition. The target must be set exactly once, at creation — setting it from an effect
-    // that re-runs would keep re-raising the sheet the instant anything asked it to leave.
-    val visibleState = remember { MutableTransitionState(false).apply { targetState = true } }
+    val visibleState = remember { MutableTransitionState(false) }
+
+    // Raised a frame late, on purpose. Opening the sheet is the most expensive frame of its life —
+    // its content composes, lays out and draws for the first time, and on iOS and desktop the
+    // dialog spins up a whole new scene layer on top of that. Starting the slide in that same
+    // frame spends most of the animation paying for it, and the sheet arrives before the first
+    // frame that could have shown it moving. One frame of warm-up and the slide runs clean.
+    //
+    // Raised exactly once, too: an effect that re-ran would keep re-raising the sheet the instant
+    // anything asked it to leave.
+    var raised by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        withFrameNanos { }
+        visibleState.targetState = true
+        raised = true
+    }
 
     // Once the exit animation has finished — hidden, and no longer heading anywhere else — the
-    // sheet is safe to take out of composition.
-    LaunchedEffect(visibleState.currentState, visibleState.targetState) {
-        if (!visibleState.currentState && !visibleState.targetState) onDismissRequest()
+    // sheet is safe to take out of composition. Gated on [raised], since both states read as
+    // hidden during the warm-up frame as well, before the sheet has ever been seen.
+    LaunchedEffect(raised, visibleState.currentState, visibleState.targetState) {
+        if (raised && !visibleState.currentState && !visibleState.targetState) onDismissRequest()
     }
 
     // Every way out goes through here: back, tap outside, drag, and the sheet's own buttons. That

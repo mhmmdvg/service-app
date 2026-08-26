@@ -78,7 +78,7 @@ fun SearchScreen(
         query = query,
         results = results,
         onQueryChange = viewModel::onQueryChange,
-//        onRetry = viewModel::retry,
+        onRetry = viewModel::retry,
         onBack = onBack,
         onOpenOrder = onOpenOrder,
     )
@@ -90,7 +90,7 @@ private fun SearchContent(
     query: String,
     results: List<AttentionRow>,
     onQueryChange: (String) -> Unit,
-//    onRetry: () -> Unit,
+    onRetry: () -> Unit,
     onBack: () -> Unit,
     onOpenOrder: (String) -> Unit = {},
 ) {
@@ -158,7 +158,7 @@ private fun SearchContent(
                         title = stringResource(Res.string.home_orders_load_failed),
                         body = state.message ?: stringResource(Res.string.error_generic),
                         actionLabel = stringResource(Res.string.action_try_again),
-//                        onAction = onRetry
+                        onAction = onRetry
                     )
                 }
 
@@ -207,7 +207,7 @@ private fun SearchScreenResultsPreview() = PreviewHelper(paddingEnabled = false)
         query = "rina",
         results = previewRows,
         onQueryChange = {},
-//        onRetry = {},
+        onRetry = {},
         onBack = {}
     )
 }
@@ -220,7 +220,7 @@ private fun SearchScreenHintPreview() = PreviewHelper(paddingEnabled = false) {
         query = "",
         results = emptyList(),
         onQueryChange = {},
-//        onRetry = {},
+        onRetry = {},
         onBack = {}
     )
 }

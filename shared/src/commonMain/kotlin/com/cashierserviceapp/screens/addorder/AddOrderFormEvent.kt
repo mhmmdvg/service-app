@@ -67,7 +67,7 @@ data class AddOrderFormState(
 ) {
     val total: Long get() = devices.sumOf { it.total }
 
-    val hasAnyPrice: Boolean get() = devices.any { it.hasPrice }
+//    val hasAnyPrice: Boolean get() = devices.any { it.hasPrice }
 
     fun customerInput(): CustomerInput = CustomerInput(
         name = name.trim(),

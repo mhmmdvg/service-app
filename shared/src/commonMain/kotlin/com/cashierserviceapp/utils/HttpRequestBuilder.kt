@@ -65,3 +65,17 @@ fun HttpRequestBuilder.apiUrl(baseUrl: String, path: String) {
         encodedPath = path
     }
 }
+/**
+ * [runCatching], minus the part that breaks structured concurrency.
+ *
+ * `runCatching` catches `Throwable`, which includes the `CancellationException` [safeApiCall]
+ * deliberately rethrows. Without this, cancelling `fetchJob` — on retry, or when a screen closes —
+ * comes back as `Result.failure` and the screen paints an error for a request nobody is waiting on.
+ */
+suspend inline fun <T> apiCatching(block: () -> T): Result<T> = try {
+    Result.success(block())
+} catch (e: CancellationException) {
+    throw e
+} catch (e: Throwable) {
+    Result.failure(e)
+}

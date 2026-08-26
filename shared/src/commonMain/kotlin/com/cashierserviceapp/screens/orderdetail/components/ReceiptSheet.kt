@@ -133,8 +133,6 @@ private val previewReceiptDetail = OrderDetailUiModel(
     customerPhone = "08123456789",
     cashierName = "Administrator",
     createdLabel = "14 Aug 2026, 00:14",
-    totalLabel = "Rp 350.000",
-    isUnpriced = false,
     items = listOf(
         OrderDetailItemUiModel(
             id = "1",
@@ -143,8 +141,9 @@ private val previewReceiptDetail = OrderDetailUiModel(
             status = OrderStatus.IN_PROGRESS,
             serviceFee = 50000L,
             serviceFeeLabel = "Rp 50.000",
+            finalCost = 350000L,
             totalLabel = "Rp 350.000",
-            parts = listOf(OrderPartUiModel("p1", "LCD Galaxy A54", 1, "Rp 300.000"))
+            parts = listOf(OrderPartUiModel("p1", "LCD Galaxy A54", 1, 300000L, "Rp 300.000"))
         )
     )
 )

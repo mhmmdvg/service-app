@@ -1,5 +1,6 @@
 package com.cashierserviceapp.di
 
+import com.cashierserviceapp.data.local.database.DatabaseDriveFactory
 import com.russhwolf.settings.NSUserDefaultsSettings
 import com.russhwolf.settings.ObservableSettings
 import dev.zacsweers.metro.AppScope
@@ -17,5 +18,9 @@ interface IosBindings {
         @SingleIn(AppScope::class)
         fun provideSettings(): ObservableSettings =
             NSUserDefaultsSettings(NSUserDefaults.standardUserDefaults)
+
+        @Provides
+        @SingleIn(AppScope::class)
+        fun provideDatabaseDriveFactory(): DatabaseDriveFactory = DatabaseDriveFactory()
     }
 }

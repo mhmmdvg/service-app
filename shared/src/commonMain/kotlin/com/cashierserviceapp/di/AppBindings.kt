@@ -2,6 +2,11 @@ package com.cashierserviceapp.di
 
 import androidx.lifecycle.ViewModel
 import com.cashierserviceapp.URLs
+import com.cashierserviceapp.data.local.dao.OrderDao
+import com.cashierserviceapp.data.local.dao.ProfileDao
+import com.cashierserviceapp.data.local.database.AppDatabase
+import com.cashierserviceapp.data.local.database.DatabaseDriveFactory
+import com.cashierserviceapp.data.local.database.getDatabaseBuilder
 import com.cashierserviceapp.domain.models.RefreshTokenPayload
 import com.cashierserviceapp.domain.models.TokenPair
 import com.cashierserviceapp.storage.ApplicationStorage
@@ -45,6 +50,18 @@ object AppBindings {
         override val viewModelProviders get() = viewModelProviders
         override val manualAssistedFactoryProviders get() = manualAssistedFactoryProviders
     }
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideAppDatabase(factory: DatabaseDriveFactory): AppDatabase = getDatabaseBuilder(factory)
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideOrderDao(database: AppDatabase): OrderDao = database.orderDao()
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideProfileDao(database: AppDatabase): ProfileDao = database.profileDao()
 
     @Provides
     @SingleIn(AppScope::class)

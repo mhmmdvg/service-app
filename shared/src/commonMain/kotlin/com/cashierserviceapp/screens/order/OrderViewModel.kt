@@ -2,7 +2,11 @@ package com.cashierserviceapp.screens.order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.cashierserviceapp.domain.models.PageInfo
+import com.cashierserviceapp.domain.models.QueryParams
 import com.cashierserviceapp.domain.repositories.OrderRepository
+import com.cashierserviceapp.utils.PAGE_SIZE
+import com.cashierserviceapp.utils.Paginator
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -15,6 +19,13 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 import kotlin.time.Clock
 
+/**
+ * The in-progress queue, a page at a time.
+ *
+ * This screen owns the queue's cache — its first page replaces what's there. Home only appends,
+ * because two screens both replacing a shared cache would let one truncate pages the other had
+ * loaded, leaving a gap in the middle of this list.
+ */
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
 class OrderViewModel(
@@ -26,48 +37,99 @@ class OrderViewModel(
     val isRefreshing: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
-    private var fetchJob: Job? = null
+    /** Distinct from [isRefreshing]: this one shows a spinner under the list, not above it. */
+    val isLoadingMore: StateFlow<Boolean>
+        field = MutableStateFlow(false)
+
+    /** Lives as long as the screen: the cache keeps emitting long after the first page settles. */
+    private var observeJob: Job? = null
+    private var pageJob: Job? = null
+
+    private val paginator = Paginator<Int, PageInfo?>(
+        initialKey = FIRST_PAGE,
+        onLoadUpdated = { loading ->
+            isLoadingMore.value = loading
+
+            // The very first page is the screen's own loading state, not a footer spinner.
+            if (loading && orderState.value.data.isNullOrEmpty()) {
+                orderState.value = Resource.Loading(orderState.value.data)
+            }
+        },
+        onRequest = { page ->
+            orderRepository.fetchOrders(
+                params = QueryParams(perPage = PAGE_SIZE, page = page),
+                // Only the first page may drop what's cached; the rest add to it.
+                replaceCache = page == FIRST_PAGE,
+            )
+        },
+        getNextKey = { page, _ -> page + 1 },
+        onSuccess = { _, _ ->
+            isRefreshing.value = false
+            // Rows arrive through the cache, so this only settles the state — and it must: an
+            // empty list writes nothing, and would otherwise leave the skeletons up forever.
+            if (orderState.value !is Resource.Success) {
+                orderState.value = Resource.Success(orderState.value.data.orEmpty())
+            }
+        },
+        onError = { throwable ->
+            // Keeps whatever is already on screen, so a failed page doesn't wipe the list.
+            orderState.value = Resource.Error(throwable.message, orderState.value.data)
+            isRefreshing.value = false
+        },
+        // A page info the server didn't send is treated as the end rather than paging forever.
+        endReached = { _, pageInfo -> pageInfo?.hasNext != true },
+    )
 
     init {
-        load()
+        observe()
+        loadNextPage()
+    }
+
+    /** Called as the list nears its end; the paginator drops it if a request is in flight. */
+    fun loadNextPage() {
+        pageJob = viewModelScope.launch { paginator.loadNextItems() }
     }
 
     fun refresh() {
-        if (fetchJob?.isActive == true) return
+        if (isRefreshing.value) return
 
         isRefreshing.value = true
-        load()
+        pageJob?.cancel()
+        paginator.reset()
+        loadNextPage()
     }
 
     fun retry() {
-        if (fetchJob?.isActive == true) return
-
+        pageJob?.cancel()
+        paginator.reset()
         orderState.value = Resource.Loading()
-        load()
+        loadNextPage()
     }
 
-    private fun load() {
-        fetchJob?.cancel()
+    private fun observe() {
+        observeJob?.cancel()
 
-        fetchJob = viewModelScope.launch {
-            // Resolved once per load so every row's "Today"/"Yesterday" is measured against the
-            // same day, rather than each row asking the clock separately.
-            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+        observeJob = viewModelScope.launch {
+            orderRepository.observeOrders().collect { orders ->
+                // Resolved per emission so every row's label is measured against the same day.
+                val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+                val rows = orders.toOrderRows(today)
 
-            orderRepository.getOrders()
-                .fold(
-                    onSuccess = { response ->
-                        orderState.value = Resource.Success(response.toOrderRows(today))
-                    },
-                    onFailure = { exception ->
-                        orderState.value = Resource.Error(exception.message)
-                    }
-                )
+                // An empty cache while the first page is still in flight is not an empty queue.
+                if (rows.isEmpty() && orderState.value is Resource.Loading) return@collect
+
+                orderState.value = Resource.Success(rows)
+            }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        fetchJob?.cancel()
+        observeJob?.cancel()
+        pageJob?.cancel()
+    }
+
+    private companion object {
+        const val FIRST_PAGE = 1
     }
 }
