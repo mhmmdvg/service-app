@@ -58,7 +58,6 @@ fun HistoryScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun HistoryContent(
     state: Resource<List<HistorySection>>,
