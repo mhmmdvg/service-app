@@ -13,8 +13,17 @@ import kotlinx.coroutines.flow.Flow
 interface OrderRepository {
     fun getOrders(params: QueryParams = QueryParams()): Flow<Result<List<Order>>>
 
-    /** Completed orders, newest first. */
-    suspend fun getOrderHistory(): Result<List<Order>>
+    /** Completed orders, newest first — cache first, on the same terms as [getOrders]. */
+    fun getOrderHistory(): Flow<Result<List<Order>>>
+
+    /**
+     * One network round-trip for the history that writes its result to the cache, for
+     * pull-to-refresh.
+     *
+     * A caller already collecting [getOrderHistory] sees the new rows arrive through that flow, so
+     * the returned [Result] is only worth reading for its failure.
+     */
+    suspend fun refreshOrderHistory(): Result<List<Order>>
 
     suspend fun createOrder(request: CreateOrderRequest): Result<CreateOrderResponse>
 

@@ -7,6 +7,10 @@ import com.cashierserviceapp.domain.models.OrderStatus
 /**
  * The cached form of [com.cashierserviceapp.domain.models.Order], field-for-field.
  *
+ * One table serves both order lists: the queue and the history are the same payload from the
+ * server, so [status] — `IN_PROGRESS` or `COMPLETED` for these rows — is what tells them apart. See
+ * [com.cashierserviceapp.data.local.dao.OrderDao] for how each side is read and replaced.
+ *
  * Nothing here is formatted for display: [createdAt] keeps the server's ISO-8601 instant rather than
  * a `timeLabel`, so the cache doesn't go stale overnight or freeze into whichever language happened
  * to be active when the row was written. The screens derive their labels per read — see

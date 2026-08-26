@@ -72,8 +72,9 @@ class AuthRepositoryImpl(
 
         storage.clearSession()
         client.authProvider<BearerAuthProvider>()?.clearToken()
-        // Shared counter device: the next cashier must not open the app onto the last one's queue.
-        orderDao.clear()
+        // Shared counter device: the next cashier must not open the app onto the last one's queue
+        // — nor their history, so this drops both halves of the table rather than one status.
+        orderDao.clearAll()
         taggedLogger.log { "Session cleared" }
     }
 }

@@ -10,6 +10,7 @@ import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -27,22 +28,38 @@ class HistoryViewModel(
     val isRefreshing: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
+    /** Lives as long as the screen: the cache keeps emitting long after the first load settles. */
     private var fetchJob: Job? = null
+    private var refreshJob: Job? = null
 
     init {
         load()
     }
 
+    /**
+     * Refreshes without re-subscribing — [fetchJob] is still collecting, so the new rows reach the
+     * screen through it the moment the response is written to the cache. All this owns is the
+     * spinner and the failure.
+     *
+     * Guarding on [isRefreshing] rather than on [fetchJob], which now never completes.
+     */
     fun refresh() {
-        if (fetchJob?.isActive == true) return
+        if (isRefreshing.value) return
 
         isRefreshing.value = true
-        load()
+        refreshJob = viewModelScope.launch {
+            orderRepository.refreshOrderHistory().onFailure { exception ->
+                historyState.value = Resource.Error(
+                    message = exception.message,
+                    data = historyState.value.data
+                )
+            }
+
+            isRefreshing.value = false
+        }
     }
 
     fun retry() {
-        if (fetchJob?.isActive == true) return
-
         historyState.value = Resource.Loading()
         load()
     }
@@ -53,27 +70,26 @@ class HistoryViewModel(
         fetchJob = viewModelScope.launch {
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            orderRepository.getOrderHistory()
-                .fold(
+            orderRepository.getOrderHistory().collectLatest { result ->
+                result.fold(
                     onSuccess = { orders ->
                         historyState.value = Resource.Success(groupOrdersByDay(orders, today))
                     },
                     onFailure = { exception ->
-                        // Keeps whatever is already on screen, so a failed refresh doesn't wipe
-                        // a list the user was reading.
+                        // Only the refresh failed; whatever the cache emitted still stands.
                         historyState.value = Resource.Error(
                             message = exception.message,
                             data = historyState.value.data
                         )
                     }
                 )
-
-            isRefreshing.value = false
+            }
         }
     }
 
     override fun onCleared() {
         super.onCleared()
         fetchJob?.cancel()
+        refreshJob?.cancel()
     }
 }

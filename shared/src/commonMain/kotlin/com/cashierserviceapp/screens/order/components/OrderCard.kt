@@ -80,8 +80,7 @@ fun OrderCard(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
-            OrderStatusChip(status)
-
+//            OrderStatusChip(status)
             if (time.isNotEmpty()) {
                 Text(
                     text = time,
