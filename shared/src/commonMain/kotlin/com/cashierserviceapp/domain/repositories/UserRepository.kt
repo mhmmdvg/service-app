@@ -4,9 +4,11 @@ import com.cashierserviceapp.domain.models.Profile
 import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
-    /** The signed-in user as cached — null until `GET /me` has answered at least once. */
-    fun observeProfile(): Flow<Profile?>
-
-    /** `GET /me`, written through to the cache on the way past. */
-    suspend fun getProfile(): Result<Profile>
+    /**
+     * The signed-in user: whatever was last cached, then `GET /me`, which is cached on the way past.
+     *
+     * Emits once or twice — the cached read is skipped when nothing has been stored yet, so a first
+     * run straight after signing in emits only the network's answer.
+     */
+    fun getProfile(): Flow<Result<Profile>>
 }

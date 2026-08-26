@@ -4,7 +4,6 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.cashierserviceapp.data.local.entities.ProfileEntity
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ProfileDao {
@@ -13,7 +12,7 @@ interface ProfileDao {
 
     /** `LIMIT 1` rather than a lookup by id — there is only ever the one row. */
     @Query("SELECT * FROM profile LIMIT 1")
-    fun getProfile(): Flow<ProfileEntity?>
+    suspend fun getProfile(): ProfileEntity?
 
     @Query("DELETE FROM profile")
     suspend fun clear()

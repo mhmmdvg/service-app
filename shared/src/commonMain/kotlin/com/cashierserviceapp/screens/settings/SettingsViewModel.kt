@@ -49,41 +49,29 @@ class SettingsViewModel(
     val isSigningOut: StateFlow<Boolean>
         field = MutableStateFlow(false)
 
-    private var observeJob: Job? = null
     private var profileJob: Job? = null
     private var signOutJob: Job? = null
 
     init {
-        observe()
         loadProfile()
     }
 
-    /**
-     * Refreshes `/me`. The response is written to the cache, so the new card arrives through
-     * [observe] — all this owns is the failure.
-     */
     fun loadProfile() {
         profileJob?.cancel()
 
         profileJob = viewModelScope.launch {
-            userRepository.getProfile().onFailure { exception ->
-                // Keeps the cached or session-derived card visible; the error only surfaces when
-                // there was nothing to show in the first place.
-                profileState.value = Resource.Error(
-                    message = exception.message,
-                    data = profileState.value.data
+            userRepository.getProfile().collect { result ->
+                result.fold(
+                    onSuccess = { profile -> profileState.value = Resource.Success(profile) },
+                    onFailure = { exception ->
+                        // Keeps whichever card is showing — session seed or cache; the error only
+                        // surfaces when there was nothing to show in the first place.
+                        profileState.value = Resource.Error(
+                            message = exception.message,
+                            data = profileState.value.data
+                        )
+                    }
                 )
-            }
-        }
-    }
-
-    /** An empty cache leaves the session-derived seed alone rather than blanking the card. */
-    private fun observe() {
-        observeJob?.cancel()
-
-        observeJob = viewModelScope.launch {
-            userRepository.observeProfile().collect { profile ->
-                if (profile != null) profileState.value = Resource.Success(profile)
             }
         }
     }
@@ -113,7 +101,6 @@ class SettingsViewModel(
 
     override fun onCleared() {
         super.onCleared()
-        observeJob?.cancel()
         profileJob?.cancel()
         signOutJob?.cancel()
     }
