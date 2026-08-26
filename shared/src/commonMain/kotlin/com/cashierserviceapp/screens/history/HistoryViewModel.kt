@@ -22,9 +22,8 @@ import kotlin.time.Clock
 /**
  * Completed orders, a page at a time, grouped by the day they were taken in.
  *
- * The grouping runs over every page loaded so far rather than per page, so a day split across a
- * page boundary stays one section with one correct total — which is why the sections are rebuilt
- * from the cache on each emission instead of being appended to.
+ * Sections are rebuilt from the whole cache on each emission rather than appended to, so a day
+ * split across a page boundary stays one section with one correct total.
  */
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
@@ -64,9 +63,8 @@ class HistoryViewModel(
         getNextKey = { page, _ -> page + 1 },
         onSuccess = { _, _ ->
             isRefreshing.value = false
-            // The rows arrive through the cache, so this only has to settle the state itself —
-            // and it must, because an empty list writes nothing and would otherwise leave the
-            // screen on its skeletons forever. Nothing to show is still an answer.
+            // Rows arrive through the cache, so this only settles the state — and it must: an
+            // empty list writes nothing, and would otherwise leave the skeletons up forever.
             if (historyState.value !is Resource.Success) {
                 historyState.value = Resource.Success(historyState.value.data.orEmpty())
             }

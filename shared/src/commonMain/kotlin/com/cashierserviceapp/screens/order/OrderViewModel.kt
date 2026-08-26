@@ -22,10 +22,9 @@ import kotlin.time.Clock
 /**
  * The in-progress queue, a page at a time.
  *
- * This screen owns the queue's cache: its first page replaces what's there, so a refresh drops
- * orders the server no longer returns. Home deliberately only appends — see [com.cashierserviceapp
- * .screens.home.HomeViewModel] — because two screens both replacing a shared cache would let one
- * truncate pages the other had already loaded, leaving a gap in the middle of this list.
+ * This screen owns the queue's cache — its first page replaces what's there. Home only appends,
+ * because two screens both replacing a shared cache would let one truncate pages the other had
+ * loaded, leaving a gap in the middle of this list.
  */
 @ContributesIntoMap(AppScope::class)
 @ViewModelKey
@@ -66,9 +65,8 @@ class OrderViewModel(
         getNextKey = { page, _ -> page + 1 },
         onSuccess = { _, _ ->
             isRefreshing.value = false
-            // The rows arrive through the cache, so this only has to settle the state itself —
-            // and it must, because an empty list writes nothing and would otherwise leave the
-            // screen on its skeletons forever. Nothing to show is still an answer.
+            // Rows arrive through the cache, so this only settles the state — and it must: an
+            // empty list writes nothing, and would otherwise leave the skeletons up forever.
             if (orderState.value !is Resource.Success) {
                 orderState.value = Resource.Success(orderState.value.data.orEmpty())
             }
@@ -87,7 +85,7 @@ class OrderViewModel(
         loadNextPage()
     }
 
-    /** Called as the list nears its end; the paginator drops the call if one is already in flight. */
+    /** Called as the list nears its end; the paginator drops it if a request is in flight. */
     fun loadNextPage() {
         pageJob = viewModelScope.launch { paginator.loadNextItems() }
     }

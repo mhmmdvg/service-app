@@ -4,17 +4,16 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 /**
- * The `page_info` block every paginated list endpoint returns alongside its rows.
+ * The `page_info` block the paginated list endpoints return alongside their rows.
  *
- * [totalPages] and [hasNext] are both computed server-side from [total] and [perPage], so a client
- * never has to work out where the end is — see `PageInfo` in the Vapor project.
+ * [totalPages] and [hasNext] are computed server-side, so nothing here has to work out the end.
  */
 @Serializable
 data class PageInfo(
     val page: Int,
     @SerialName("per_page")
     val perPage: Int,
-    /** Rows matching the query in full, not just on this page — what a list's counter should show. */
+    /** Rows matching in full, not just this page — what a list's counter should show. */
     val total: Int,
     @SerialName("total_pages")
     val totalPages: Int,

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.cashierserviceapp.domain.models.QueryParams
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.screens.home.AttentionRow
-import com.cashierserviceapp.screens.home.toAttentionRows
+import com.cashierserviceapp.screens.home.toAttentionRow
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -90,9 +90,9 @@ class SearchViewModel(
 
             orderRepository.searchOrders(params).fold(
                 onSuccess = { orders ->
-                    // Kept in the server's order — newest first — rather than re-sorted by wait
-                    // time. Results span finished work too, where "waiting longest" means nothing.
-                    val rows = orders.toAttentionRows(today)
+                    // Kept newest first as the server sent them, not re-sorted by wait time:
+                    // results span finished work, where "waiting longest" means nothing.
+                    val rows = orders.map { it.toAttentionRow(today) }
                     ordersState.value = Resource.Success(rows)
                     results.value = rows
                 },

@@ -51,7 +51,7 @@ data class OrderDetailItemUiModel(
     /** The raw fee, kept alongside the label so the status sheet can put it back in its field. */
     val serviceFee: Long?,
     val serviceFeeLabel: String?,
-    /** The raw cost behind [totalLabel], so an optimistic edit can re-derive the order's total. */
+    /** The raw cost behind [totalLabel]; the status sheet re-derives the total from it. */
     val finalCost: Long?,
     val totalLabel: String?,
     val parts: List<OrderPartUiModel>,
@@ -77,46 +77,6 @@ suspend fun OrderDetail.toUiModel(): OrderDetailUiModel {
         cashierName = cashierName.takeIf { it.isNotBlank() },
         createdLabel = moment?.let { "${it.date.formatDate()}, ${it.formatTime()}" },
         items = items.mapIndexed { index, item -> item.toUiModel(index) },
-    )
-}
-
-/**
- * The edit the server is about to make, applied locally so the screen answers the tap immediately
- * instead of after two round trips.
- *
- * Only what can be predicted exactly is predicted. The status is whatever was picked, and the cost
- * follows `recalculateFinalCost` on the server — the fee plus every part's subtotal — which is why
- * both are kept as raw numbers on the row. The order's own total and [OrderDetailUiModel.status]
- * fall out of the items, so they correct themselves here with no second copy of the rule.
- *
- * The refetch that follows still wins; this only decides what is on screen until it lands.
- */
-fun OrderDetailUiModel.withItemStatus(
-    itemId: String,
-    status: OrderStatus,
-    serviceFee: Long?,
-): OrderDetailUiModel = copy(
-    items = items.map { item ->
-        if (item.id == itemId) item.withStatus(status, serviceFee) else item
-    }
-)
-
-private fun OrderDetailItemUiModel.withStatus(
-    status: OrderStatus,
-    serviceFee: Long?,
-): OrderDetailItemUiModel {
-    // A null fee means the sheet said nothing about the price, so whatever was agreed still stands.
-    val fee = serviceFee ?: this.serviceFee
-    // The server recalculates on every PATCH, so an unpriced device becomes Rp 0 rather than
-    // staying open — matching `(serviceFee ?? 0) + partsTotal`.
-    val cost = (fee ?: 0L) + parts.sumOf { it.subtotal }
-
-    return copy(
-        status = status,
-        serviceFee = fee,
-        serviceFeeLabel = fee?.let { formatRupiah(it) },
-        finalCost = cost,
-        totalLabel = formatRupiah(cost),
     )
 }
 

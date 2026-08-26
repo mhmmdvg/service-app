@@ -31,10 +31,9 @@ class OrderRepositoryImpl(
     private val orderDao: OrderDao,
 ) : OrderRepository {
     /**
-     * The queue as cached. Ordering and contents are the DAO's business; this only maps.
+     * The queue as cached — ordering and contents are the DAO's business, this only maps.
      *
-     * Emitted even when empty, unlike the old cache-first flow: with pagination the screen needs to
-     * be told "there is nothing here" as readily as it is told what there is, and the paginator now
+     * Emits when empty too: the screen has to be told there is nothing here, and the paginator now
      * owns the loading state that used to depend on silence.
      */
     override fun observeOrders(): Flow<List<Order>> =
@@ -60,11 +59,8 @@ class OrderRepositoryImpl(
     ) { api.getOrderHistory(params) }
 
     /**
-     * One page into one half of the shared table.
-     *
-     * Replacing and appending are the same call because the difference is only ever *when* the old
-     * rows go: a first page is a new truth and supersedes what was there, a later page adds to it.
-     * Both write through [OrderStatus], so neither list can disturb the other.
+     * One page into one half of the shared table. A first page supersedes what was there, a later
+     * page adds to it; both are scoped by [status], so neither list disturbs the other.
      */
     private suspend fun fetchPage(
         status: OrderStatus,
@@ -95,15 +91,9 @@ class OrderRepositoryImpl(
     }
 
     /**
-     * One order in full — and the moment the cached summary of it can be corrected.
-     *
-     * This is the only authoritative read of a single order the app makes, so it is where a status
-     * change becomes visible to the lists. Finishing the last device moves the cached row from the
-     * queue half of the table to the history half, and both screens redraw off their own live
-     * query — no list refresh, no network call of their own.
-     *
-     * Write-only-if-present, so a detail opened from search can never inject an order into a list
-     * that doesn't own it.
+     * One order in full — and the only authoritative read of a single order, so it is where a
+     * status change reaches the lists. Finishing the last device moves the cached row from the
+     * queue half to the history half, and both screens redraw off their own live query.
      */
     override suspend fun getOrderDetail(orderId: String): Result<OrderDetail> = apiCatching {
         val response = api.getOrderDetail(orderId) ?: unreachable()
@@ -147,11 +137,9 @@ class OrderRepositoryImpl(
 }
 
 /**
- * The status the list endpoints would report for this order, derived the same way the server does
- * it: finished only once it has devices and every one of them is done.
- *
- * An order with no devices counts as in progress — there is nothing to have finished, and
- * `orderIDs(for:)` on the server leaves it out of the history for the same reason.
+ * The status the list endpoints would report, derived as the server does it: finished only once it
+ * has devices and all of them are done. No devices counts as in progress — nothing to have
+ * finished, which is why the server leaves those out of the history too.
  */
 private val OrderDetail.summaryStatus: OrderStatus
     get() = if (items.isNotEmpty() && items.all { it.status == OrderStatus.COMPLETED }) {

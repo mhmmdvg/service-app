@@ -9,16 +9,12 @@ package com.cashierserviceapp.utils
 const val PAGE_SIZE = 10
 
 /**
- * Drives "load the next page" for a list, and nothing else.
+ * Owns only the position: which key comes next, whether a request is in flight, whether the end is
+ * reached. What arrives goes to [onSuccess] to store wherever the list lives — here the Room cache
+ * the screens observe — so this never holds the rows itself.
  *
- * It owns only the position — which key comes next, whether a request is in flight, whether the
- * end has been reached. What arrives is handed to [onSuccess] to put wherever the list actually
- * lives; in this app that's the Room cache, which the screens observe. So the paginator never
- * holds the rows, and a page written to the cache reaches the screen the same way every other
- * write does.
- *
- * Re-entrant calls are dropped rather than queued: a fling can fire the load trigger several times
- * before the first response lands, and each one would otherwise fetch the same page again.
+ * Re-entrant calls are dropped, not queued: a fling fires the load trigger repeatedly, and each
+ * would otherwise refetch the same page.
  */
 class Paginator<Key, Item>(
     private val initialKey: Key,
@@ -56,7 +52,7 @@ class Paginator<Key, Item>(
         isEndReached = endReached(currentKey, item)
     }
 
-    /** Back to the first page — for a pull-to-refresh, or a retry after a failed first load. */
+    /** Back to the first page — a pull-to-refresh, or a retry after a failed first load. */
     fun reset() {
         currentKey = initialKey
         isEndReached = false

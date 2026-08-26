@@ -13,12 +13,8 @@ import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 
-/**
- * The spinner that sits under a paginated list while its next page is in flight.
- *
- * Deliberately small and quiet: the rows above it stay readable and scrollable, so this reads as
- * "more is coming", not as a screen that has stopped.
- */
+/** The spinner under a paginated list while its next page loads. Small on purpose — the rows above
+ * stay readable, so it reads as "more is coming" rather than "the screen stopped". */
 @Composable
 fun ListFooterLoader(modifier: Modifier = Modifier) {
     Box(

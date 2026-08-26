@@ -13,9 +13,8 @@ const val ATTENTION_PREVIEW_COUNT = 8
 /**
  * One order as a list row, with the waiting time already worked out.
  *
- * Shared with the search screen on purpose: a customer should look identical whether they were
- * scrolled to or searched for. Home only ever builds these from the in-progress queue, but search
- * runs against `/orders`, which mixes in finished work — hence [status].
+ * Shared with the search screen so a customer looks identical whether scrolled to or searched for.
+ * Search runs against `/orders`, which mixes in finished work — hence [status].
  *
  * @param daysWaiting whole days since the order was taken in, or null if the timestamp didn't
  *   parse. Drives both the sort order and the badge.
@@ -46,11 +45,8 @@ data class HomeSnapshot(
     /** Longest wait first — the queue as a cashier would work it. */
     val attention: List<AttentionRow>,
     /**
-     * How many orders are waiting in total, from the server's `page_info`.
-     *
-     * Not `attention.size`: that only counts the pages loaded so far, and the counter on this
-     * screen is meant to say how much work is outstanding, not how much has been fetched. Null
-     * until the first page answers, when the loaded count is the best available guess.
+     * How many orders are waiting in total, from the server's `page_info` — not `attention.size`,
+     * which only counts the pages loaded. Null until the first page answers.
      */
     val totalCount: Int? = null,
     /**
@@ -72,14 +68,12 @@ fun buildHomeSnapshot(
     totalCount = totalCount,
 )
 
-/** Rows in the order they were given, for callers whose server already sorted them. */
-fun List<Order>.toAttentionRows(today: LocalDate): List<AttentionRow> = map { it.toAttentionRow(today) }
-
-fun List<Order>.toRows(today: LocalDate): List<AttentionRow> = toAttentionRows(today)
+fun List<Order>.toRows(today: LocalDate): List<AttentionRow> = map { it.toAttentionRow(today) }
     // Longest wait first; anything undated sorts to the end rather than jumping the queue.
     .sortedByDescending { it.daysWaiting ?: -1 }
 
-private fun Order.toAttentionRow(today: LocalDate): AttentionRow {
+/** Search maps with this directly, to keep the server's ordering instead of [toRows]' sort. */
+fun Order.toAttentionRow(today: LocalDate): AttentionRow {
     val createdDate = parseTimestamp(createdAt)?.toLocalDateTime()?.date
 
     return AttentionRow(

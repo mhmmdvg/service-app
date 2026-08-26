@@ -94,13 +94,10 @@ class HomeViewModel(
     }
 
     /**
-     * Tops the cache up rather than replacing it.
-     *
-     * Home shows a preview of the queue; the Order screen owns it, and pages through it. If both
-     * replaced the cache with their first page, opening Home would cut the Order list back to one
-     * page while its paginator went on asking for page 5 — a gap in the middle of that list. So
-     * this only adds. Orders finished on this device still leave the queue at once, because the
-     * detail screen writes their new status straight to the row.
+     * Tops the cache up rather than replacing it. The Order screen owns the queue and pages through
+     * it; if Home replaced the cache too, it would cut that list back to one page while its
+     * paginator asked for page 5 — a gap in the middle. Orders finished on this device still leave
+     * the queue at once, because the detail screen writes their status straight to the row.
      */
     private fun fetchFirstPage() {
         fetchJob?.cancel()
@@ -112,9 +109,8 @@ class HomeViewModel(
             ).fold(
                 onSuccess = { pageInfo ->
                     totalCount = pageInfo?.total
-                    // The rows arrive through the cache; this republishes with the new total, and
-                    // settles the state at all — an empty queue writes nothing, and would
-                    // otherwise leave the screen on its skeletons forever.
+                    // Republishes with the new total, and settles the state at all — an empty queue
+                    // writes nothing, and would otherwise leave the skeletons up forever.
                     val snapshot = homeState.value.data ?: HomeSnapshot(attention = emptyList())
                     homeState.value = Resource.Success(snapshot.copy(totalCount = totalCount))
                 },

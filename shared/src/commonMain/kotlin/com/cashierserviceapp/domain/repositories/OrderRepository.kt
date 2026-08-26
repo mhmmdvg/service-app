@@ -12,12 +12,11 @@ import com.cashierserviceapp.domain.models.QueryParams
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Reading a list and filling it are separate here, because pagination makes them separate concerns.
+ * Reading a list and filling it are separate concerns once it pages.
  *
- * `observe*` is the list: a live query over the cache that emits every page written so far, and
- * again on any later edit. `fetch*` is one page, written into that cache — what it returns is the
- * [PageInfo] a paginator needs to know whether to ask for more, not the rows themselves. Screens
- * therefore render from one source no matter how many pages have arrived.
+ * `observe*` is the list — a live query over the cache. `fetch*` is one page written into it,
+ * returning the [PageInfo] a paginator needs rather than the rows, so a screen renders from one
+ * source however many pages have arrived.
  */
 interface OrderRepository {
     /** The in-progress queue, as cached — every page loaded so far, newest first. */
@@ -29,9 +28,8 @@ interface OrderRepository {
     /**
      * Fetches one page of the queue into the cache.
      *
-     * @param replaceCache true drops the cached queue before writing, so the first page of a fresh
-     *   load or a pull-to-refresh cannot leave rows behind that the server has since dropped. Pass
-     *   false to add to what's cached — see [observeOrders]' note about who owns the queue.
+     * @param replaceCache drops the cached queue first, so a first page can't strand rows the
+     *   server has since dropped. False adds to what's already there.
      */
     suspend fun fetchOrders(
         params: QueryParams = QueryParams(),
@@ -47,9 +45,8 @@ interface OrderRepository {
     /**
      * Every order, finished or not, matching [QueryParams.search] — newest first.
      *
-     * Never cached: it's a filtered slice of the whole archive, not a list any screen owns, and it
-     * is answered by the server rather than by matching rows locally, so it also finds customers by
-     * phone number.
+     * Never cached: a filtered slice of the archive, owned by no screen. The server does the
+     * matching, so it finds customers by phone as well as by name and code.
      */
     suspend fun searchOrders(params: QueryParams): Result<List<Order>>
 

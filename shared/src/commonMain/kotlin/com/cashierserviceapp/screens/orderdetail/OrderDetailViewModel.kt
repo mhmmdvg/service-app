@@ -6,6 +6,7 @@ import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.utils.Resource
+import com.cashierserviceapp.utils.formatRupiah
 import dev.zacsweers.metro.*
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactory
 import dev.zacsweers.metrox.viewmodel.ManualViewModelAssistedFactoryKey
@@ -51,14 +52,9 @@ class OrderDetailViewModel(
      * [serviceFee] is null whenever the sheet had nothing new to say about the price — the request
      * then omits the field, so a fee that was already agreed survives a plain status change.
      *
-     * The change lands on screen before the request does. Marking the last device completed is the
-     * moment that matters: it finishes the order, and waiting out a PATCH and a refetch to see the
-     * header change makes a tap that already worked feel like it didn't. The optimistic copy is
-     * only ever what the server is about to compute anyway — see
-     * [com.cashierserviceapp.screens.orderdetail.withItemStatus].
-     *
-     * The refetch still happens and still wins: the server is the one that appends the status
-     * history and settles the cost. If the request fails, the snapshot goes back untouched.
+     * The change lands on screen before the request does — marking the last device completed
+     * finishes the order, and waiting out a PATCH and a refetch to see that makes a tap which
+     * already worked feel like it didn't. The refetch still wins; a failure puts the snapshot back.
      */
     fun setItemStatus(itemId: String, status: OrderStatus, serviceFee: Long? = null) {
         if (updateJob?.isActive == true) return
@@ -66,8 +62,25 @@ class OrderDetailViewModel(
         // Exactly what is on screen now — the thing to restore if the write is refused.
         val snapshot = detailState.value.data
 
-        snapshot?.let {
-            detailState.value = Resource.Success(it.withItemStatus(itemId, status, serviceFee))
+        snapshot?.let { detail ->
+            val patched = detail.items.map { item ->
+                if (item.id != itemId) return@map item
+
+                // A null fee means the sheet said nothing about the price, so what was agreed
+                // stands. The cost follows the server's recalculateFinalCost: fee plus every part.
+                val fee = serviceFee ?: item.serviceFee
+                val cost = (fee ?: 0L) + item.parts.sumOf { it.subtotal }
+
+                item.copy(
+                    status = status,
+                    serviceFee = fee,
+                    serviceFeeLabel = fee?.let { formatRupiah(it) },
+                    finalCost = cost,
+                    totalLabel = formatRupiah(cost),
+                )
+            }
+
+            detailState.value = Resource.Success(detail.copy(items = patched))
         }
 
         updateJob = viewModelScope.launch {
