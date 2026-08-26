@@ -5,8 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.cashierserviceapp.domain.models.QueryParams
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.screens.home.AttentionRow
-import com.cashierserviceapp.screens.home.search
-import com.cashierserviceapp.screens.home.toRows
+import com.cashierserviceapp.screens.home.toAttentionRows
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
@@ -24,11 +24,12 @@ import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 /**
- * Searching the in-progress list.
+ * Searching every order, in progress or finished, through `GET /orders`.
  *
- * The whole list is pulled once and filtered locally — the server has no search endpoint, and the
- * in-progress set is small by nature (it's the shop's current workload), so a round trip per
- * keystroke would be slower and worse.
+ * The server does the matching, not the client. It reaches the whole archive rather than whatever
+ * the queue happens to hold, and it matches on customer phone as well as name and order code —
+ * neither of which a local filter over the in-progress list could do. The debounce is what keeps
+ * that affordable: one request per pause in typing, not one per keystroke.
  */
 @OptIn(FlowPreview::class)
 @ContributesIntoMap(AppScope::class)
@@ -51,44 +52,54 @@ class SearchViewModel(
         viewModelScope.launch {
             query
                 .debounce(400.milliseconds)
+                .map { it.trim() }
                 .distinctUntilChanged()
-                .collect { query ->
-                    onSearch(QueryParams(query))
+                .collect { term ->
+                    // Blank is the screen's resting state, not a query for everything — asking the
+                    // server would page in the entire archive to sit behind the hint text.
+                    if (term.isEmpty()) clear() else onSearch(QueryParams(term))
                 }
         }
     }
 
     fun onQueryChange(value: String) {
         query.value = value
-        results.value = ordersState.value.data.orEmpty().search(value)
     }
 
-//    fun retry() {
-//        if (fetchJob?.isActive == true) return
-//
-//        ordersState.value = Resource.Loading()
-//        load()
-//    }
+    fun retry() {
+        val term = query.value.trim()
+        if (term.isEmpty()) return
+
+        onSearch(QueryParams(term))
+    }
+
+    private fun clear() {
+        fetchJob?.cancel()
+        ordersState.value = Resource.Success(emptyList())
+        results.value = emptyList()
+    }
 
     private fun onSearch(params: QueryParams) {
         fetchJob?.cancel()
 
+        // Back to skeletons: the rows on screen answer the previous term, not this one.
+        ordersState.value = Resource.Loading()
+
         fetchJob = viewModelScope.launch {
             val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
 
-            orderRepository.getOrders(params).collect { result ->
-                result.fold(
-                    onSuccess = { orders ->
-                        val rows = orders.toRows(today)
-                        ordersState.value = Resource.Success(rows)
-                        // Anything typed while the list was still loading applies now.
-                        results.value = rows.search(query.value)
-                    },
-                    onFailure = { exception ->
-                        ordersState.value = Resource.Error(exception.message)
-                    }
-                )
-            }
+            orderRepository.searchOrders(params).fold(
+                onSuccess = { orders ->
+                    // Kept in the server's order — newest first — rather than re-sorted by wait
+                    // time. Results span finished work too, where "waiting longest" means nothing.
+                    val rows = orders.toAttentionRows(today)
+                    ordersState.value = Resource.Success(rows)
+                    results.value = rows
+                },
+                onFailure = { exception ->
+                    ordersState.value = Resource.Error(exception.message)
+                }
+            )
         }
     }
 

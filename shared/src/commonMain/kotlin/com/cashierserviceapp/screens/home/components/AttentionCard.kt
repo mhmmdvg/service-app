@@ -17,9 +17,11 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.localization.deviceCountLabel
 import com.cashierserviceapp.localization.waitLabel
 import com.cashierserviceapp.screens.home.AttentionRow
+import com.cashierserviceapp.screens.order.components.OrderStatusChip
 import com.cashierserviceapp.ui.components.Avatar
 import com.cashierserviceapp.ui.components.Chip
 import com.cashierserviceapp.ui.components.Text
@@ -28,11 +30,14 @@ import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 
 /**
- * An in-progress order in the home queue.
+ * An order in the home queue, or in a search result.
  *
  * Same avatar, tile and radius as the order and history rows. What differs is the right-hand side:
  * history shows what an order came to, this shows how long it has been sitting, because that's the
  * thing that decides what gets picked up next.
+ *
+ * Search reaches finished orders too, and a wait time on one of those would be nonsense — it
+ * stopped waiting when it was collected. Those rows show the status instead.
  */
 @Composable
 fun AttentionCard(
@@ -76,10 +81,12 @@ fun AttentionCard(
         Spacer(Modifier.width(8.dp))
 
         val wait = waitLabel(row.daysWaiting)
-        if (row.isOverdue) {
-            Chip(label = wait, color = CashierServiceTheme.colors.orangeText)
-        } else {
-            Text(
+        when {
+            row.isCompleted -> OrderStatusChip(OrderStatus.COMPLETED)
+
+            row.isOverdue -> Chip(label = wait, color = CashierServiceTheme.colors.orangeText)
+
+            else -> Text(
                 text = wait,
                 style = CashierServiceTheme.typography.text2.copy(textAlign = TextAlign.End),
                 color = CashierServiceTheme.colors.secondaryText,
@@ -110,6 +117,17 @@ private fun AttentionCardPreview() = PreviewHelper {
             itemsCount = 2,
             totalLabel = "Rp 0",
             daysWaiting = 7
+        )
+    )
+    AttentionCard(
+        row = AttentionRow(
+            id = "3",
+            customerName = "Budi Santoso",
+            orderCode = "SV-1786641500",
+            itemsCount = 3,
+            totalLabel = "Rp 1.250.000",
+            daysWaiting = 12,
+            status = OrderStatus.COMPLETED
         )
     )
 }

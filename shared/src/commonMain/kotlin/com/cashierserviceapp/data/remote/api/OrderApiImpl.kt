@@ -45,6 +45,22 @@ class OrderApiImpl(
         }.body()
     }
 
+    override suspend fun searchOrders(params: QueryParams): HttpResponse<List<Order>>? =
+        safeApiCall(taggedLogger) {
+            client.get {
+                apiUrl("orders")
+                params.search?.let {
+                    parameter("search", it)
+                }
+                params.perPage?.let {
+                    parameter("per_page", it)
+                }
+                params.page?.let {
+                    parameter("page", it)
+                }
+            }.body()
+        }
+
     override suspend fun getOrderHistory(): HttpResponse<List<Order>>? = safeApiCall(taggedLogger) {
         client.get { apiUrl("orders/history") }.body()
     }

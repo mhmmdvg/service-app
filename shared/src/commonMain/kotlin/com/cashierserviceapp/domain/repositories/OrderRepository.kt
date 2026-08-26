@@ -13,6 +13,15 @@ import kotlinx.coroutines.flow.Flow
 interface OrderRepository {
     fun getOrders(params: QueryParams = QueryParams()): Flow<Result<List<Order>>>
 
+    /**
+     * Every order, finished or not, matching [QueryParams.search] — newest first.
+     *
+     * Never cached: it's a filtered slice of the whole archive, not a list any screen owns, and it
+     * is answered by the server rather than by matching rows locally, so it also finds customers by
+     * phone number.
+     */
+    suspend fun searchOrders(params: QueryParams): Result<List<Order>>
+
     /** Completed orders, newest first — cache first, on the same terms as [getOrders]. */
     fun getOrderHistory(): Flow<Result<List<Order>>>
 

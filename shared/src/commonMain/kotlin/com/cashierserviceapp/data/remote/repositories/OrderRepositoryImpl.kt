@@ -42,11 +42,19 @@ class OrderRepositoryImpl(
         // tells the screen to stop waiting.
         val refresh = flow { emit(refreshOrders(params)) }
 
-        // A search or a later page is a subset of the queue, not the queue — answering one from
-        // the cache would hand the search screen every order it has ever seen.
+        // A later page is a subset of the queue, not the queue, so it can neither be answered
+        // from the cache nor replace it. Searching has its own endpoint — see [searchOrders].
         if (!params.isWholeQueue) return refresh
 
         return merge(cached(OrderStatus.IN_PROGRESS), refresh)
+    }
+
+    override suspend fun searchOrders(params: QueryParams): Result<List<Order>> = apiCatching {
+        val response = api.searchOrders(params) ?: unreachable()
+
+        // No cache write: these rows span both halves of the table and are a filtered slice of
+        // neither, so they'd corrupt whichever one they were written to.
+        response.data ?: throw Exception(response.message)
     }
 
     /** The same arrangement as [getOrders], reading the completed half of the same table. */
