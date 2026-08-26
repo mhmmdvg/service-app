@@ -4,7 +4,9 @@ import com.cashierserviceapp.domain.models.CreateOrderRequest
 import com.cashierserviceapp.domain.models.CreateOrderResponse
 import com.cashierserviceapp.domain.models.Order
 import com.cashierserviceapp.domain.models.OrderDetail
+import com.cashierserviceapp.domain.models.HttpResponse
 import com.cashierserviceapp.domain.models.OrderStatus
+import com.cashierserviceapp.domain.models.PageInfo
 import com.cashierserviceapp.domain.models.UpdatedOrderItem
 import com.cashierserviceapp.domain.models.UpdateOrderItemRequest
 import com.cashierserviceapp.domain.models.OrderTracking
@@ -20,10 +22,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.SingleIn
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.merge
 
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
@@ -32,21 +31,59 @@ class OrderRepositoryImpl(
     private val orderDao: OrderDao,
 ) : OrderRepository {
     /**
-     * Cache first, network second — for the unfiltered queue.
+     * The queue as cached. Ordering and contents are the DAO's business; this only maps.
      *
-     * Two producers, merged: the cache re-emits on every write, the refresh emits once. Cached rows
-     * therefore reach the screen without waiting for the network, and again once it has answered.
+     * Emitted even when empty, unlike the old cache-first flow: with pagination the screen needs to
+     * be told "there is nothing here" as readily as it is told what there is, and the paginator now
+     * owns the loading state that used to depend on silence.
      */
-    override fun getOrders(params: QueryParams): Flow<Result<List<Order>>> {
-        // Always emitted, success included: on a genuinely empty queue this is the only thing that
-        // tells the screen to stop waiting.
-        val refresh = flow { emit(refreshOrders(params)) }
+    override fun observeOrders(): Flow<List<Order>> =
+        orderDao.getOrders(OrderStatus.IN_PROGRESS).map { it.toDomain() }
 
-        // A later page is a subset of the queue, not the queue, so it can neither be answered
-        // from the cache nor replace it. Searching has its own endpoint — see [searchOrders].
-        if (!params.isWholeQueue) return refresh
+    override fun observeOrderHistory(): Flow<List<Order>> =
+        orderDao.getOrders(OrderStatus.COMPLETED).map { it.toDomain() }
 
-        return merge(cached(OrderStatus.IN_PROGRESS), refresh)
+    override suspend fun fetchOrders(
+        params: QueryParams,
+        replaceCache: Boolean,
+    ): Result<PageInfo?> = fetchPage(
+        status = OrderStatus.IN_PROGRESS,
+        replaceCache = replaceCache,
+    ) { api.getOrders(params) }
+
+    override suspend fun fetchOrderHistory(
+        params: QueryParams,
+        replaceCache: Boolean,
+    ): Result<PageInfo?> = fetchPage(
+        status = OrderStatus.COMPLETED,
+        replaceCache = replaceCache,
+    ) { api.getOrderHistory(params) }
+
+    /**
+     * One page into one half of the shared table.
+     *
+     * Replacing and appending are the same call because the difference is only ever *when* the old
+     * rows go: a first page is a new truth and supersedes what was there, a later page adds to it.
+     * Both write through [OrderStatus], so neither list can disturb the other.
+     */
+    private suspend fun fetchPage(
+        status: OrderStatus,
+        replaceCache: Boolean,
+        request: suspend () -> HttpResponse<List<Order>>?,
+    ): Result<PageInfo?> = apiCatching {
+        val response = request() ?: unreachable()
+
+        // An empty page is a perfectly good success, so this only trips when the server actually
+        // refused — in which case its own message is the useful one.
+        val orders = response.data ?: throw Exception(response.message)
+
+        if (replaceCache) {
+            orderDao.replaceAll(status, orders.toEntities())
+        } else {
+            orderDao.upsertOrders(orders.toEntities())
+        }
+
+        response.pageInfo
     }
 
     override suspend fun searchOrders(params: QueryParams): Result<List<Order>> = apiCatching {
@@ -55,45 +92,6 @@ class OrderRepositoryImpl(
         // No cache write: these rows span both halves of the table and are a filtered slice of
         // neither, so they'd corrupt whichever one they were written to.
         response.data ?: throw Exception(response.message)
-    }
-
-    /** The same arrangement as [getOrders], reading the completed half of the same table. */
-    override fun getOrderHistory(): Flow<Result<List<Order>>> =
-        merge(cached(OrderStatus.COMPLETED), flow { emit(refreshOrderHistory()) })
-
-    /**
-     * One half of the shared `orders` table, as a live query.
-     *
-     * An empty cache emits nothing, so the screen stays on its initial loading state instead of
-     * flashing an empty list the refresh is about to fill.
-     */
-    private fun cached(status: OrderStatus): Flow<Result<List<Order>>> =
-        orderDao.getOrders(status)
-            .filter { it.isNotEmpty() }
-            .map { Result.success(it.toDomain()) }
-
-    private suspend fun refreshOrders(params: QueryParams): Result<List<Order>> = apiCatching {
-        val response = api.getOrders(params) ?: unreachable()
-        val orders = response.data ?: throw Exception(response.message)
-
-        // Same reason as above: only a complete set may replace its half of the cache.
-        if (params.isWholeQueue) orderDao.replaceAll(OrderStatus.IN_PROGRESS, orders.toEntities())
-
-        orders
-    }
-
-    override suspend fun refreshOrderHistory(): Result<List<Order>> = apiCatching {
-        val response = api.getOrderHistory() ?: unreachable()
-
-        // An empty history is a perfectly good success, so this only trips when the server
-        // actually refused — in which case its own message is the useful one.
-        val orders = response.data ?: throw Exception(response.message)
-
-        // The screen only ever asks for the first page, so that page *is* the complete set from
-        // its point of view, and may replace the completed rows wholesale.
-        orderDao.replaceAll(OrderStatus.COMPLETED, orders.toEntities())
-
-        orders
     }
 
     /**
@@ -161,7 +159,3 @@ private val OrderDetail.summaryStatus: OrderStatus
     } else {
         OrderStatus.IN_PROGRESS
     }
-
-/** True for the plain in-progress queue — the only response that is a complete set. */
-private val QueryParams.isWholeQueue: Boolean
-    get() = search.isNullOrBlank() && page == null

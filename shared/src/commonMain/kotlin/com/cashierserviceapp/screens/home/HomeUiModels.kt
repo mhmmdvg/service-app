@@ -46,17 +46,30 @@ data class HomeSnapshot(
     /** Longest wait first — the queue as a cashier would work it. */
     val attention: List<AttentionRow>,
     /**
+     * How many orders are waiting in total, from the server's `page_info`.
+     *
+     * Not `attention.size`: that only counts the pages loaded so far, and the counter on this
+     * screen is meant to say how much work is outstanding, not how much has been fetched. Null
+     * until the first page answers, when the loaded count is the best available guess.
+     */
+    val totalCount: Int? = null,
+    /**
      * Total taken across all completed work, formatted. Null until the server can report it —
      * there's no endpoint for it yet, and summing `/orders/history` client-side would mean pulling
      * the whole archive down to add up one number.
      */
     val incomeLabel: String? = null,
 ) {
-    val orderCount: Int get() = attention.size
+    val orderCount: Int get() = totalCount ?: attention.size
 }
 
-fun buildHomeSnapshot(orders: List<Order>, today: LocalDate): HomeSnapshot = HomeSnapshot(
-    attention = orders.toRows(today)
+fun buildHomeSnapshot(
+    orders: List<Order>,
+    today: LocalDate,
+    totalCount: Int? = null,
+): HomeSnapshot = HomeSnapshot(
+    attention = orders.toRows(today),
+    totalCount = totalCount,
 )
 
 /** Rows in the order they were given, for callers whose server already sorted them. */

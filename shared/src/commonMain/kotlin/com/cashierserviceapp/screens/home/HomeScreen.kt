@@ -186,7 +186,9 @@ private fun LazyListScope.attentionSection(
     item("attention_header") {
         SectionHeader(
             title = stringResource(Res.string.home_attention_title),
-            action = if (attention.size > ATTENTION_PREVIEW_COUNT) {
+            // Against the queue's true size, not the pages loaded — there is more to see even
+            // when only one page has arrived.
+            action = if ((snapshot?.orderCount ?: 0) > ATTENTION_PREVIEW_COUNT) {
                 stringResource(Res.string.action_see_all)
             } else {
                 null

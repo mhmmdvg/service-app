@@ -3,8 +3,10 @@ package com.cashierserviceapp.screens.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cashierserviceapp.domain.models.OrderTracking
+import com.cashierserviceapp.domain.models.QueryParams
 import com.cashierserviceapp.domain.repositories.AuthRepository
 import com.cashierserviceapp.domain.repositories.OrderRepository
+import com.cashierserviceapp.utils.PAGE_SIZE
 import com.cashierserviceapp.utils.Resource
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesIntoMap
@@ -12,7 +14,6 @@ import dev.zacsweers.metrox.viewmodel.ViewModelKey
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -46,25 +47,29 @@ class HomeViewModel(
             authRepository.currentUser.value?.name
         )
 
+    /** Lives as long as the screen: the cache keeps emitting long after the first page settles. */
+    private var observeJob: Job? = null
     private var fetchJob: Job? = null
     private var trackJob: Job? = null
 
+    /** The queue's true size, which the cache can't report once it only holds the pages loaded. */
+    private var totalCount: Int? = null
+
     init {
-        load()
+        observe()
+        fetchFirstPage()
     }
 
     fun refresh() {
-        if (fetchJob?.isActive == true) return
+        if (isRefreshing.value) return
 
         isRefreshing.value = true
-        load()
+        fetchFirstPage()
     }
 
     fun retry() {
-        if (fetchJob?.isActive == true) return
-
         homeState.value = Resource.Loading()
-        load()
+        fetchFirstPage()
     }
 
     /** Looks up the token from a scanned QR code, or one typed in by hand. */
@@ -88,27 +93,57 @@ class HomeViewModel(
         trackingState.value = null
     }
 
-    private fun load() {
+    /**
+     * Tops the cache up rather than replacing it.
+     *
+     * Home shows a preview of the queue; the Order screen owns it, and pages through it. If both
+     * replaced the cache with their first page, opening Home would cut the Order list back to one
+     * page while its paginator went on asking for page 5 — a gap in the middle of that list. So
+     * this only adds. Orders finished on this device still leave the queue at once, because the
+     * detail screen writes their new status straight to the row.
+     */
+    private fun fetchFirstPage() {
         fetchJob?.cancel()
 
         fetchJob = viewModelScope.launch {
-            val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+            orderRepository.fetchOrders(
+                params = QueryParams(perPage = PAGE_SIZE, page = FIRST_PAGE),
+                replaceCache = false,
+            ).fold(
+                onSuccess = { pageInfo ->
+                    totalCount = pageInfo?.total
+                    // The rows arrive through the cache; this republishes with the new total, and
+                    // settles the state at all — an empty queue writes nothing, and would
+                    // otherwise leave the screen on its skeletons forever.
+                    val snapshot = homeState.value.data ?: HomeSnapshot(attention = emptyList())
+                    homeState.value = Resource.Success(snapshot.copy(totalCount = totalCount))
+                },
+                onFailure = { exception ->
+                    // Keeps whatever is on screen, so a failed refresh doesn't wipe the queue.
+                    homeState.value = Resource.Error(
+                        message = exception.message,
+                        data = homeState.value.data
+                    )
+                }
+            )
 
-            orderRepository.getOrders().collectLatest { result ->
-                result.fold(
-                    onSuccess = { orders ->
-                        homeState.value = Resource.Success(buildHomeSnapshot(orders, today))
-                    },
-                    onFailure = { exception ->
-                        // Keeps whatever is on screen, so a failed refresh doesn't wipe the queue.
-                        homeState.value = Resource.Error(
-                            message = exception.message,
-                            data = homeState.value.data
-                        )
-                    }
-                )
+            isRefreshing.value = false
+        }
+    }
 
-                isRefreshing.value = false
+    private fun observe() {
+        observeJob?.cancel()
+
+        observeJob = viewModelScope.launch {
+            orderRepository.observeOrders().collect { orders ->
+                // Resolved per emission so every row's "Today"/"Yesterday" is measured against the
+                // same day, rather than each row asking the clock separately.
+                val today = Clock.System.todayIn(TimeZone.currentSystemDefault())
+
+                // An empty cache while the first page is still in flight is not an empty queue.
+                if (orders.isEmpty() && homeState.value is Resource.Loading) return@collect
+
+                homeState.value = Resource.Success(buildHomeSnapshot(orders, today, totalCount))
             }
         }
     }
@@ -117,5 +152,9 @@ class HomeViewModel(
         super.onCleared()
         fetchJob?.cancel()
         trackJob?.cancel()
+    }
+
+    private companion object {
+        const val FIRST_PAGE = 1
     }
 }

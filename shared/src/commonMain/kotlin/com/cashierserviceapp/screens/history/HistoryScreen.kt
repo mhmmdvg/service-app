@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.pullToRefresh
@@ -26,6 +27,8 @@ import com.cashierserviceapp.screens.history.components.HistoryOrderCard
 import com.cashierserviceapp.screens.history.components.HistoryOrderCardSkeleton
 import com.cashierserviceapp.screens.history.components.HistorySectionHeader
 import com.cashierserviceapp.ui.components.ContentMessage
+import com.cashierserviceapp.ui.components.ListFooterLoader
+import com.cashierserviceapp.ui.components.LoadMoreOnScroll
 import com.cashierserviceapp.ui.theme.PreviewHelper
 import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.PullThreshold
@@ -42,12 +45,15 @@ fun HistoryScreen(
 ) {
     val historyState by viewModel.historyState.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    val isLoadingMore by viewModel.isLoadingMore.collectAsStateWithLifecycle()
 
     HistoryContent(
         state = historyState,
         isRefreshing = isRefreshing,
+        isLoadingMore = isLoadingMore,
         onRefresh = viewModel::refresh,
         onRetry = viewModel::retry,
+        onLoadMore = viewModel::loadNextPage,
         onOpenOrder = onOpenOrder,
     )
 }
@@ -57,11 +63,14 @@ fun HistoryScreen(
 private fun HistoryContent(
     state: Resource<List<HistorySection>>,
     isRefreshing: Boolean,
+    isLoadingMore: Boolean = false,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
+    onLoadMore: () -> Unit = {},
     onOpenOrder: (String) -> Unit = {},
 ) {
     val pullState = rememberPullToRefreshState()
+    val listState = rememberLazyListState()
 
     Box(Modifier.fillMaxSize()) {
         ScreenWithTitle(
@@ -88,7 +97,10 @@ private fun HistoryContent(
             // the user was reading stays put and the error is shown instead of an empty screen.
             val sections = state.data.orEmpty()
 
+            LoadMoreOnScroll(state = listState, onLoadMore = onLoadMore)
+
             LazyColumn(
+                state = listState,
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -139,6 +151,12 @@ private fun HistoryContent(
                             )
                         }
                     }
+                }
+
+                // Only under a list that already has rows: the first page is the screen's own
+                // loading state, drawn as skeletons above.
+                if (isLoadingMore && sections.isNotEmpty()) {
+                    item("load_more") { ListFooterLoader() }
                 }
 
                 item("bottom_spacer") {

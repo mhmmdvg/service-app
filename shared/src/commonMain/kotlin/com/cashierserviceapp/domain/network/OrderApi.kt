@@ -23,7 +23,7 @@ interface OrderApi {
     suspend fun searchOrders(params: QueryParams): HttpResponse<List<Order>>?
 
     /** Orders whose every item is completed, newest first. */
-    suspend fun getOrderHistory(): HttpResponse<List<Order>>?
+    suspend fun getOrderHistory(params: QueryParams): HttpResponse<List<Order>>?
 
     suspend fun createOrder(request: CreateOrderRequest): HttpResponse<CreateOrderResponse>?
 
