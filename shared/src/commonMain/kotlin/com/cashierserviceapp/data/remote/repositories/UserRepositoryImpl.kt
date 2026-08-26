@@ -6,6 +6,7 @@ import com.cashierserviceapp.data.local.mappers.toEntity
 import com.cashierserviceapp.domain.models.Profile
 import com.cashierserviceapp.domain.network.UserApi
 import com.cashierserviceapp.domain.repositories.UserRepository
+import com.cashierserviceapp.utils.apiCatching
 import com.cashierserviceapp.utils.unreachable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
@@ -31,7 +32,7 @@ class UserRepositoryImpl(
         }
     }
 
-    private suspend fun fetchProfile(): Result<Profile> = runCatching {
+    private suspend fun fetchProfile(): Result<Profile> = apiCatching {
         val response = api.getProfile() ?: unreachable()
         val profile = response.data ?: throw Exception(response.message)
 
