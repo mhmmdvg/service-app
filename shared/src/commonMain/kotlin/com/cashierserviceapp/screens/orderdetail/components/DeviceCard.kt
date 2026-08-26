@@ -138,9 +138,10 @@ private fun DeviceCardPreview() = PreviewHelper {
             status = OrderStatus.IN_PROGRESS,
             serviceFee = 50000L,
             serviceFeeLabel = "Rp 50.000",
+            finalCost = 350000L,
             totalLabel = "Rp 350.000",
             parts = listOf(
-                OrderPartUiModel("p1", "LCD Galaxy A54", 1, "Rp 300.000")
+                OrderPartUiModel("p1", "LCD Galaxy A54", 1, 300000L, "Rp 300.000")
             )
         )
     )
@@ -153,6 +154,7 @@ private fun DeviceCardPreview() = PreviewHelper {
             status = OrderStatus.RECEIVED,
             serviceFee = null,
             serviceFeeLabel = null,
+            finalCost = null,
             totalLabel = null,
             parts = emptyList()
         )

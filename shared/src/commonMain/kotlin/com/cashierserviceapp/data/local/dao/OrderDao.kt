@@ -34,6 +34,23 @@ interface OrderDao {
     @Query("SELECT * FROM orders WHERE id = :id")
     suspend fun getOrder(id: String): OrderEntity?
 
+    /**
+     * Re-states one cached row from an authoritative read of that order, without inserting it.
+     *
+     * An `UPDATE` rather than an upsert on purpose: it must not add an order the list endpoints
+     * never returned — an order reached through search may belong to neither list, and a row
+     * invented here would sit in the queue forever. When the order isn't cached this does nothing,
+     * which is the right answer.
+     *
+     * Moving [status] across the partition is the whole point: finishing the last device takes the
+     * order out of the queue and puts it in the history, in one write, on both screens at once.
+     */
+    @Query(
+        "UPDATE orders SET status = :status, totalCost = :totalCost, itemsCount = :itemsCount " +
+                "WHERE id = :id"
+    )
+    suspend fun updateSummary(id: String, status: OrderStatus, totalCost: Long, itemsCount: Int)
+
     @Query("DELETE FROM orders WHERE status = :status")
     suspend fun clear(status: OrderStatus)
 

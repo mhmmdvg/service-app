@@ -51,13 +51,24 @@ class OrderDetailViewModel(
      * [serviceFee] is null whenever the sheet had nothing new to say about the price — the request
      * then omits the field, so a fee that was already agreed survives a plain status change.
      *
-     * Reloads the whole order afterwards rather than patching the item in place: the server
-     * recalculates that item's final cost, and the order's overall status is derived from every
-     * device, so a local edit would only be right by coincidence.
+     * The change lands on screen before the request does. Marking the last device completed is the
+     * moment that matters: it finishes the order, and waiting out a PATCH and a refetch to see the
+     * header change makes a tap that already worked feel like it didn't. The optimistic copy is
+     * only ever what the server is about to compute anyway — see
+     * [com.cashierserviceapp.screens.orderdetail.withItemStatus].
+     *
+     * The refetch still happens and still wins: the server is the one that appends the status
+     * history and settles the cost. If the request fails, the snapshot goes back untouched.
      */
     fun setItemStatus(itemId: String, status: OrderStatus, serviceFee: Long? = null) {
         if (updateJob?.isActive == true) return
 
+        // Exactly what is on screen now — the thing to restore if the write is refused.
+        val snapshot = detailState.value.data
+
+        snapshot?.let {
+            detailState.value = Resource.Success(it.withItemStatus(itemId, status, serviceFee))
+        }
 
         updateJob = viewModelScope.launch {
             updatingItemId.value = itemId
@@ -68,7 +79,11 @@ class OrderDetailViewModel(
             orderRepository.updateOrderItem(itemId, request)
                 .fold(
                     onSuccess = { fetch().join() },
-                    onFailure = { exception -> updateError.value = exception.message }
+                    onFailure = { exception ->
+                        // Roll back before surfacing the error, so the banner and the rows agree.
+                        snapshot?.let { detailState.value = Resource.Success(it) }
+                        updateError.value = exception.message
+                    }
                 )
 
             updatingItemId.value = null

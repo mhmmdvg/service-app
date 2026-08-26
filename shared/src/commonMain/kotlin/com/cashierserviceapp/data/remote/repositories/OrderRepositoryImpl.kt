@@ -96,10 +96,30 @@ class OrderRepositoryImpl(
         orders
     }
 
+    /**
+     * One order in full — and the moment the cached summary of it can be corrected.
+     *
+     * This is the only authoritative read of a single order the app makes, so it is where a status
+     * change becomes visible to the lists. Finishing the last device moves the cached row from the
+     * queue half of the table to the history half, and both screens redraw off their own live
+     * query — no list refresh, no network call of their own.
+     *
+     * Write-only-if-present, so a detail opened from search can never inject an order into a list
+     * that doesn't own it.
+     */
     override suspend fun getOrderDetail(orderId: String): Result<OrderDetail> = apiCatching {
         val response = api.getOrderDetail(orderId) ?: unreachable()
+        val detail = response.data ?: throw Exception(response.message)
 
-        response.data ?: throw Exception(response.message)
+        orderDao.updateSummary(
+            // The id asked for, not the one echoed back: the response may leave it off.
+            id = orderId,
+            status = detail.summaryStatus,
+            totalCost = detail.items.sumOf { it.finalCost ?: 0L },
+            itemsCount = detail.items.size,
+        )
+
+        detail
     }
 
     override suspend fun updateOrderItem(
@@ -127,6 +147,20 @@ class OrderRepositoryImpl(
             response.data ?: throw Exception(response.message)
         }
 }
+
+/**
+ * The status the list endpoints would report for this order, derived the same way the server does
+ * it: finished only once it has devices and every one of them is done.
+ *
+ * An order with no devices counts as in progress — there is nothing to have finished, and
+ * `orderIDs(for:)` on the server leaves it out of the history for the same reason.
+ */
+private val OrderDetail.summaryStatus: OrderStatus
+    get() = if (items.isNotEmpty() && items.all { it.status == OrderStatus.COMPLETED }) {
+        OrderStatus.COMPLETED
+    } else {
+        OrderStatus.IN_PROGRESS
+    }
 
 /** True for the plain in-progress queue — the only response that is a complete set. */
 private val QueryParams.isWholeQueue: Boolean
