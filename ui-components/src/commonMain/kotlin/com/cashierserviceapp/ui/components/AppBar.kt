@@ -64,6 +64,7 @@ fun AppBar(
         brush = Brush.verticalGradient(
             colors = listOf(
                 CashierServiceTheme.colors.mainBackground,
+                CashierServiceTheme.colors.mainBackground.copy(.2f),
                 Color.Transparent
             ),
             startY = appBarHeightPx / 2,
