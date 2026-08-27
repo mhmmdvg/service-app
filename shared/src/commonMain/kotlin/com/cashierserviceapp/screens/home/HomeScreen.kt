@@ -92,7 +92,10 @@ fun HomeScreen(
             onDismiss = {
                 scanning = false
                 viewModel.dismissTracking()
-            }
+            },
+            // Straight through: the sheet hides itself first, and its own exit runs `onDismiss`,
+            // which is what clears `scanning` and the tracking state.
+            onOpenOrder = onOpenOrder
         )
     }
 }

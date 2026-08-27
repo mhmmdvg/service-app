@@ -11,6 +11,12 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class OrderTracking(
+    /**
+     * The order this token belongs to, so a cashier who scans a receipt can open it rather than
+     * only read its progress. Nullable because a server that hasn't been redeployed doesn't send
+     * it — the scan sheet falls back to showing the tracking card when it's absent.
+     */
+    val id: String? = null,
     @SerialName("order_code")
     val orderCode: String,
     @SerialName("created_at")

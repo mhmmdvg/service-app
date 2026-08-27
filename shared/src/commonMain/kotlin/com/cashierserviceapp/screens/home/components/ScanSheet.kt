@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,6 +24,9 @@ import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.action_close
 import cashierserviceapp.shared.generated.resources.order_detail_qr_token
 import cashierserviceapp.shared.generated.resources.scan_body
+import cashierserviceapp.shared.generated.resources.scan_body_camera
+import cashierserviceapp.shared.generated.resources.scan_camera
+import cashierserviceapp.shared.generated.resources.scan_camera_failed
 import cashierserviceapp.shared.generated.resources.scan_looking_up
 import cashierserviceapp.shared.generated.resources.scan_lookup
 import cashierserviceapp.shared.generated.resources.scan_not_found
@@ -30,6 +34,7 @@ import cashierserviceapp.shared.generated.resources.scan_title
 import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.domain.models.OrderItemTracking
 import com.cashierserviceapp.domain.models.OrderTracking
+import com.cashierserviceapp.scanning.rememberQrScanner
 import com.cashierserviceapp.ui.components.BottomSheet
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.screens.order.components.OrderStatusChip
@@ -42,21 +47,36 @@ import com.cashierserviceapp.utils.Resource
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * Looks up a receipt's QR token and shows what that order is doing.
+ * Resolves a receipt's QR token to its order.
  *
- * The camera isn't wired up yet, so the token is entered by hand — the lookup itself, and
- * everything it renders, is the same code a scanner would feed. Swapping the field for a camera
- * preview means calling [onLookup] with the decoded string and nothing else changes.
+ * Scanned or typed, the token takes the same path: [onLookup] with the decoded string. Where the
+ * server names the order the token belongs to, the sheet steps out of the way and opens it through
+ * [onOpenOrder] — a cashier holding the receipt wants the order, not a summary of it. Against a
+ * server too old to send that id it stays put and shows the progress card instead.
  */
 @Composable
 fun ScanSheet(
     state: Resource<OrderTracking>?,
     onLookup: (String) -> Unit,
     onDismiss: () -> Unit,
+    onOpenOrder: (String) -> Unit = {},
 ) {
     var token by remember { mutableStateOf("") }
+    var scanError by remember { mutableStateOf<String?>(null) }
+
+    // Null on iOS and desktop, where the field is the only way in.
+    val scanner = rememberQrScanner()
 
     BottomSheet(onDismissRequest = onDismiss) { hide ->
+        val orderId = state?.data?.id
+
+        LaunchedEffect(orderId) {
+            if (orderId != null) {
+                hide()
+                onOpenOrder(orderId)
+            }
+        }
+
         Spacer(Modifier.height(20.dp))
 
         Column(Modifier.padding(horizontal = 20.dp)) {
@@ -69,12 +89,34 @@ fun ScanSheet(
             Spacer(Modifier.height(6.dp))
 
             Text(
-                text = stringResource(Res.string.scan_body),
+                text = if (scanner != null) stringResource(Res.string.scan_body_camera)
+                else stringResource(Res.string.scan_body),
                 style = CashierServiceTheme.typography.text2,
                 color = CashierServiceTheme.colors.secondaryText
             )
 
             Spacer(Modifier.height(16.dp))
+
+            if (scanner != null) {
+                Button(
+                    label = stringResource(Res.string.scan_camera),
+                    onClick = {
+                        scanError = null
+                        scanner.scan(
+                            onResult = { scanned ->
+                                token = scanned
+                                onLookup(scanned)
+                            },
+                            onError = { scanError = it }
+                        )
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    primary = true,
+                    enabled = state !is Resource.Loading
+                )
+
+                Spacer(Modifier.height(12.dp))
+            }
 
             SearchField(
                 value = token,
@@ -88,6 +130,11 @@ fun ScanSheet(
 
             val tracking = state?.data
             when {
+                scanError != null -> ScanMessage(
+                    text = scanError ?: stringResource(Res.string.scan_camera_failed),
+                    isError = true
+                )
+
                 state is Resource.Loading -> ScanMessage(stringResource(Res.string.scan_looking_up))
 
                 state is Resource.Error -> ScanMessage(

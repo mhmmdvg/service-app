@@ -169,6 +169,9 @@
     <string name="scan_looking_up">Sedang mencari…</string>
     <string name="scan_not_found">Tidak ada pesanan dengan kode itu.</string>
     <string name="scan_lookup">Cari</string>
+    <string name="scan_camera">Pindai kode QR</string>
+    <string name="scan_camera_failed">Tidak bisa membuka pemindai.</string>
+    <string name="scan_body_camera">Pindai QR di struk pelanggan, atau ketik kode yang tercetak di bawahnya.</string>
 
     <!-- Order list -->
     <string name="order_list_load_failed">Pesanan gagal dimuat</string>

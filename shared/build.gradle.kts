@@ -52,6 +52,8 @@ kotlin {
             // Bluetooth printing: the permission launcher and ContextCompat's permission check.
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.core.ktx)
+            // QR scanning: Google supplies the scanner UI, so the app declares no camera permission.
+            implementation(libs.play.services.code.scanner)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             implementation(libs.ktor.client.okhttp)
