@@ -31,9 +31,6 @@ class HomeViewModel(
     val homeState: StateFlow<Resource<HomeSnapshot>>
         field = MutableStateFlow<Resource<HomeSnapshot>>(Resource.Loading())
 
-    val isRefreshing: StateFlow<Boolean>
-        field = MutableStateFlow(false)
-
     /** Null while no QR lookup is in flight or showing. */
     val trackingState: StateFlow<Resource<OrderTracking>?>
         field = MutableStateFlow<Resource<OrderTracking>?>(null)
@@ -47,8 +44,6 @@ class HomeViewModel(
             authRepository.currentUser.value?.name
         )
 
-    /** Lives as long as the screen: the cache keeps emitting long after the first page settles. */
-    private var observeJob: Job? = null
     private var fetchJob: Job? = null
     private var trackJob: Job? = null
 
@@ -57,13 +52,6 @@ class HomeViewModel(
 
     init {
         observe()
-        fetchFirstPage()
-    }
-
-    fun refresh() {
-        if (isRefreshing.value) return
-
-        isRefreshing.value = true
         fetchFirstPage()
     }
 
@@ -111,7 +99,7 @@ class HomeViewModel(
                     totalCount = pageInfo?.total
                     // Republishes with the new total, and settles the state at all — an empty queue
                     // writes nothing, and would otherwise leave the skeletons up forever.
-                    val snapshot = homeState.value.data ?: HomeSnapshot(attention = emptyList())
+                    val snapshot = homeState.value.data ?: HomeSnapshot()
                     homeState.value = Resource.Success(snapshot.copy(totalCount = totalCount))
                 },
                 onFailure = { exception ->
@@ -122,15 +110,11 @@ class HomeViewModel(
                     )
                 }
             )
-
-            isRefreshing.value = false
         }
     }
 
     private fun observe() {
-        observeJob?.cancel()
-
-        observeJob = viewModelScope.launch {
+        viewModelScope.launch {
             orderRepository.observeOrders().collect { orders ->
                 // Resolved per emission so every row's "Today"/"Yesterday" is measured against the
                 // same day, rather than each row asking the clock separately.
@@ -139,15 +123,9 @@ class HomeViewModel(
                 // An empty cache while the first page is still in flight is not an empty queue.
                 if (orders.isEmpty() && homeState.value is Resource.Loading) return@collect
 
-                homeState.value = Resource.Success(buildHomeSnapshot(orders, today, totalCount))
+                homeState.value = Resource.Success(orders.toHomeSnapshot(today, totalCount))
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        fetchJob?.cancel()
-        trackJob?.cancel()
     }
 
     private companion object {

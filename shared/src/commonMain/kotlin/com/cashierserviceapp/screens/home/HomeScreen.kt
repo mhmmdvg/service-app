@@ -163,7 +163,6 @@ private fun HomeContent(
 
             attentionSection(
                 state = state,
-                snapshot = snapshot,
                 onRetry = onRetry,
                 onOpenOrders = onOpenOrders,
                 onOpenOrder = onOpenOrder
@@ -176,11 +175,11 @@ private fun HomeContent(
 
 private fun LazyListScope.attentionSection(
     state: Resource<HomeSnapshot>,
-    snapshot: HomeSnapshot?,
     onRetry: () -> Unit,
     onOpenOrders: () -> Unit,
     onOpenOrder: (String) -> Unit,
 ) {
+    val snapshot = state.data
     val attention = snapshot?.attention.orEmpty()
 
     item("attention_header") {
@@ -219,7 +218,7 @@ private fun LazyListScope.attentionSection(
         }
 
         else -> items(
-            items = attention.take(ATTENTION_PREVIEW_COUNT),
+            items = attention,
             key = { it.id }
         ) { row ->
             AttentionCard(row = row, onClick = { onOpenOrder(row.id) })
@@ -296,41 +295,32 @@ private val previewSnapshot = HomeSnapshot(
     )
 )
 
-@PreviewLightDark
 @Composable
-private fun HomeScreenPreview() = PreviewHelper(paddingEnabled = false) {
+private fun HomePreview(
+    state: Resource<HomeSnapshot>,
+    userName: String?,
+) = PreviewHelper(paddingEnabled = false) {
     HomeContent(
-        state = Resource.Success(previewSnapshot),
-        userName = "Muhammad Vikri",
+        state = state,
+        userName = userName,
         onSearchClick = {},
         onScanClick = {},
         onRetry = {},
-        onOpenOrders = {}
+        onOpenOrders = {},
     )
 }
 
 @PreviewLightDark
 @Composable
-private fun HomeScreenIncomePreview() = PreviewHelper(paddingEnabled = false) {
-    HomeContent(
-        state = Resource.Success(previewSnapshot.copy(incomeLabel = "Rp 12.450.000")),
-        userName = "Muhammad Vikri",
-        onSearchClick = {},
-        onScanClick = {},
-        onRetry = {},
-        onOpenOrders = {}
-    )
-}
+private fun HomeScreenPreview() = HomePreview(Resource.Success(previewSnapshot), "Muhammad Vikri")
 
 @PreviewLightDark
 @Composable
-private fun HomeScreenLoadingPreview() = PreviewHelper(paddingEnabled = false) {
-    HomeContent(
-        state = Resource.Loading(),
-        userName = null,
-        onSearchClick = {},
-        onScanClick = {},
-        onRetry = {},
-        onOpenOrders = {}
-    )
-}
+private fun HomeScreenIncomePreview() = HomePreview(
+    state = Resource.Success(previewSnapshot.copy(incomeLabel = "Rp 12.450.000")),
+    userName = "Muhammad Vikri",
+)
+
+@PreviewLightDark
+@Composable
+private fun HomeScreenLoadingPreview() = HomePreview(Resource.Loading(), userName = null)

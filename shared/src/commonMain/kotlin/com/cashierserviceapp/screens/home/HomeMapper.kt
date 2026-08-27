@@ -42,13 +42,15 @@ data class AttentionRow(
 
 /** Everything the home screen renders, derived once per load rather than per recomposition. */
 data class HomeSnapshot(
-    /** Longest wait first — the queue as a cashier would work it. */
-    val attention: List<AttentionRow>,
+    /** Longest wait first, capped at [ATTENTION_PREVIEW_COUNT] — all the screen ever draws. */
+    val attention: List<AttentionRow> = emptyList(),
     /**
      * How many orders are waiting in total, from the server's `page_info` — not `attention.size`,
-     * which only counts the pages loaded. Null until the first page answers.
+     * which is capped. Null until the first page answers, so [cachedCount] stands in.
      */
     val totalCount: Int? = null,
+    /** How many the cache holds. Keeps the count honest before the server's total arrives. */
+    val cachedCount: Int = attention.size,
     /**
      * Total taken across all completed work, formatted. Null until the server can report it —
      * there's no endpoint for it yet, and summing `/orders/history` client-side would mean pulling
@@ -56,23 +58,26 @@ data class HomeSnapshot(
      */
     val incomeLabel: String? = null,
 ) {
-    val orderCount: Int get() = totalCount ?: attention.size
+    val orderCount: Int get() = totalCount ?: cachedCount
 }
 
-fun buildHomeSnapshot(
-    orders: List<Order>,
-    today: LocalDate,
-    totalCount: Int? = null,
-): HomeSnapshot = HomeSnapshot(
-    attention = orders.toRows(today),
+/**
+ * Longest wait first, trimmed to what the screen shows.
+ *
+ * Ordered on the raw `createdAt` text rather than on parsed dates: it is fixed-width ISO-8601 UTC,
+ * so it sorts chronologically as-is — the same property [com.cashierserviceapp.data.local.dao.OrderDao]
+ * relies on. That keeps the trim ahead of the mapping, so timestamps and money are formatted for the
+ * handful of rows drawn instead of for the whole cache, which grows every time the Order tab pages.
+ */
+fun List<Order>.toHomeSnapshot(today: LocalDate, totalCount: Int? = null) = HomeSnapshot(
+    attention = sortedBy { it.createdAt }
+        .take(ATTENTION_PREVIEW_COUNT)
+        .map { it.toAttentionRow(today) },
     totalCount = totalCount,
+    cachedCount = size,
 )
 
-fun List<Order>.toRows(today: LocalDate): List<AttentionRow> = map { it.toAttentionRow(today) }
-    // Longest wait first; anything undated sorts to the end rather than jumping the queue.
-    .sortedByDescending { it.daysWaiting ?: -1 }
-
-/** Search maps with this directly, to keep the server's ordering instead of [toRows]' sort. */
+/** Search maps with this directly, to keep the server's ordering instead of the queue's. */
 fun Order.toAttentionRow(today: LocalDate): AttentionRow {
     val createdDate = parseTimestamp(createdAt)?.toLocalDateTime()?.date
 
