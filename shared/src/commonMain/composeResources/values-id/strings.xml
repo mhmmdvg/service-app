@@ -208,6 +208,18 @@
     <string name="receipt_track">Lacak servis ini:</string>
     <string name="receipt_footer">Terima kasih — simpan struk ini</string>
 
+    <!-- Bluetooth printing -->
+    <string name="printer_print">Cetak</string>
+    <string name="printer_choose">Pilih printer</string>
+    <string name="printer_none_title">Belum ada printer</string>
+    <string name="printer_none_body">Pasangkan printer di pengaturan Bluetooth Android, lalu kembali ke layar ini.</string>
+    <string name="printer_access_title">Perlu akses Bluetooth</string>
+    <string name="printer_access_body">Mencetak mengirim struk langsung ke printer yang sudah dipasangkan lewat Bluetooth.</string>
+    <string name="printer_access_grant">Izinkan Bluetooth</string>
+    <string name="printer_sending">Mengirim ke printer…</string>
+    <string name="printer_sent">Terkirim ke printer</string>
+    <string name="printer_failed">Gagal mencetak</string>
+
     <!-- Dates -->
     <string name="date_today">Hari ini</string>
     <string name="date_yesterday">Kemarin</string>

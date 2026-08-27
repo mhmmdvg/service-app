@@ -208,6 +208,18 @@
     <string name="receipt_track">Track this repair:</string>
     <string name="receipt_footer">Thank you — keep this receipt</string>
 
+    <!-- Bluetooth printing -->
+    <string name="printer_print">Print</string>
+    <string name="printer_choose">Choose a printer</string>
+    <string name="printer_none_title">No paired printer</string>
+    <string name="printer_none_body">Pair your printer in the Android Bluetooth settings, then come back to this screen.</string>
+    <string name="printer_access_title">Bluetooth access needed</string>
+    <string name="printer_access_body">Printing sends the receipt straight to a paired printer over Bluetooth.</string>
+    <string name="printer_access_grant">Allow Bluetooth</string>
+    <string name="printer_sending">Sending to printer…</string>
+    <string name="printer_sent">Sent to the printer</string>
+    <string name="printer_failed">Couldn’t print</string>
+
     <!-- Dates -->
     <string name="date_today">Today</string>
     <string name="date_yesterday">Yesterday</string>

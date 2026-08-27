@@ -49,6 +49,9 @@ kotlin {
 
     sourceSets {
         androidMain.dependencies {
+            // Bluetooth printing: the permission launcher and ContextCompat's permission check.
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.core.ktx)
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.compose.uiTooling)
             implementation(libs.ktor.client.okhttp)
