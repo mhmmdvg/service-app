@@ -35,6 +35,12 @@ import cashierserviceapp.shared.generated.resources.order_detail_receipt_title
 import cashierserviceapp.shared.generated.resources.printer_access_body
 import cashierserviceapp.shared.generated.resources.printer_access_grant
 import cashierserviceapp.shared.generated.resources.printer_access_title
+import cashierserviceapp.shared.generated.resources.printer_blocked_action
+import cashierserviceapp.shared.generated.resources.printer_blocked_body
+import cashierserviceapp.shared.generated.resources.printer_blocked_title
+import cashierserviceapp.shared.generated.resources.printer_bluetooth_off_action
+import cashierserviceapp.shared.generated.resources.printer_bluetooth_off_body
+import cashierserviceapp.shared.generated.resources.printer_bluetooth_off_title
 import cashierserviceapp.shared.generated.resources.printer_choose
 import cashierserviceapp.shared.generated.resources.printer_failed
 import cashierserviceapp.shared.generated.resources.printer_none_body
@@ -44,6 +50,7 @@ import cashierserviceapp.shared.generated.resources.printer_sending
 import cashierserviceapp.shared.generated.resources.printer_sent
 import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.printing.PairedPrinter
+import com.cashierserviceapp.printing.PrinterAccess
 import com.cashierserviceapp.printing.Printing
 import com.cashierserviceapp.printing.rememberPrinting
 import com.cashierserviceapp.screens.orderdetail.OrderDetailItemUiModel
@@ -204,9 +211,10 @@ private fun PrinterPanel(
     status: PrintStatus?,
     onPick: (PairedPrinter) -> Unit,
 ) {
-    // Read once per Printing instance rather than per recomposition: each read is a call into the
-    // Bluetooth service. A new instance arrives when permission changes, which re-reads it.
-    val printers = remember(printing) { printing.printers }
+    // Re-read whenever access changes as well as when the instance does: coming back from the
+    // Bluetooth settings screen flips access to Ready without replacing the Printing itself, and a
+    // list remembered from before that would stay empty.
+    val printers = remember(printing, printing.access) { printing.printers }
 
     when {
         status != null -> PrinterNote(
@@ -218,23 +226,40 @@ private fun PrinterPanel(
             body = (status as? PrintStatus.Failed)?.message
         )
 
-        printing.needsAccess -> {
+        printing.access != PrinterAccess.Ready -> {
             PrinterNote(
-                title = stringResource(Res.string.printer_access_title),
-                body = stringResource(Res.string.printer_access_body)
+                title = when (printing.access) {
+                    PrinterAccess.Blocked -> stringResource(Res.string.printer_blocked_title)
+                    PrinterAccess.BluetoothOff ->
+                        stringResource(Res.string.printer_bluetooth_off_title)
+
+                    else -> stringResource(Res.string.printer_access_title)
+                },
+                body = when (printing.access) {
+                    PrinterAccess.Blocked -> stringResource(Res.string.printer_blocked_body)
+                    PrinterAccess.BluetoothOff ->
+                        stringResource(Res.string.printer_bluetooth_off_body)
+
+                    else -> stringResource(Res.string.printer_access_body)
+                }
             )
 
             Spacer(Modifier.height(12.dp))
 
             Button(
-                label = stringResource(Res.string.printer_access_grant),
+                label = when (printing.access) {
+                    PrinterAccess.Blocked -> stringResource(Res.string.printer_blocked_action)
+                    PrinterAccess.BluetoothOff ->
+                        stringResource(Res.string.printer_bluetooth_off_action)
+
+                    else -> stringResource(Res.string.printer_access_grant)
+                },
                 onClick = printing::requestAccess,
                 modifier = Modifier.fillMaxWidth(),
                 primary = false
             )
         }
 
-        // Pairing belongs to the system Bluetooth screen, so this is a signpost, not a dead end.
         printers.isEmpty() -> PrinterNote(
             title = stringResource(Res.string.printer_none_title),
             body = stringResource(Res.string.printer_none_body)

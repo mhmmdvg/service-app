@@ -18,6 +18,7 @@ import cashierserviceapp.shared.generated.resources.receipt_subtotal
 import cashierserviceapp.shared.generated.resources.receipt_total
 import cashierserviceapp.shared.generated.resources.receipt_track
 import com.cashierserviceapp.domain.models.OrderStatus
+import com.cashierserviceapp.utils.trackingLink
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -101,7 +102,7 @@ fun buildReceipt(
     width: Int = DEFAULT_WIDTH,
 ): List<ReceiptSegment> = listOf(
     ReceiptSegment.Lines(buildOrderLines(detail, strings, width)),
-    ReceiptSegment.Qr(detail.qrToken),
+    ReceiptSegment.Qr(trackingLink(detail.qrToken)),
     ReceiptSegment.Lines(buildFooterLines(detail, strings, width)),
 )
 

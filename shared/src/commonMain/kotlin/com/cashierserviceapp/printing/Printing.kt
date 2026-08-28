@@ -6,6 +6,30 @@ import androidx.compose.runtime.Composable
 data class PairedPrinter(val name: String, val address: String)
 
 /**
+ * Why the printer list is or isn't usable.
+ *
+ * Split out because all four of these look identical from the UI otherwise — an empty list — and
+ * the fix for each is somewhere different: a prompt, the system settings screen, the Bluetooth
+ * toggle, or the pairing screen. A cashier told only "no printer" can't act on any of them.
+ */
+enum class PrinterAccess {
+    /** Permission held and the radio is on. [Printing.printers] is meaningful. */
+    Ready,
+
+    /** Not asked yet, or softly denied. A prompt will still appear. */
+    NeedsPermission,
+
+    /**
+     * Denied for good — Android stops showing the prompt after the second refusal and auto-denies
+     * silently. Only the app's own settings page can undo it.
+     */
+    Blocked,
+
+    /** Permission is held, but the radio is switched off. */
+    BluetoothOff,
+}
+
+/**
  * Sends bytes to a Bluetooth receipt printer.
  *
  * Deliberately small: discovery, pairing and the printer's own settings all belong to the system
@@ -13,13 +37,16 @@ data class PairedPrinter(val name: String, val address: String)
  * that's left is picking one of the paired devices and writing to it.
  */
 interface Printing {
-    /** Paired devices. Empty until [needsAccess] is satisfied — the OS reports nothing without it. */
+    /** What, if anything, is standing between the app and the paired printers. */
+    val access: PrinterAccess
+
+    /** Paired devices. Empty unless [access] is [PrinterAccess.Ready]. */
     val printers: List<PairedPrinter>
 
-    /** True while Bluetooth permission is still outstanding. */
-    val needsAccess: Boolean
-
-    /** Prompts for Bluetooth permission. No-op once granted. */
+    /**
+     * Asks for what [access] is missing: the permission prompt, or — once Android has stopped
+     * showing that — the app's settings page, which is the only way back from [PrinterAccess.Blocked].
+     */
     fun requestAccess()
 
     /** Opens a socket, writes [bytes], closes it. Failures come back as a [Result], not a throw. */

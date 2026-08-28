@@ -219,6 +219,12 @@
     <string name="printer_access_title">Perlu akses Bluetooth</string>
     <string name="printer_access_body">Mencetak mengirim struk langsung ke printer yang sudah dipasangkan lewat Bluetooth.</string>
     <string name="printer_access_grant">Izinkan Bluetooth</string>
+    <string name="printer_blocked_title">Akses Bluetooth diblokir</string>
+    <string name="printer_blocked_body">Android berhenti bertanya setelah dua kali ditolak. Aktifkan izin Bluetooth untuk aplikasi ini di pengaturannya.</string>
+    <string name="printer_blocked_action">Buka pengaturan aplikasi</string>
+    <string name="printer_bluetooth_off_title">Bluetooth mati</string>
+    <string name="printer_bluetooth_off_body">Nyalakan Bluetooth untuk menjangkau printer.</string>
+    <string name="printer_bluetooth_off_action">Pengaturan Bluetooth</string>
     <string name="printer_sending">Mengirim ke printer…</string>
     <string name="printer_sent">Terkirim ke printer</string>
     <string name="printer_failed">Gagal mencetak</string>

@@ -70,7 +70,7 @@ object AppBindings {
     @Provides
     @BaseUrl
     @SingleIn(AppScope::class)
-    fun provideBaseUrl(): String = URLs.ANDROID_LOCAL_URL
+    fun provideBaseUrl(): String = URLs.PRODUCTION_URL
 
     @Provides
     @SingleIn(AppScope::class)
@@ -99,12 +99,18 @@ object AppBindings {
             }
 
             expectSuccess = true
+            // Whole-request budget, so it also covers DNS, TLS and radio wake-up. Login
+            // spends ~0.5s in bcrypt server-side before any of that.
             install(HttpTimeout) {
-                requestTimeoutMillis = 5000
+                requestTimeoutMillis = 15000
+                connectTimeoutMillis = 10000
             }
 
             install(HttpRequestRetry) {
                 retryOnServerErrors(maxRetries = 3)
+                // Timeouts and connection failures are exceptions, not server errors, so
+                // retryOnServerErrors alone lets a redeploy restart fail straight to the user.
+                retryOnException(maxRetries = 2, retryOnTimeout = true)
                 exponentialDelay()
             }
 

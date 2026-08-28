@@ -219,6 +219,12 @@
     <string name="printer_access_title">Bluetooth access needed</string>
     <string name="printer_access_body">Printing sends the receipt straight to a paired printer over Bluetooth.</string>
     <string name="printer_access_grant">Allow Bluetooth</string>
+    <string name="printer_blocked_title">Bluetooth access is blocked</string>
+    <string name="printer_blocked_body">Android stops asking after two refusals. Turn Bluetooth on for this app in its settings.</string>
+    <string name="printer_blocked_action">Open app settings</string>
+    <string name="printer_bluetooth_off_title">Bluetooth is off</string>
+    <string name="printer_bluetooth_off_body">Switch Bluetooth on to reach the printer.</string>
+    <string name="printer_bluetooth_off_action">Bluetooth settings</string>
     <string name="printer_sending">Sending to printer…</string>
     <string name="printer_sent">Sent to the printer</string>
     <string name="printer_failed">Couldn’t print</string>

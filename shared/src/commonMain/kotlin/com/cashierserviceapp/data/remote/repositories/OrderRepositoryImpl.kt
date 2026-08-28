@@ -17,6 +17,7 @@ import com.cashierserviceapp.data.local.mappers.toEntities
 import com.cashierserviceapp.domain.network.OrderApi
 import com.cashierserviceapp.domain.repositories.OrderRepository
 import com.cashierserviceapp.utils.apiCatching
+import com.cashierserviceapp.utils.qrTokenFrom
 import com.cashierserviceapp.utils.unreachable
 import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
@@ -121,7 +122,8 @@ class OrderRepositoryImpl(
     }
 
     override suspend fun trackOrder(qrToken: String): Result<OrderTracking> = apiCatching {
-        val response = api.trackOrder(qrToken.trim()) ?: unreachable()
+        // Takes a scanned tracking link as readily as a typed token — see [qrTokenFrom].
+        val response = api.trackOrder(qrTokenFrom(qrToken)) ?: unreachable()
 
         response.data ?: throw Exception(response.message)
     }

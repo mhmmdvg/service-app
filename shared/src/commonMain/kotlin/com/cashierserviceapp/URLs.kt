@@ -1,6 +1,22 @@
 package com.cashierserviceapp
 
 object URLs {
+    /**
+     * The deployed backend — what the app talks to unless someone is working on the server.
+     *
+     * HTTPS, so it needs none of the cleartext allowance the local addresses below do; that stays
+     * in the manifest only for them.
+     */
+    const val PRODUCTION_URL = "https://cashier-api.up.railway.app"
+
+    /**
+     * The public tracking page a printed QR code points at, without its trailing token.
+     *
+     * Includes the `/track` segment: the site 404s on a bare token at the root, so a receipt
+     * printed against the shorter form would send every customer to a Not Found page.
+     */
+    const val TRACKING_URL = "https://service-tracking-eight.vercel.app/track"
+
     /** Host machine as seen from the Android emulator, via its NAT alias for the host loopback. */
     const val ANDROID_LOCAL_URL = "http://192.168.1.226:8080"
 

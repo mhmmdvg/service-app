@@ -52,9 +52,16 @@ class Navigator(
         }
     }
 
+    /**
+     * Makes [route] the only thing showing, replacing what was there rather than stacking onto it.
+     *
+     * A [CoverRoute] is drawn *over* the app, not instead of it, so replacing one leaves the
+     * backstack underneath untouched — clearing it would swap one cover for another and leave
+     * nothing to draw when that cover is dismissed, which `NavDisplay` rejects outright.
+     */
     fun set(route: AppRoute) {
         state.coverBackstack.clear()
-        state.currentBackstack.clear()
+        if (route !is CoverRoute) state.currentBackstack.clear()
         add(route)
     }
 
