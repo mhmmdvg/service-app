@@ -10,6 +10,10 @@ import platform.Foundation.NSUserDefaults
  */
 private const val APPLE_LANGUAGES_KEY = "AppleLanguages"
 
+// Called on every composition, so it no-ops once the defaults already name the chosen language.
 actual fun applyAppLanguage(language: AppLanguage) {
-    NSUserDefaults.standardUserDefaults.setObject(listOf(language.tag), APPLE_LANGUAGES_KEY)
+    val defaults = NSUserDefaults.standardUserDefaults
+    if (defaults.stringArrayForKey(APPLE_LANGUAGES_KEY)?.firstOrNull() == language.tag) return
+
+    defaults.setObject(listOf(language.tag), APPLE_LANGUAGES_KEY)
 }

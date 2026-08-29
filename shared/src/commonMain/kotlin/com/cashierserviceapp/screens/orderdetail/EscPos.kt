@@ -27,9 +27,10 @@ private object EscPos {
 }
 
 /**
- * QR module size, 1–16. Six is about as small as a phone camera reliably reads off a 58mm roll.
+ * QR module size, 1–16. Eight puts the code at roughly a third of an 80mm roll — comfortably
+ * scannable. Six is the floor a phone camera still reads reliably.
  */
-private const val QR_MODULE_SIZE: Byte = 6
+private const val QR_MODULE_SIZE: Byte = 8
 
 /** Error correction M — 15% recoverable, which is the usual trade for a receipt that gets pocketed. */
 private const val QR_ERROR_CORRECTION: Byte = 49

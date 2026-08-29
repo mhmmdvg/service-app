@@ -8,7 +8,12 @@ import java.util.Locale
  * `ComponentActivity`. Setting the default locale reaches Compose either way — its Android locale
  * delegate reads `android.os.LocaleList.getDefault()`, which re-derives from this — and it costs no
  * activity recreation, so the screen keeps its state.
+ *
+ * Called on every composition, so it no-ops when the locale is already the chosen one. Compared by
+ * language rather than tag: `Locale` still spells Indonesian with the legacy code `in`, on both
+ * sides of this comparison, and the region is worth keeping when it's already right.
  */
 actual fun applyAppLanguage(language: AppLanguage) {
-    Locale.setDefault(Locale.forLanguageTag(language.tag))
+    val target = Locale.forLanguageTag(language.tag)
+    if (Locale.getDefault().language != target.language) Locale.setDefault(target)
 }

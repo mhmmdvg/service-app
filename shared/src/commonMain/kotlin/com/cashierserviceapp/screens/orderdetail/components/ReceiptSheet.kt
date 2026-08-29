@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -52,6 +53,7 @@ import com.cashierserviceapp.domain.models.OrderStatus
 import com.cashierserviceapp.printing.PairedPrinter
 import com.cashierserviceapp.printing.PrinterAccess
 import com.cashierserviceapp.printing.Printing
+import com.cashierserviceapp.LocalAppGraph
 import com.cashierserviceapp.printing.rememberPrinting
 import com.cashierserviceapp.screens.orderdetail.OrderDetailItemUiModel
 import com.cashierserviceapp.screens.orderdetail.OrderDetailUiModel
@@ -81,7 +83,13 @@ fun ReceiptSheet(
     detail: OrderDetailUiModel,
     onDismiss: () -> Unit,
 ) {
-    val strings = rememberReceiptStrings()
+    // Straight from storage rather than through the screen's ViewModel: the heading is a setting,
+    // not part of the order, and every caller of this sheet would otherwise have to carry it.
+    val storage = LocalAppGraph.current.applicationStorage
+    val shopName by storage.getShopName()
+        .collectAsStateWithLifecycle(initialValue = remember { storage.getShopNameBlocking() })
+
+    val strings = rememberReceiptStrings(shopName)
     val segments = remember(detail, strings) { buildReceipt(detail, strings) }
 
     // Null on iOS and desktop, where there is no printer to reach — the button goes with it.
@@ -348,7 +356,7 @@ private fun receiptTextStyle(): TextStyle = CashierServiceTheme.typography.text2
 @Composable
 private fun ReceiptPreview() = PreviewHelper {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        buildReceipt(previewReceiptDetail, rememberReceiptStrings()).forEach { segment ->
+        buildReceipt(previewReceiptDetail, rememberReceiptStrings("CASHIER SERVICE")).forEach { segment ->
             when (segment) {
                 is ReceiptSegment.Lines -> Text(text = segment.text, style = receiptTextStyle())
                 is ReceiptSegment.Qr -> QrCode(

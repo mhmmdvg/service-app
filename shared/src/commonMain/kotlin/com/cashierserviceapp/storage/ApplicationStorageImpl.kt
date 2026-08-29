@@ -26,6 +26,14 @@ import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import kotlin.uuid.Uuid
 
+// No shop record on the server yet, so a new install prints under this until someone renames it in
+// Settings. Move it to a `/shop` endpoint when there's more than one outlet.
+private const val DEFAULT_SHOP_NAME = "CASHIER SERVICE"
+
+/** A blank stored name would print a blank heading, so it reads as "never set". */
+private fun String?.orShopNameDefault(): String =
+    this?.takeIf { it.isNotBlank() } ?: DEFAULT_SHOP_NAME
+
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
 @OptIn(ExperimentalSettingsApi::class)
@@ -84,12 +92,20 @@ class ApplicationStorageImpl(
 
     override suspend fun setLanguage(value: AppLanguage) = settings.set(Keys.LANGUAGE, value.tag)
 
+    override fun getShopName(): Flow<String> =
+        settings.getStringOrNullFlow(Keys.SHOP_NAME).map { it.orShopNameDefault() }
+
+    override suspend fun setShopName(value: String) = settings.set(Keys.SHOP_NAME, value.trim())
+
     override fun getThemeBlocking(): Theme = settings.getStringOrNull(Keys.THEME)
         ?.let { stored -> Theme.entries.firstOrNull { it.name == stored } }
         ?: Theme.SYSTEM
 
     override fun getLanguageBlocking(): AppLanguage =
         AppLanguage.fromTag(settings.getStringOrNull(Keys.LANGUAGE))
+
+    override fun getShopNameBlocking(): String =
+        settings.getStringOrNull(Keys.SHOP_NAME).orShopNameDefault()
 
     override fun getFlagsBlocking(): Flags? = settings.getStringOrNull(Keys.FLAGS)?.decodeOrNull<Flags>()
 
@@ -116,5 +132,6 @@ class ApplicationStorageImpl(
         const val FLAGS = "flags"
         const val CONFIG = "config"
         const val SESSION = "session"
+        const val SHOP_NAME = "shopName"
     }
 }

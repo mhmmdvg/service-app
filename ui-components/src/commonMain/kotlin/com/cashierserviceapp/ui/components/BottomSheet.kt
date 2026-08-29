@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
@@ -172,6 +173,8 @@ private fun SheetSurface(
             .windowInsetsPadding(
                 WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
             )
+            // Rides above the keyboard, so a sheet with a field in it stays readable while typing.
+            .imePadding()
             .padding(
                 horizontal = SheetInsetHorizontal,
                 vertical = SheetInsetVertical

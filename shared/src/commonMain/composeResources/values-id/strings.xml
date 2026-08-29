@@ -3,6 +3,7 @@
 
     <string name="action_cancel">Batal</string>
     <string name="action_try_again">Coba lagi</string>
+    <string name="action_save">Simpan</string>
 
     <string name="nav_destination_home">Beranda</string>
     <string name="nav_destination_order">Pesanan</string>
@@ -22,6 +23,10 @@
 
     <string name="settings_language_title">Bahasa</string>
     <string name="settings_language_footnote">Langsung diterapkan ke seluruh aplikasi.</string>
+
+    <string name="settings_receipt_title">Struk</string>
+    <string name="settings_receipt_footnote">Dicetak sebagai judul di setiap struk.</string>
+    <string name="settings_shop_name_label">Nama toko</string>
 
     <string name="settings_account_title">Akun</string>
     <string name="settings_sign_out">Keluar</string>
@@ -68,7 +73,7 @@
 
     <string name="order_detail_print">Cetak invoice</string>
     <string name="order_detail_receipt_title">Pratinjau invoice</string>
-    <string name="order_detail_receipt_body">Disusun 32 kolom, selebar kertas 58mm.</string>
+    <string name="order_detail_receipt_body">Disusun 48 kolom, selebar kertas 80mm.</string>
     <string name="order_detail_update_failed">Status gagal diubah</string>
 
     <string name="order_detail_update_status">Ubah status</string>

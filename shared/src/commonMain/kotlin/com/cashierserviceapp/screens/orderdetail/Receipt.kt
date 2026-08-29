@@ -37,11 +37,9 @@ sealed interface ReceiptSegment {
     data class Qr(val data: String) : ReceiptSegment
 }
 
-private const val DEFAULT_WIDTH = 32
-
-// No shop record on the server yet, so the header is a constant. Move it to a settings screen or a
-// `/shop` endpoint when there's more than one outlet. Not translated: it's the shop's name.
-private const val SHOP_NAME = "CASHIER SERVICE"
+// 80mm roll: 72mm printable at 12 dots a character in Font A. Drop to 42 if the head is narrower
+// and lines start wrapping; 32 is the figure for a 58mm roll.
+private const val DEFAULT_WIDTH = 48
 
 /**
  * Every word the receipt prints that isn't the order's own data.
@@ -52,6 +50,8 @@ private const val SHOP_NAME = "CASHIER SERVICE"
  * wording and the layout.
  */
 data class ReceiptStrings(
+    /** The shop's own name, from Settings — never translated. */
+    val shopName: String,
     val order: String,
     val date: String,
     val cashier: String,
@@ -66,9 +66,14 @@ data class ReceiptStrings(
     val statusLabels: Map<OrderStatus, String>,
 )
 
-/** The catalog's receipt wording, in the language the app is currently rendering in. */
+/**
+ * The catalog's receipt wording, in the language the app is currently rendering in.
+ *
+ * [shopName] is handed in rather than read here: it isn't catalog copy, it's the shop's own setting.
+ */
 @Composable
-fun rememberReceiptStrings(): ReceiptStrings = ReceiptStrings(
+fun rememberReceiptStrings(shopName: String): ReceiptStrings = ReceiptStrings(
+    shopName = shopName,
     order = stringResource(Res.string.receipt_order),
     date = stringResource(Res.string.receipt_date),
     cashier = stringResource(Res.string.receipt_cashier),
@@ -94,7 +99,7 @@ fun rememberReceiptStrings(): ReceiptStrings = ReceiptStrings(
  * The text here is a pure function of the order with no Compose in sight, which is the point: the
  * same strings that render in the preview are what gets sent to the printer.
  *
- * @param width columns the printer can fit. 32 is the usual figure for a 58mm roll; 42 for 80mm.
+ * @param width columns the printer can fit. 48 is the usual figure for an 80mm roll; 32 for 58mm.
  */
 fun buildReceipt(
     detail: OrderDetailUiModel,
@@ -111,7 +116,7 @@ private fun buildOrderLines(
     strings: ReceiptStrings,
     width: Int,
 ): String = buildString {
-    appendLine(SHOP_NAME.center(width))
+    appendLine(strings.shopName.center(width))
     appendLine("-".repeat(width))
 
     appendLine(labelled(strings.order, detail.orderCode, width))

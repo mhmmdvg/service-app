@@ -29,8 +29,10 @@ import com.cashierserviceapp.screens.settings.components.ConfirmSheet
 import com.cashierserviceapp.screens.settings.components.ProfileCard
 import com.cashierserviceapp.screens.settings.components.ProfileCardSkeleton
 import com.cashierserviceapp.screens.settings.components.SettingsSection
+import com.cashierserviceapp.screens.settings.components.ShopNameSheet
 import com.cashierserviceapp.ui.components.Button
 import com.cashierserviceapp.ui.components.SegmentedSelector
+import com.cashierserviceapp.ui.components.SelectField
 import com.cashierserviceapp.ui.components.Text
 import com.cashierserviceapp.ui.theme.CashierServiceTheme
 import com.cashierserviceapp.ui.theme.PreviewHelper
@@ -38,6 +40,7 @@ import com.cashierserviceapp.ui.utils.PreviewLightDark
 import com.cashierserviceapp.utils.Resource
 import cashierserviceapp.shared.generated.resources.Res
 import cashierserviceapp.shared.generated.resources.action_cancel
+import cashierserviceapp.shared.generated.resources.action_save
 import cashierserviceapp.shared.generated.resources.action_try_again
 import cashierserviceapp.shared.generated.resources.profile_load_failed
 import cashierserviceapp.shared.generated.resources.settings_account_title
@@ -45,6 +48,9 @@ import cashierserviceapp.shared.generated.resources.settings_appearance_footnote
 import cashierserviceapp.shared.generated.resources.settings_appearance_title
 import cashierserviceapp.shared.generated.resources.settings_language_footnote
 import cashierserviceapp.shared.generated.resources.settings_language_title
+import cashierserviceapp.shared.generated.resources.settings_receipt_footnote
+import cashierserviceapp.shared.generated.resources.settings_receipt_title
+import cashierserviceapp.shared.generated.resources.settings_shop_name_label
 import cashierserviceapp.shared.generated.resources.settings_sign_out
 import cashierserviceapp.shared.generated.resources.settings_sign_out_confirm_body
 import cashierserviceapp.shared.generated.resources.settings_sign_out_confirm_title
@@ -62,16 +68,19 @@ fun SettingsScreen(
 ) {
     val theme by viewModel.theme.collectAsStateWithLifecycle()
     val language by viewModel.language.collectAsStateWithLifecycle()
+    val shopName by viewModel.shopName.collectAsStateWithLifecycle()
     val profileState by viewModel.profileState.collectAsStateWithLifecycle()
     val isSigningOut by viewModel.isSigningOut.collectAsStateWithLifecycle()
 
     SettingsContent(
         theme = theme,
         language = language,
+        shopName = shopName,
         profileState = profileState,
         isSigningOut = isSigningOut,
         onThemeChange = viewModel::setTheme,
         onLanguageChange = viewModel::setLanguage,
+        onShopNameChange = viewModel::setShopName,
         onRetryProfile = viewModel::loadProfile,
         onSignOut = { viewModel.signOut(onSignedOut) },
     )
@@ -81,14 +90,17 @@ fun SettingsScreen(
 private fun SettingsContent(
     theme: Theme,
     language: AppLanguage,
+    shopName: String,
     profileState: Resource<Profile>,
     isSigningOut: Boolean,
     onThemeChange: (Theme) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
+    onShopNameChange: (String) -> Unit,
     onRetryProfile: () -> Unit,
     onSignOut: () -> Unit,
 ) {
     var confirmingSignOut by remember { mutableStateOf(false) }
+    var editingShopName by remember { mutableStateOf(false) }
 
     // SegmentedSelector's label lambda isn't composable, so the theme copy is resolved up front.
     val themeLabels = mapOf(
@@ -144,6 +156,19 @@ private fun SettingsContent(
 
         Spacer(Modifier.height(28.dp))
 
+        SettingsSection(
+            title = stringResource(Res.string.settings_receipt_title),
+            footnote = stringResource(Res.string.settings_receipt_footnote)
+        ) {
+            SelectField(
+                value = shopName,
+                onClick = { editingShopName = true },
+                label = stringResource(Res.string.settings_shop_name_label)
+            )
+        }
+
+        Spacer(Modifier.height(28.dp))
+
         SettingsSection(title = stringResource(Res.string.settings_account_title)) {
             Row(
                 Modifier
@@ -169,6 +194,21 @@ private fun SettingsContent(
         }
 
         Spacer(Modifier.height(32.dp))
+    }
+
+    if (editingShopName) {
+        ShopNameSheet(
+            label = stringResource(Res.string.settings_shop_name_label),
+            footnote = stringResource(Res.string.settings_receipt_footnote),
+            value = shopName,
+            saveLabel = stringResource(Res.string.action_save),
+            cancelLabel = stringResource(Res.string.action_cancel),
+            onSave = {
+                editingShopName = false
+                onShopNameChange(it)
+            },
+            onDismiss = { editingShopName = false }
+        )
     }
 
     if (confirmingSignOut) {
@@ -232,10 +272,12 @@ private fun SettingsScreenPreview() = PreviewHelper(paddingEnabled = false) {
     SettingsContent(
         theme = Theme.SYSTEM,
         language = AppLanguage.EN,
+        shopName = "CASHIER SERVICE",
         profileState = Resource.Success(previewProfile),
         isSigningOut = false,
         onThemeChange = {},
         onLanguageChange = {},
+        onShopNameChange = {},
         onRetryProfile = {},
         onSignOut = {}
     )
@@ -253,10 +295,12 @@ private fun SettingsScreenIndonesianPreview() = PreviewHelper(paddingEnabled = f
     SettingsContent(
         theme = Theme.DARK,
         language = AppLanguage.ID,
+        shopName = "CASHIER SERVICE",
         profileState = Resource.Success(previewProfile),
         isSigningOut = false,
         onThemeChange = {},
         onLanguageChange = {},
+        onShopNameChange = {},
         onRetryProfile = {},
         onSignOut = {}
     )
@@ -268,10 +312,12 @@ private fun SettingsScreenProfileErrorPreview() = PreviewHelper(paddingEnabled =
     SettingsContent(
         theme = Theme.LIGHT,
         language = AppLanguage.EN,
+        shopName = "CASHIER SERVICE",
         profileState = Resource.Error("Couldn't reach the server."),
         isSigningOut = false,
         onThemeChange = {},
         onLanguageChange = {},
+        onShopNameChange = {},
         onRetryProfile = {},
         onSignOut = {}
     )

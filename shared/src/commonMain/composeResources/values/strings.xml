@@ -3,6 +3,7 @@
 
     <string name="action_cancel">Cancel</string>
     <string name="action_try_again">Try again</string>
+    <string name="action_save">Save</string>
 
     <string name="nav_destination_home">Home</string>
     <string name="nav_destination_order">Order</string>
@@ -22,6 +23,10 @@
 
     <string name="settings_language_title">Language</string>
     <string name="settings_language_footnote">Applies immediately, across the whole app.</string>
+
+    <string name="settings_receipt_title">Receipt</string>
+    <string name="settings_receipt_footnote">Printed as the heading on every receipt.</string>
+    <string name="settings_shop_name_label">Shop name</string>
 
     <string name="settings_account_title">Account</string>
     <string name="settings_sign_out">Sign out</string>
@@ -68,7 +73,7 @@
 
     <string name="order_detail_print">Print invoice</string>
     <string name="order_detail_receipt_title">Invoice preview</string>
-    <string name="order_detail_receipt_body">Laid out at 32 columns, the width of a 58mm roll.</string>
+    <string name="order_detail_receipt_body">Laid out at 48 columns, the width of an 80mm roll.</string>
     <string name="order_detail_update_failed">Couldn’t update the status</string>
 
     <string name="order_detail_update_status">Update status</string>

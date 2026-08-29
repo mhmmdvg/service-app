@@ -33,6 +33,10 @@ interface ApplicationStorage {
     fun getLanguage(): Flow<AppLanguage>
     suspend fun setLanguage(value: AppLanguage)
 
+    /** The shop's name, printed as the receipt's heading. */
+    fun getShopName(): Flow<String>
+    suspend fun setShopName(value: String)
+
     /**
      * Synchronous reads for the first composed frame. The flows above republish asynchronously, so
      * seeding from them would paint one frame in the wrong theme or language before correcting
@@ -40,6 +44,7 @@ interface ApplicationStorage {
      */
     fun getThemeBlocking(): Theme
     fun getLanguageBlocking(): AppLanguage
+    fun getShopNameBlocking(): String
 
     fun getFlagsBlocking(): Flags?
     fun getFlags(): Flow<Flags?>

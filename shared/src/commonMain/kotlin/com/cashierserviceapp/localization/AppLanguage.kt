@@ -18,6 +18,6 @@ enum class AppLanguage(val tag: String, val label: String) {
 
     companion object {
         /** Falls back to [EN] for an unknown or missing tag. */
-        fun fromTag(tag: String?): AppLanguage = entries.firstOrNull { it.tag == tag } ?: EN
+        fun fromTag(tag: String?): AppLanguage = entries.firstOrNull { it.tag == tag } ?: ID
     }
 }

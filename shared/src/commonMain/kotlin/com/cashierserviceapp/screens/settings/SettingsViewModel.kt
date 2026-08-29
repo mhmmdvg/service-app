@@ -34,6 +34,10 @@ class SettingsViewModel(
         storage.getLanguage()
             .stateIn(viewModelScope, SharingStarted.Eagerly, storage.getLanguageBlocking())
 
+    val shopName: StateFlow<String> =
+        storage.getShopName()
+            .stateIn(viewModelScope, SharingStarted.Eagerly, storage.getShopNameBlocking())
+
     /**
      * Seeded from the session so the card has a name and email on the first frame; the cached
      * `/me` and then the network fill in the rest. Success rather than Loading because there is
@@ -82,6 +86,10 @@ class SettingsViewModel(
 
     fun setLanguage(value: AppLanguage) {
         viewModelScope.launch { storage.setLanguage(value) }
+    }
+
+    fun setShopName(value: String) {
+        viewModelScope.launch { storage.setShopName(value) }
     }
 
     /**
